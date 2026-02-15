@@ -8,20 +8,26 @@
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <a class="nav-link active" href="#">
-                        Home
+                        Inicio
                         <span class="visually-hidden">(current)</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Features</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Pricing</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
+                    <a class="nav-link" href="#">Camisas</a>
                 </li>
                 <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Subastas</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Activas</a>
+                        <a class="dropdown-item" href="#">Finalizadas</a>
+                        <a class="dropdown-item" href="#">Mis subastas</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Usuarios</a>
+                </li>
+               <!--Ejemplo de dropdown con separación de elementos 
+                   <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="#">Action</a>
@@ -30,12 +36,19 @@
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#">Separated link</a>
                     </div>
+                 </li>
+                 -->
+            </ul>
+            <ul class ="navbar-nav me-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Login</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Cerrar Sesión</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Cambiar Contraseña</a>
+                    </div>
                 </li>
             </ul>
-            <form class="d-flex">
-                <input class="form-control me-sm-2" type="search" placeholder="Search">
-                <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-            </form>
         </div>
     </div>
 </nav>

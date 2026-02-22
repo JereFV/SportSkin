@@ -14,7 +14,7 @@ namespace SportSkin.Application.DTOs
         public int IdCamiseta { get; }
 
         [DisplayName("Nombre Camisa")]
-        [Required(ErrorMessage ="{0) es un dato requerido")]
+        [Required(ErrorMessage ="{0} es un dato requerido")]
         public string Nombre {  get; set; } = string.Empty;
 
         [DisplayName("Descripción")]
@@ -36,5 +36,23 @@ namespace SportSkin.Application.DTOs
         [DisplayName("Jugador")]
         [Required(ErrorMessage ="{0} es un dato requerido")]
         public int IdJugador {  get; set; }
+
+        [DisplayName("Temporada")]
+        [Required(ErrorMessage = "{0} es un dato requerido")]
+        public short Temporada { get; set; }
+
+        [DisplayName("¿Autografiada?")]
+        public bool Autografiada { get; set; }
+
+        [DisplayName("Vendedor")]
+        public int IdUsuarioVendedor { get; set; }
+
+        public bool Estado { get; set; }
+        public DateTime FechaRegistro { get; set; }
+        public DateTime FechaModificacion { get; set; }
+
+        public List<ImagenCamisetaDTO> ImagenCamiseta { get; set; } = new();
+        public List<SubastaDTO> Subasta { get; set; } = new();
+
     }
 }

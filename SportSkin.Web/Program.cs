@@ -2,7 +2,11 @@ using Libreria.Web.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using SportSkin.Application.Services.Interfaces;
+using SportSkin.Application.Services.Implementations;
 using SportSkin.Infrastructure.Data;
+using SportSkin.Infrastructure.Repository.Implementations;
+using SportSkin.Infrastructure.Repository.Interfaces;
 using System.Text;
 
 //***********
@@ -76,10 +80,10 @@ builder.Services.AddControllersWithViews();
 // =======================
 //*** Repositories
 //builder.Services.AddTransient<IRepositoryAutor, RepositoryAutor>();
-
+builder.Services.AddTransient<IRepositoryCamiseta, RepositoryCamiseta>();
 //*** Services
 //builder.Services.AddTransient<IServiceAutor, ServiceAutor>();
-
+builder.Services.AddTransient<IServiceCamiseta, ServiceCamiseta>();
 // =======================
 // Configurar AutoMapper
 // =======================

@@ -1,13 +1,13 @@
-﻿
+﻿@model IEnumerable<SportSkin.Application.DTOs.CamisetaDTO>
 
 @{
-    ViewData["Title"] = "Catálogo de libros";
+    ViewData["Title"] = "Camisetas";
     var total = Model?.Count() ?? 0;
 }
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
     <div>
-        <h1 class="h3 mb-1">Catálogo de libros</h1>
+        <h1 class="h3 mb-1">Mis camisetas</h1>
         <p class="text-muted mb-0">Explora el catálogo disponible. Total: <strong>@total</strong>.</p>
     </div>
 
@@ -23,26 +23,27 @@
 {
     <div class="alert alert-info d-flex align-items-center" role="alert">
         <i class="bi bi-info-circle me-2"></i>
-        <div>No hay libros disponibles en este momento.</div>
+        <div>No hay camisetas disponibles en este momento.</div>
     </div>
 }
 else
 {
-    <section aria-label="Listado de libros">
+    <section aria-label="Listado de camisetas">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
 
             @foreach (var item in Model)
             {
+                var primeraImagen = item.ImagenCamiseta?.FirstOrDefault();
                 <div class="col">
                     <article class="card h-100 shadow-sm border-0">
                         <!-- Imagen -->
                         <div class="rounded-top overflow-hidden bg-body-tertiary" style="height: 360px;">
                             @* Si hay imagen, la mostramos; si no, placeholder *@
-                            @if (item.Imagen != null && item.Imagen.Length > 0)
+                            @if (primeraImagen != null)
                             {
                                 <img class="w-100 h-100 object-fit-cover  rounded-top"
-                                     src="data:image/jpeg;base64,@Convert.ToBase64String(item.Imagen)"
-                                     alt="Portada del libro @item.Nombre"
+                                     src="@primeraImagen.RutaImagen"
+                                     alt="Imagen de @item.Nombre"
                                      loading="lazy" />
                             }
                             else
@@ -60,34 +61,32 @@ else
                                 @item.Nombre
                             </h2>
 
-                            <div class="text-muted small mb-2">
-                                <span class="me-2">
-                                    <i class="bi bi-upc-scan me-1"></i>
-                                    ISBN: <span class="font-monospace">@item.Isbn</span>
+                            <!-- Condición y Estado -->
+                            <div class="d-flex gap-2 mb-0">
+                                <span class="badge rounded-pill bg-secondary px-3 py-2">
+                                    @(item.IdCondicionCamisetaNavigation?.Nombre ?? "Condición")
+                                </span>
+                                <span class="badge rounded-pill bg-secondary px-3 py-2">
+                                    @(item.Estado ? "Activo" : "Inactivo")
                                 </span>
                             </div>
 
-                            <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
-                                <span class="badge text-bg-light border">
-                                    <i class="bi bi-person me-1"></i>
-                                    @(item.IdAutorNavigation?.Nombre ?? "Autor no disponible")
-                                </span>
-
-                                <span class="badge text-bg-success">
-                                    <i class="bi bi-cash-coin me-1"></i>
-                                    @item.Precio.ToString("₡#,##0.00")
-                                </span>
-                            </div>
                         </div>
 
                         <!-- Acciones -->
                         <div class="card-footer bg-body border-0 pt-0 pb-3">
                             <div class="d-grid gap-2 px-2">
-                                <a asp-controller="Libro"
-                                   asp-action="Details"
-                                   asp-route-id="@item.IdLibro"
+                                <a asp-controller="Subasta"
+                                   asp-action="Create"
+                                   asp-route-id="@item.IdCamiseta"
                                    class="btn btn-primary">
-                                    <i class="bi bi-eye me-1"></i> Ver detalle
+                                    <i class="bi bi-eye me-1"></i> Subastar
+                                </a>
+                                <a asp-controller="Camiseta"
+                                   asp-action="Details"
+                                   asp-route-id="@item.IdCamiseta"
+                                   class="btn btn-info flex-fill">
+                                    <i class="bi bi-plus-circle me-1"></i> Ver detalle
                                 </a>
 
 
@@ -109,6 +108,10 @@ else
         .card:hover {
             transform: translateY(-3px);
             transition: transform .18s ease;
+        }
+
+        .badge.rounded-pill {
+            font-size: 0.8rem;
         }
     </style>
 }

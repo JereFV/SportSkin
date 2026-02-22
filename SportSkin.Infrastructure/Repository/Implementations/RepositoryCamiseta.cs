@@ -1,4 +1,5 @@
-﻿using SportSkin.Infrastructure.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SportSkin.Infrastructure.Data;
 using SportSkin.Infrastructure.Models;
 using SportSkin.Infrastructure.Repository.Interfaces;
 using System;
@@ -70,9 +71,14 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             throw new NotImplementedException();
         }
 
-        public Task<ICollection<Camiseta>> ListAsync()
+        public async Task<ICollection<Camiseta>> ListAsync()
         {
-            throw new NotImplementedException();
+            var collection = await _context.Set<Camiseta>()
+                                        .Include(x => x.IdCondicionCamisetaNavigation)
+                                        .OrderBy(x => x.IdCamiseta)
+                                        .AsNoTracking()
+                                        .ToListAsync();
+            return collection;
         }
 
         public Task UpdateAsync(Camiseta entity)

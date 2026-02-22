@@ -1,4 +1,5 @@
-﻿using SportSkin.Infrastructure.Models;
+﻿using SportSkin.Application.DTOs;
+using SportSkin.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,19 +10,17 @@ namespace SportSkin.Application.Services.Interfaces
 {
     public interface IServiceCamiseta
     {
-        Task<ICollection<Camiseta>> ListAsync();
-
-        Task<Camiseta> FindByIdAsync(int id);
-        Task<int> AddAsync(Camiseta entity);
-        Task UpdateAsync(Camiseta entity);
+        Task<ICollection<CamisetaDTO>> ListAsync();
+        Task<CamisetaDTO> FindByIdAsync(int id);
+        Task<int> AddAsync(CamisetaDTO dto);
+        Task UpdateAsync(int id, CamisetaDTO dto);
         Task DeleteAsync(int id);
-
-        Task<ICollection<Camiseta>> GetCamisetaByCategoria(int idCategoria);
-        Task<ICollection<Camiseta>> GetCamisetaByEquipo(int idEquipo);
-        Task<ICollection<Camiseta>> GetCamisetaByJugador(int idJugador);
-        Task<ICollection<Camiseta>> GetCamisetaByNombre(string nombre);
-        Task<ICollection<Camiseta>> GetCamisetasAutografiadas();
-        Task<ICollection<Camiseta>> GetCamisetasByVendedor(int idUsuarioVendedor);
-        Task<ICollection<Camiseta>> GetCamisetasByTemporada(short temporada);
+        Task<ICollection<CamisetaDTO>> GetCamisetaByCategoria(int idCategoria);
+        Task<ICollection<CamisetaDTO>> GetCamisetaByEquipo(short idEquipo);
+        Task<ICollection<CamisetaDTO>> GetCamisetaByJugador(int idJugador);
+        Task<ICollection<CamisetaDTO>> GetCamisetaByNombre(string nombre);
+        Task<ICollection<CamisetaDTO>> GetCamisetasAutografiadas();
+        Task<ICollection<CamisetaDTO>> GetCamisetasByVendedor(int idUsuarioVendedor);
+        Task<ICollection<CamisetaDTO>> GetCamisetasByTemporada(short temporada);
     }
 }

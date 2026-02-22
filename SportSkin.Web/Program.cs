@@ -8,6 +8,7 @@ using SportSkin.Infrastructure.Data;
 using SportSkin.Infrastructure.Repository.Implementations;
 using SportSkin.Infrastructure.Repository.Interfaces;
 using System.Text;
+using SportSkin.Application.Profiles;
 
 //***********
 // =======================
@@ -81,6 +82,7 @@ builder.Services.AddControllersWithViews();
 //*** Repositories
 //builder.Services.AddTransient<IRepositoryAutor, RepositoryAutor>();
 builder.Services.AddTransient<IRepositoryCamiseta, RepositoryCamiseta>();
+
 //*** Services
 //builder.Services.AddTransient<IServiceAutor, ServiceAutor>();
 builder.Services.AddTransient<IServiceCamiseta, ServiceCamiseta>();
@@ -91,6 +93,7 @@ builder.Services.AddAutoMapper(config =>
 {
     //*** Profiles
     //config.AddProfile<AutorProfile>();   
+    config.AddProfile < CamisetaProfile>();
 });
 
 // =======================

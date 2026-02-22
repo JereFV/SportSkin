@@ -93,7 +93,14 @@ builder.Services.AddAutoMapper(config =>
 {
     //*** Profiles
     //config.AddProfile<AutorProfile>();   
-    config.AddProfile < CamisetaProfile>();
+    config.AddProfile <CamisetaProfile>();
+    config.AddProfile<CondicionCamisetaProfile>();
+    config.AddProfile<CategoriaCamisetaProfile>();
+    config.AddProfile<EquipoProfile>();
+    config.AddProfile<JugadorProfile>();
+    config.AddProfile<UsuarioProfile>();
+    config.AddProfile<ImagenCamisetaProfile>();
+    //config.AddProfile<SubastaProfile>();
 });
 
 // =======================

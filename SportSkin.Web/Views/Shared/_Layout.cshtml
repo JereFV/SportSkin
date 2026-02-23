@@ -14,9 +14,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <!--SweetAlert 2-->
     <link rel="stylesheet" href="~/lib/sweetalert2/dist/sweetalert2.min.css" />
+    <!--Datatables-->
+    <link rel="stylesheet" href="~/lib/datatables/css/jquery.dataTables.min.css" />
     <!--Estilos propios-->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Libreria.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SportSkin.Web.styles.css" asp-append-version="true" />
 
 </head>
 <body class="d-flex flex-column min-vh-100 bg-body">
@@ -51,8 +53,12 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!--Jquery-->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!--Datatables-->
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
     <!--SweetAlert 2-->
-    <script src="~/lib/sweetalert2/dist/sweetalert2.all.js"></script>
+    <script src="~/lib/sweetalert2/dist/sweetalert2.all.min.js"></script>
     <!-- SWEETALERT NOTIFICATION -->
     @if (TempData["Notificacion"] != null || ViewBag.Notificacion != null)
     {

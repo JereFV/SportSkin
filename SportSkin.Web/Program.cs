@@ -82,10 +82,13 @@ builder.Services.AddControllersWithViews();
 //*** Repositories
 //builder.Services.AddTransient<IRepositoryAutor, RepositoryAutor>();
 builder.Services.AddTransient<IRepositoryCamiseta, RepositoryCamiseta>();
+builder.Services.AddTransient<IRepositoryUsuario, RepositoryUsuario>();
 
 //*** Services
 //builder.Services.AddTransient<IServiceAutor, ServiceAutor>();
 builder.Services.AddTransient<IServiceCamiseta, ServiceCamiseta>();
+builder.Services.AddTransient<IServiceUsuario, ServiceUsuario>();
+
 // =======================
 // Configurar AutoMapper
 // =======================

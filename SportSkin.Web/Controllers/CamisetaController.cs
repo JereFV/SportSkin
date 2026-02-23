@@ -14,9 +14,19 @@ namespace SportSkin.Web.Controllers
         }
 
         // GET: Camiseta
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? filtro)
         {
-            var lista = await _service.ListAsync();
+            ICollection<CamisetaDTO> lista;
+
+            lista = filtro switch
+            {
+                "vendidos" => await _service.GetCamisetasVendidas(),
+                "ensubasta" => await _service.GetCamisetasEnSubasta(),
+                "sinsubasta" => await _service.GetCamisetasSinSubasta(),
+                _ => await _service.ListAsync()
+            };
+
+            ViewBag.FiltroActual = filtro;
             return View(lista);
         }
 

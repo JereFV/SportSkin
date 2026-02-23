@@ -11,40 +11,47 @@
         <p class="text-muted mb-0">Explora el catálogo disponible. Total: <strong>@total</strong>.</p>
     </div>
 
-    <!-- <div class="d-flex gap-2">
-        <a asp-controller="Libro" asp-action="LibroReportPDF"
-           class="btn btn-outline-secondary">
-            <i class="bi bi-filetype-pdf me-1"></i> Filtrar 
-        </a>
-    </div>-->
     <div class="dropdown">
         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2"
                 type="button"
-                id="dropdownMenuButton"
                 data-bs-toggle="dropdown"
                 aria-expanded="false">
-            <i class="bi bi-funnel"></i> Filtrar
+            <i class="bi bi-funnel"></i>
+            @(ViewBag.FiltroActual switch
+            {
+                "vendidos" => "Vendidos",
+                "ensubasta" => "En Subasta",
+                "sinsubasta" => "Sin Subasta",
+                _ => "Filtrar"
+            })
         </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownMenuButton">
+        <ul class="dropdown-menu dropdown-menu-end shadow">
             <li><h6 class="dropdown-header">Filtrar por estado</h6></li>
             <li>
-                <a class="dropdown-item d-flex align-items-center gap-2" href="#">
+                <a class="dropdown-item d-flex align-items-center gap-2
+               @(ViewBag.FiltroActual == "vendidos" ? "active" : "")"
+                   asp-action="Index" asp-route-filtro="vendidos">
                     <i class="bi bi-check-circle text-success"></i> Vendidos
                 </a>
             </li>
             <li>
-                <a class="dropdown-item d-flex align-items-center gap-2" href="#">
+                <a class="dropdown-item d-flex align-items-center gap-2
+               @(ViewBag.FiltroActual == "ensubasta" ? "active" : "")"
+                   asp-action="Index" asp-route-filtro="ensubasta">
                     <i class="bi bi-hammer text-primary"></i> En Subasta
                 </a>
             </li>
             <li>
-                <a class="dropdown-item d-flex align-items-center gap-2" href="#">
+                <a class="dropdown-item d-flex align-items-center gap-2
+               @(ViewBag.FiltroActual == "sinsubasta" ? "active" : "")"
+                   asp-action="Index" asp-route-filtro="sinsubasta">
                     <i class="bi bi-tag text-secondary"></i> Sin Subasta
                 </a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
-                <a class="dropdown-item d-flex align-items-center gap-2" href="@Url.Action("Index", "Camiseta")">
+                <a class="dropdown-item d-flex align-items-center gap-2"
+                   asp-action="Index">
                     <i class="bi bi-x-circle text-danger"></i> Limpiar filtro
                 </a>
             </li>
@@ -108,12 +115,12 @@ else
 
                         <!-- Acciones -->
                         <div class="card-footer bg-body border-0 pt-0 pb-2">
-                            <div class="d-grid gap-2 px-2">
+                            <div class="d-flex gap-2 px-2">
                                 <a asp-controller="Subasta"
                                    asp-action="Create"
                                    asp-route-id="@item.IdCamiseta"
-                                   class="btn btn-primary">
-                                    <i class="bi bi-eye me-1"></i> Subastar
+                                   class="btn btn-primary flex-fill">
+                                    <i class="bi bi-cart-check me-1"></i> Subastar
                                 </a>
                                 <a asp-controller="Camiseta"
                                    asp-action="Details"

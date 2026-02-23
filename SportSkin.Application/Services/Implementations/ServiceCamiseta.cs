@@ -87,6 +87,23 @@ namespace SportSkin.Application.Services.Implementations
             var collection = _mapper.Map<ICollection<CamisetaDTO>>(list);
             return collection;
         }
+        public async Task<ICollection<CamisetaDTO>> GetCamisetasVendidas()
+        {
+            var list = await _repository.GetCamisetasVendidas();
+            return _mapper.Map<ICollection<CamisetaDTO>>(list);
+        }
+
+        public async Task<ICollection<CamisetaDTO>> GetCamisetasEnSubasta()
+        {
+            var list = await _repository.GetCamisetasEnSubasta();
+            return _mapper.Map<ICollection<CamisetaDTO>>(list);
+        }
+
+        public async Task<ICollection<CamisetaDTO>> GetCamisetasSinSubasta()
+        {
+            var list = await _repository.GetCamisetasSinSubasta();
+            return _mapper.Map<ICollection<CamisetaDTO>>(list);
+        }
 
         public Task UpdateAsync(int id, CamisetaDTO dto)
         {

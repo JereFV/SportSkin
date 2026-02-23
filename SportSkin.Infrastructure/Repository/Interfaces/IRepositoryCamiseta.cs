@@ -23,6 +23,9 @@ namespace SportSkin.Infrastructure.Repository.Interfaces
         Task<ICollection<Camiseta>> GetCamisetasAutografiadas();
         Task<ICollection<Camiseta>> GetCamisetasByVendedor(int idUsuarioVendedor);
         Task<ICollection<Camiseta>> GetCamisetasByTemporada(short temporada);
+        Task<ICollection<Camiseta>> GetCamisetasVendidas();
+        Task<ICollection<Camiseta>> GetCamisetasEnSubasta();
+        Task<ICollection<Camiseta>> GetCamisetasSinSubasta();
 
     }
 }

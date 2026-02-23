@@ -81,6 +81,30 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             return collection;
         }
 
+        public async Task<ICollection<Camiseta>> GetCamisetasVendidas()
+        {
+            return await _context.Camiseta
+                .Include(c => c.Subasta)
+                .Where(c => c.Subasta.Any(s => s.IdEstadoSubasta == 3)) // ajusta el ID según tu BD
+                .ToListAsync();
+        }
+
+        public async Task<ICollection<Camiseta>> GetCamisetasEnSubasta()
+        {
+            return await _context.Camiseta
+                .Include(c => c.Subasta)
+                .Where(c => c.Subasta.Any(s => s.IdEstadoSubasta == 1)) // ajusta el ID según tu BD
+                .ToListAsync();
+        }
+
+        public async Task<ICollection<Camiseta>> GetCamisetasSinSubasta()
+        {
+            return await _context.Camiseta
+                .Include(c => c.Subasta)
+                .Where(c => !c.Subasta.Any())
+                .ToListAsync();
+        }
+
         public Task UpdateAsync(Camiseta entity)
         {
             throw new NotImplementedException();

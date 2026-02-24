@@ -9,6 +9,8 @@ using SportSkin.Infrastructure.Repository.Implementations;
 using SportSkin.Infrastructure.Repository.Interfaces;
 using System.Text;
 using SportSkin.Application.Profiles;
+using SportSkin.Web.Models;
+using SportSkin.Application.DTOs;
 
 //***********
 // =======================
@@ -89,6 +91,11 @@ builder.Services.AddTransient<IRepositoryUsuario, RepositoryUsuario>();
 builder.Services.AddTransient<IServiceCamiseta, ServiceCamiseta>();
 builder.Services.AddTransient<IServiceUsuario, ServiceUsuario>();
 
+//Conf images route
+builder.Services.Configure<ImageSettings>(
+    builder.Configuration.GetSection("ImageSettings")
+);
+
 // =======================
 // Configurar AutoMapper
 // =======================
@@ -103,6 +110,7 @@ builder.Services.AddAutoMapper(config =>
     config.AddProfile<JugadorProfile>();
     config.AddProfile<UsuarioProfile>();
     config.AddProfile<ImagenCamisetaProfile>();
+    config.AddProfile<EstadoCamisetaProfile>();
     //config.AddProfile<SubastaProfile>();
 });
 
@@ -121,14 +129,33 @@ builder.Services.AddDbContext<SportSkinContext>(options =>
     options.UseSqlServer(connectionString, sqlOptions =>
     {
         // Reintentos ante fallos transitorios (recomendado)
-        sqlOptions.EnableRetryOnFailure();
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount:5,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd:null);
+        sqlOptions.CommandTimeout(60);
     });
+
 
     if (builder.Environment.IsDevelopment())
         options.EnableSensitiveDataLogging();
 });
 
 var app = builder.Build();
+
+// Warm-up: despierta la conexión antes del primer request
+try
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<SportSkinContext>();
+    await db.Database.ExecuteSqlRawAsync("SELECT 1");
+    Log.Information("Conexión a la base de datos establecida correctamente.");
+}
+catch (Exception ex)
+{
+    Log.Warning(ex, "Warm-up de base de datos falló, se reintentará en el primer request.");
+}
+
 
 if (!app.Environment.IsDevelopment())
 {

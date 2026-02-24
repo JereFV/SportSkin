@@ -106,9 +106,16 @@ else
                                 <span class="badge rounded-pill bg-secondary px-3 py-2">
                                     @(item.IdCondicionCamisetaNavigation?.Nombre ?? "Condición")
                                 </span>
-                                <span class="badge rounded-pill bg-secondary px-3 py-2">
-                                    @(item.Estado ? "Activo" : "Inactivo")
-                                </span>
+                            <span class="badge rounded-pill px-3 py-2
+                                @(item.IdEstadoCamisetaNavigation?.Nombre switch
+                                                      {
+                                                          "Disponible" => "bg-success",
+                                                          "En Subasta" => "bg-primary",
+                                                          "Vendida" => "bg-danger",
+                                                          _ => "bg-secondary"
+                                                      })">
+                                @(item.IdEstadoCamisetaNavigation?.Nombre ?? "Sin estado")
+                             </span>
                             </div>
 
                         </div>

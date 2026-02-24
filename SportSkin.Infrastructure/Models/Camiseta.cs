@@ -25,17 +25,21 @@ public partial class Camiseta
 
     public int IdUsuarioVendedor { get; set; }
 
-    public bool Estado { get; set; }
+    public byte IdEstadoCamiseta { get; set; }
 
     public DateTime FechaRegistro { get; set; }
 
     public DateTime FechaModificacion { get; set; }
+
+    public bool EstadoRegistro { get; set; }
 
     public virtual CategoriaCamiseta IdCategoriaNavigation { get; set; } = null!;
 
     public virtual CondicionCamiseta IdCondicionCamisetaNavigation { get; set; } = null!;
 
     public virtual Equipo IdEquipoNavigation { get; set; } = null!;
+
+    public virtual EstadoCamiseta IdEstadoCamisetaNavigation { get; set; } = null!;
 
     public virtual Jugador IdJugadorNavigation { get; set; } = null!;
 

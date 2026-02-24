@@ -56,6 +56,7 @@ namespace SportSkin.Application.DTOs
         public EquipoDTO IdEquipoNavigation { get; set; } = new();
         public JugadorDTO IdJugadorNavigation { get; set; } = new();
         public UsuarioDTO IdUsuarioVendedorNavigation { get; set; } = new();
+        public EstadoCamisetaDTO IdEstadoCamisetaNavigation { get; set; } = new();
 
         public List<ImagenCamisetaDTO> ImagenCamiseta { get; set; } = new();
         public List<SubastaDTO> Subasta { get; set; } = new();

@@ -22,6 +22,8 @@ public partial class SportSkinContext : DbContext
 
     public virtual DbSet<Equipo> Equipo { get; set; }
 
+    public virtual DbSet<EstadoCamiseta> EstadoCamiseta { get; set; }
+
     public virtual DbSet<EstadoFactura> EstadoFactura { get; set; }
 
     public virtual DbSet<EstadoSubasta> EstadoSubasta { get; set; }
@@ -59,6 +61,7 @@ public partial class SportSkinContext : DbContext
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
                 .IsUnicode(false);
+            entity.Property(e => e.EstadoRegistro).HasDefaultValue(true);
             entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
             entity.Property(e => e.FechaRegistro).HasColumnType("datetime");
             entity.Property(e => e.Nombre)
@@ -79,6 +82,11 @@ public partial class SportSkinContext : DbContext
                 .HasForeignKey(d => d.IdEquipo)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Camiseta_Equipo");
+
+            entity.HasOne(d => d.IdEstadoCamisetaNavigation).WithMany(p => p.Camiseta)
+                .HasForeignKey(d => d.IdEstadoCamiseta)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Camiseta_EstadoCamiseta");
 
             entity.HasOne(d => d.IdJugadorNavigation).WithMany(p => p.Camiseta)
                 .HasForeignKey(d => d.IdJugador)
@@ -146,6 +154,15 @@ public partial class SportSkinContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.Pais)
                 .HasMaxLength(20)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<EstadoCamiseta>(entity =>
+        {
+            entity.HasKey(e => e.IdEstadoCamiseta).HasName("PK__EstadoCa__5F720719193A2124");
+
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(50)
                 .IsUnicode(false);
         });
 

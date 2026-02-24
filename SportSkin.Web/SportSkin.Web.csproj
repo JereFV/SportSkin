@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Logs\" />
+    <Folder Include="Views\Subasta\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 

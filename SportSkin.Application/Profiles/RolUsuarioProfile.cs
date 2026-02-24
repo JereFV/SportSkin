@@ -9,13 +9,11 @@ using System.Threading.Tasks;
 
 namespace SportSkin.Application.Profiles
 {
-    public class UsuarioProfile : Profile
+    public class RolUsuarioProfile : Profile
     {
-        public UsuarioProfile()
+        public RolUsuarioProfile()
         {
-            CreateMap<Usuario, UsuarioDTO>()
-                .ForMember(x => x.RolUsuarioNavigation, x => x.MapFrom(x => x.RolUsuarioNavigation))
-                .ReverseMap();         
+            CreateMap<RolUsuario, RolUsuarioDTO>().ReverseMap();
         }
     }
 }

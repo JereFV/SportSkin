@@ -1,10 +1,14 @@
-﻿@model IEnumerable<SportSkin.Application.DTOs.UsuarioDTO>
+﻿@model IEnumerable<SportSkin.Web.ViewModels.UsuarioViewModel>
 
 @{
     ViewData["Title"] = "Usuarios";
 }
 
-<h2><i class="fa-solid fa-users"></i>&nbspListado de Usuarios</h2>
+<h2>
+    <i class="fa-solid fa-users text-primary"></i>
+    &nbspListado de Usuarios
+</h2>
+
 <br />
 
 @* <p>
@@ -14,82 +18,42 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Nombre)
+                @Html.DisplayNameFor(model => model.NombreCompleto)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Apellido1)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Apellido2)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Telefono)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Correo)
+                @Html.DisplayNameFor(model => model.Rol)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Estado)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FechaCreacion)
+                Acciones
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaModificacion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Usuario1)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Contrasenna)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IdRolUsuarioNavigation)
-            </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model ?? Enumerable.Empty<SportSkin.Application.DTOs.UsuarioDTO>())
+        @foreach (var item in Model ?? Enumerable.Empty<SportSkin.Web.ViewModels.UsuarioViewModel>())
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Nombre)
+                    @Html.DisplayFor(modelItem => item.NombreCompleto)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Apellido1)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Apellido2)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Telefono)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Correo)
+                    @Html.DisplayFor(modelItem => item.Rol)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Estado)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FechaCreacion)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FechaModificacion)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Usuario1)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Contrasenna)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IdRolUsuarioNavigation.Nombre)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.IdUsuario">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.IdUsuario">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.IdUsuario">Delete</a>
+                </td>               
+                <td class="col-md-4">
+                    <div>
+                        <button type="button" class="btn btn-outline-info">
+                            <i class="fa-solid fa-circle-info"></i>&nbspVer detalle
+                        </button>
+
+                        <button type="button" class="btn btn-outline-warning">
+                            <i class="fa-solid fa-key"></i>&nbspCambiar Contraseña
+                        </button>                  
+                    </div>                              
                 </td>
             </tr>
         }
@@ -97,8 +61,9 @@
 </table>
 
 @section Scripts{
-    <script>
+    <script>     
         $(document).ready(function () {
+             //Inicialización del listado utilizando datatables.
             $('#usersList').DataTable();
         });
     </script>

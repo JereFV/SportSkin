@@ -348,7 +348,7 @@ public partial class SportSkinContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("Usuario");
 
-            entity.HasOne(d => d.IdRolUsuarioNavigation).WithMany(p => p.Usuario)
+            entity.HasOne(d => d.RolUsuarioNavigation).WithMany(p => p.Usuario)
                 .HasForeignKey(d => d.IdRolUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Usuario_RolUsuario");

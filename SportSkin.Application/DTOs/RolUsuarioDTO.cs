@@ -17,8 +17,5 @@ namespace SportSkin.Application.DTOs
         [Required(ErrorMessage = "{0} es un dato requerido")]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "{0} debe tener entre {2} y {1} caracteres")]
         public string Nombre { get; set; } = string.Empty;
-
-        // Colección de usuarios con este rol
-        public List<UsuarioDTO> Usuario { get; set; } = new();
     }
 }

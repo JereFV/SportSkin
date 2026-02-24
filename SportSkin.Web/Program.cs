@@ -103,6 +103,7 @@ builder.Services.AddAutoMapper(config =>
     config.AddProfile<JugadorProfile>();
     config.AddProfile<UsuarioProfile>();
     config.AddProfile<ImagenCamisetaProfile>();
+    config.AddProfile<RolUsuarioProfile>();
     //config.AddProfile<SubastaProfile>();
 });
 

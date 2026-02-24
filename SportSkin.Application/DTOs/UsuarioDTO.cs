@@ -60,11 +60,6 @@ namespace SportSkin.Application.DTOs
 
         // Navegación
         [DisplayName("Rol")]
-        public RolUsuarioDTO IdRolUsuarioNavigation { get; set; } = new();
-
-        // Colecciones
-        public List<CamisetaDTO> Camiseta { get; set; } = new();
-        public List<PujaDTO> Puja { get; set; } = new();
-        public List<SubastaDTO> Subasta { get; set; } = new();
+        public RolUsuarioDTO RolUsuarioNavigation { get; set; } = new();
     }
 }

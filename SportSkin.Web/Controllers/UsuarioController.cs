@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SportSkin.Application.Services.Interfaces;
+using SportSkin.Web.ViewModels;
 using System.Threading.Tasks;
 
 namespace SportSkin.Web.Controllers
@@ -21,10 +22,27 @@ namespace SportSkin.Web.Controllers
             try
             {
                 var usuarios = await _service.ListAsync();
+                var usuariosView = new List<UsuarioViewModel>();
 
-                return View(usuarios);
+                if (usuarios != null)
+                {
+                    //Construcción de una colección de tipo ViewModel según el formato esperado por el listado.
+                    foreach (var usuario in usuarios)
+                    {
+                        var usuarioView = new UsuarioViewModel()
+                        {
+                            NombreCompleto = $"{usuario.Nombre} {usuario.Apellido1} {usuario.Apellido2}",
+                            Rol = usuario.RolUsuarioNavigation?.Nombre,
+                            Estado = usuario.Estado ? "Activo" : "Inactivo"
+                        };
+
+                        usuariosView.Add(usuarioView);
+                    }
+                }
+               
+                return View(usuariosView);
             }
-            catch (Exception ex) 
+            catch (Exception)
             {
                 ViewBag.Exception = SweetAlertHelper.CrearNotificacion("Listado de usuarios", "Ha ocurrido un error al intentar obtener el listado de usuarios.", SweetAlertMessageType.error);
                 throw;

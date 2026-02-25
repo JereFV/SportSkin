@@ -44,15 +44,35 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Estado)
                 </td>               
-                <td class="col-md-4">
+                <td class="col-md-6">
                     <div>
                         <button type="button" class="btn btn-outline-info">
                             <i class="fa-solid fa-circle-info"></i>&nbspVer detalle
                         </button>
 
-                        <button type="button" class="btn btn-outline-warning">
+                        <button type="button" class="btn btn-outline-primary">
+                            <i class="fa-regular fa-pen-to-square"></i>&nbspEditar
+                        </button>
+
+                        <button type="button" class="btn btn-outline-dark">
                             <i class="fa-solid fa-key"></i>&nbspCambiar Contraseña
-                        </button>                  
+                        </button>
+
+                        <div class="userstable-status-btngroup">
+                            @if (item.Estado == "Activo")
+                            {
+                                <button type="button" class="btn btn-outline-danger">
+                                    <i class="fa-solid fa-ban"></i>&nbspDeshabilitar
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-outline-success">
+                                    <i class="fa-solid fa-circle-check"></i>&nbspHabilitar
+                                </button>
+                            }     
+                        </div>
+                                         
                     </div>                              
                 </td>
             </tr>
@@ -64,7 +84,11 @@
     <script>     
         $(document).ready(function () {
              //Inicialización del listado utilizando datatables.
-            $('#usersList').DataTable();
+            $('#usersList').DataTable({
+                "columnDefs": [
+                    { "className": "dt-center", "targets": [0, 1, 2, 3] }
+                ]
+            });
         });
     </script>
 }

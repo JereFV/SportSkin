@@ -172,6 +172,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 
 app.UseSerilogRequestLogging();
@@ -180,7 +181,6 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.UseAntiforgery();
 
 app.MapControllerRoute(
     name: "default",

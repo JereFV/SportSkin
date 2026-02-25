@@ -1,22 +1,22 @@
-﻿@model IEnumerable<SportSkin.Application.DTOs.CamisetaDTO>
+@model IEnumerable<SportSkin.Application.DTOs.SubastaDTO>
 
 @{
-    ViewData["Title"] = "Camisetas";
+    ViewData["Title"] = "Subastas";
     var total = Model?.Count() ?? 0;
 }
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
     <div>
-        <h1 class="h3 mb-1">Mis camisetas</h1>
-        <p class="text-muted mb-0">Explora el catálogo disponible. Total: <strong>@total</strong>.</p>
+        <h1 class="h3 mb-1">Subastas de camisetas</h1>
+        <p class="text-muted mb-0">Explora el cat�logo disponible. Total: <strong>@total</strong>.</p>
         <div class="d-grid gap-2 d-md-flex justify-content-md">
-            <button type="button" class="btn btn-outline-success btn-sm"  style="border-radius:12px">
+            <button type="button" class="btn btn-outline-success btn-sm" style="border-radius:12px">
                 <i class="bi bi-plus-circle"></i>
-                Agregar camiseta
-                </button>
+                Agregar subasta
+            </button>
         </div>
     </div>
-    
+
     <div class="dropdown">
         <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2"
                 type="button"
@@ -62,7 +62,7 @@
                 </a>
             </li>
         </ul>
-    </div>    
+    </div>
 </div>
 
 @if (Model == null || !Model.Any())
@@ -79,7 +79,7 @@ else
 
             @foreach (var item in Model)
             {
-                var primeraImagen = item.ImagenCamiseta?.FirstOrDefault();
+                var primeraImagen = item.IdCamisetaNavigation.ImagenCamiseta?.FirstOrDefault();
                 <div class="col">
                     <article class="card h-100 shadow-sm border-0">
                         <!-- Imagen -->
@@ -89,7 +89,7 @@ else
                             {
                                 <img class="w-100 h-100 object-fit-cover  rounded-top"
                                      src="@primeraImagen.RutaImagen"
-                                     alt="Imagen de @item.Nombre"
+                                     alt="Imagen de @item.IdCamisetaNavigation.Nombre"
                                      loading="lazy" />
                             }
                             else
@@ -99,58 +99,55 @@ else
                                     <span class="small">Sin imagen</span>
                                 </div>
                             }
+                    </div>
+
+                    <!-- Contenido -->
+                    <div class="card-body">
+                        <h2 class="h6 fw-semibold mb-1 text-truncate" title="@item.IdCamisetaNavigation.Nombre">
+                            @item.IdCamisetaNavigation.Nombre
+                        </h2>
+
+                        <!-- Precio y Cantidad de pujas-->
+                        <div class="d-flex gap-2 mb-0">
+                            <span class="badge rounded-pill bg-secondary px-3 py-2">
+                                @(item.Puja.Any()?item.Puja.Max(p=> p.Monto).ToString("C"):item.PrecioBase.ToString("C"))
+                            </span>
+                            <span class="badge rounded-pill px-3 py-2">
+                                @(item.Puja.Count)
+                            </span>
                         </div>
 
-                        <!-- Contenido -->
-                        <div class="card-body">
-                            <h2 class="h6 fw-semibold mb-1 text-truncate" title="@item.Nombre">
-                                @item.Nombre
-                            </h2>
+                        <div class="d-flex align-items-center gap-2 text-muted small">
+                             <i class="bi bi-clock text-primary"></i>
+                             <span>Fecha de cierre: @item.FechaCierre.ToString("d/M/yy HH:mm")</span>
+                         </div>
+                    </div>
 
-                            <!-- Condición y Estado -->
-                            <div class="d-flex gap-2 mb-0">
-                                <span class="badge rounded-pill bg-secondary px-3 py-2">
-                                    @(item.IdCondicionCamisetaNavigation?.Nombre ?? "Condición")
-                                </span>
-                            <span class="badge rounded-pill px-3 py-2 
-                                @(item.IdEstadoCamisetaNavigation?.Nombre switch
-                                                      {
-                                                          "Disponible" => "bg-success",
-                                                          "En Subasta" => "bg-warning",
-                                                          "Vendida" => "bg-danger",
-                                                          _ => "bg-secondary"
-                                                      })">
-                                @(item.IdEstadoCamisetaNavigation?.Nombre ?? "Sin estado")
-                             </span>
-                            </div>
-
-                        </div>
-
-                        <!-- Acciones -->
-                        <div class="card-footer bg-body border-0 pt-0 pb-2">
-                            <div class="d-flex gap-2 px-2">
-                                <a asp-controller="Subasta"
-                                   asp-action="Create"
-                                   asp-route-id="@item.IdCamiseta"
-                                   class="btn btn-primary flex-fill">
-                                    <i class="bi bi-cart-check me-1"></i> Subastar
-                                </a>
-                                <a asp-controller="Camiseta"
-                                   asp-action="Details"
-                                   asp-route-id="@item.IdCamiseta"
-                                   class="btn btn-info flex-fill">
-                                    <i class="bi bi-plus-circle me-1"></i> Ver detalle
-                                </a>
+                    <!-- Acciones -->
+                    <div class="card-footer bg-body border-0 pt-0 pb-2">
+                        <div class="d-flex gap-2 px-2">
+                            <a asp-controller="Subasta"
+                               asp-action="Create"
+                               asp-route-id="@item.IdCamiseta"
+                               class="btn btn-primary flex-fill">
+                                <i class="bi bi-cart-check me-1"></i> Subastar
+                            </a>
+                            <a asp-controller="Camiseta"
+                               asp-action="Details"
+                               asp-route-id="@item.IdCamiseta"
+                               class="btn btn-info flex-fill">
+                                <i class="bi bi-plus-circle me-1"></i> Ver detalle
+                            </a>
 
 
-                                @*<button type="button" class="btn btn-outline-secondary">
+                            @*<button type="button" class="btn btn-outline-secondary">
                                     <i class="bi bi-bag-plus me-1"></i> Agregar
                                 </button>*@
-                            </div>
                         </div>
-                    </article>
-                </div>
-            }
+                    </div>
+                </article>
+            </div>
+                }
 
         </div>
     </section>

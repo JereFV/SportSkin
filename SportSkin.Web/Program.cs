@@ -85,11 +85,13 @@ builder.Services.AddControllersWithViews();
 //builder.Services.AddTransient<IRepositoryAutor, RepositoryAutor>();
 builder.Services.AddTransient<IRepositoryCamiseta, RepositoryCamiseta>();
 builder.Services.AddTransient<IRepositoryUsuario, RepositoryUsuario>();
+builder.Services.AddTransient<IRepositorySubasta, RepositorySubasta>();
 
 //*** Services
 //builder.Services.AddTransient<IServiceAutor, ServiceAutor>();
 builder.Services.AddTransient<IServiceCamiseta, ServiceCamiseta>();
 builder.Services.AddTransient<IServiceUsuario, ServiceUsuario>();
+builder.Services.AddTransient<IServiceSubasta, ServiceSubasta>();
 
 //Conf images route
 builder.Services.Configure<ImageSettings>(
@@ -112,6 +114,7 @@ builder.Services.AddAutoMapper(config =>
     config.AddProfile<ImagenCamisetaProfile>();
     config.AddProfile<EstadoCamisetaProfile>();
     config.AddProfile<RolUsuarioProfile>();
+    config.AddProfile<SubastaProfile>();
     //config.AddProfile<SubastaProfile>();
 });
 

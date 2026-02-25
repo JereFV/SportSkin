@@ -17,9 +17,15 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Subastas</a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Activas</a>
-                        <a class="dropdown-item" href="#">Finalizadas</a>
-                        <a class="dropdown-item" href="#">Mis subastas</a>
+                        <a class="dropdown-item" asp-controller="Subasta" asp-action="Activas">
+                            <i class="bi bi-hammer me-1"></i> Activas
+                        </a>
+                        <a class="dropdown-item" asp-controller="Subasta" asp-action="Finalizadas">
+                            <i class="bi bi-check-circle me-1"></i> Finalizadas
+                        </a>
+                        <a class="dropdown-item" asp-controller="Subasta" asp-action="MisSubastas">
+                            <i class="bi bi-person me-1"></i> Mis Subastas
+                        </a>
                     </div>
                 </li>
                 <li class="nav-item">

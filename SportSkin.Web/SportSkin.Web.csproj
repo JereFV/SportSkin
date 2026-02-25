@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Views\Shared\**" />
+    <Content Remove="Views\Shared\**" />
+    <EmbeddedResource Remove="Views\Shared\**" />
+    <None Remove="Views\Shared\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.12" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
@@ -21,7 +28,6 @@
 
   <ItemGroup>
     <Folder Include="Logs\" />
-    <Folder Include="Views\Subasta\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 

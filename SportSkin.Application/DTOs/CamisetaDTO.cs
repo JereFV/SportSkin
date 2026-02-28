@@ -47,7 +47,8 @@ namespace SportSkin.Application.DTOs
         [DisplayName("Vendedor")]
         public int IdUsuarioVendedor { get; set; }
 
-        public bool Estado { get; set; }
+        public byte IdEstadoCamiseta { get; set; }
+        public bool EstadoRegistro { get; set; }
         public DateTime FechaRegistro { get; set; }
         public DateTime FechaModificacion { get; set; }
 

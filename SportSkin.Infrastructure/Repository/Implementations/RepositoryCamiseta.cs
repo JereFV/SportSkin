@@ -88,6 +88,8 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .Include(c => c.IdJugadorNavigation)
                 .Include(c => c.ImagenCamiseta)
                 .Include(c => c.EstadoCamisetaNavigation)
+                .Include(c => c.EstadoCamisetaNavigation)
+                .Include(c => c.IdCategoriaNavigation)
                 .OrderBy(c => c.IdCamiseta)
                 .AsNoTracking()
                 .ToListAsync();

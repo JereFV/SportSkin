@@ -19,5 +19,6 @@ namespace SportSkin.Infrastructure.Repository.Interfaces
         Task<ICollection<Subasta>> GetSubastasActivasAsync(DateTime? desde, DateTime? hasta);
         Task<ICollection<Subasta>> GetSubastasFinalizadasAsync(DateTime? desde, DateTime? hasta);
         Task<ICollection<Subasta>> GetSubastasVendidasAsync();
+        Task<ICollection<Subasta>> GetSubastasByVendedorAsync(int idUsuarioVendedor);
     }
 }

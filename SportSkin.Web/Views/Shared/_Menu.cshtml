@@ -14,19 +14,38 @@
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Camiseta" asp-action="Index">Camisas</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Subastas</a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" asp-controller="Subasta" asp-action="Activas">
-                            <i class="bi bi-hammer me-1"></i> Activas
-                        </a>
-                        <a class="dropdown-item" asp-controller="Subasta" asp-action="Finalizadas">
-                            <i class="bi bi-check-circle me-1"></i> Finalizadas
-                        </a>
-                        <a class="dropdown-item" asp-controller="Subasta" asp-action="MisSubastas">
-                            <i class="bi bi-person me-1"></i> Mis Subastas
-                        </a>
-                    </div>
+                <li class="nav-item d-flex align-items-center dropdown">
+                    <!-- Botón izquierdo navega al Index -->
+                    <a class="nav-link pe-1"
+                       asp-controller="Subasta" asp-action="Index">
+                        Subastas
+                    </a>
+
+                    <!-- Flecha que solo abre dropdown -->
+                    <a class="nav-link ps-0 pe-2 dropdown-toggle dropdown-toggle-split"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false"
+                       href="#">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </a>
+
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" asp-controller="Subasta" asp-action="Activas">
+                                <i class="bi bi-hammer me-1"></i> Activas
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" asp-controller="Subasta" asp-action="Finalizadas">
+                                <i class="bi bi-check-circle me-1"></i> Finalizadas
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" asp-controller="Subasta" asp-action="MisSubastas">
+                                <i class="bi bi-person me-1"></i> Mis Subastas
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Usuario" asp-action="Index">Usuarios</a>

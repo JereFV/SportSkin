@@ -12,6 +12,22 @@ namespace SportSkin.Web.Controllers
             _service = service;
         }
 
+        // GET: Subasta/Index
+        public async Task<IActionResult> Index()
+        {
+            var lista = await _service.ListAsync();
+            return View(lista);
+        }
+
+        // GET: Subasta/MisSubastas
+        // Por ahora con ID hardcodeado hasta que haya login
+        public async Task<IActionResult> MisSubastas()
+        {
+            int idVendedor = 1; // cambiar cuando haya sesión
+            var lista = await _service.GetSubastasByVendedorAsync(idVendedor);
+            return View(lista);
+        }
+
         // GET: Subasta/Activas?desde=2024-01-01&hasta=2024-12-31
         public async Task<IActionResult> Activas(DateTime? desde, DateTime? hasta)
         {

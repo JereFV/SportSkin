@@ -119,5 +119,16 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task<ICollection<Subasta>> GetSubastasByVendedorAsync(int idUsuarioVendedor)
+        {
+            return await QueryBase()
+                .Include(s => s.IdCamisetaNavigation)
+                    .ThenInclude(c => c.IdUsuarioVendedorNavigation)
+                .Where(s => s.IdCamisetaNavigation.IdUsuarioVendedor == idUsuarioVendedor)
+                .OrderByDescending(s => s.FechaInicio)
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }

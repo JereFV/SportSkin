@@ -34,6 +34,7 @@ namespace SportSkin.Web.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var camiseta = await _service.FindByIdAsync(id);
+
             if (camiseta == null)
                 return NotFound();
 

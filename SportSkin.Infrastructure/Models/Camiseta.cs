@@ -35,11 +35,11 @@ public partial class Camiseta
 
     public virtual CategoriaCamiseta IdCategoriaNavigation { get; set; } = null!;
 
-    public virtual CondicionCamiseta IdCondicionCamisetaNavigation { get; set; } = null!;
+    public virtual CondicionCamiseta CondicionCamisetaNavigation { get; set; } = null!;
 
-    public virtual Equipo IdEquipoNavigation { get; set; } = null!;
+    public virtual Equipo EquipoNavigation { get; set; } = null!;
 
-    public virtual EstadoCamiseta IdEstadoCamisetaNavigation { get; set; } = null!;
+    public virtual EstadoCamiseta EstadoCamisetaNavigation { get; set; } = null!;
 
     public virtual Jugador IdJugadorNavigation { get; set; } = null!;
 

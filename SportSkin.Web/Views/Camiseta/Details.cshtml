@@ -1,0 +1,81 @@
+﻿@model SportSkin.Application.DTOs.CamisetaDTO
+
+@{
+    ViewData["Title"] = "Detalle";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        @if (Model.ImagenCamiseta.Count > 0)
+        {
+            <div id="imagesCarrousel" class="carousel slide">
+                <div class="carousel-inner">
+                    @* <div class="carousel-item active">
+                        <div class="ratio ratio-1x1" style="max-width: 615px;">
+                            <img src="@Model.ImagenCamiseta.First().RutaImagen" class="object-fit-cover" alt="...">
+                        </div>
+                    </div> *@
+
+                    <!-- Botones de navegación -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#imagesCarrousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#imagesCarrousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+
+                    @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model.ImagenCamiseta)
+                    {
+                        <div class="@(imagen.IdImagen == 1 ? "carousel-item active" : "carousel-item")">
+                            <div class="ratio ratio-1x1" style="max-width: 615px;">
+                                <img src="@imagen.RutaImagen" class="object-fit-cover" alt="...">
+                            </div>
+                        </div>
+                    }   
+                </div>
+                
+                <!-- Miniaturas de imágenes -->
+                <div class="d-flex gap-1 mt-3">
+                    @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model.ImagenCamiseta)
+                    {
+                        <img src="@imagen.RutaImagen" class="img-thumbnail" style="width: 120px; max-height: 120px; object-fit: cover; cursor: pointer;"
+                             data-bs-target="#imagesCarrousel" data-bs-slide-to="@imagen.IdImagen - 1">
+                    }                  
+                </div>
+            </div>
+        }    
+    </div>   
+   
+    <div class="col-md-6">
+        <h3 style="margin-bottom: 1.5rem">
+            <i class="fa-solid fa-shirt"></i>
+            &nbspInformación de la Camiseta
+        </h3>
+
+        <div style="margin-left: 3rem">
+            <h4><b>@Model.Nombre</b></h4>
+
+            <div style="display:flex" class="gap-2">
+                <h5><span class="badge text-bg-primary">Retro</span></h5>
+                <h5><span class="badge text-bg-primary">Player</span></h5>
+            </div>
+
+            <p>@Model.Descripcion</p>
+
+            <h5 style="margin-bottom: 1rem">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                &nbspCondición: @Model.CondicionCamisetaNavigation?.Nombre
+            </h5>
+
+            <h5 style="margin-bottom: 1rem">
+                <i class="fa-solid fa-gavel"></i>
+                &nbspEstado Actual: @Model.EstadoCamisetaNavigation?.Nombre
+            </h5>
+
+            <h5 style="margin-bottom: 1rem">
+                <i class="fa-solid fa-futbol"></i>
+                &nbspEquipo: @Model.EquipoNavigation?.Nombre
+            </h5>
+        </div>       
+    </div>
+</div>

@@ -41,9 +41,12 @@ namespace SportSkin.Application.Services.Implementations
             throw new NotImplementedException();
         }
 
-        public Task<CamisetaDTO> FindByIdAsync(int id)
+        public async Task<CamisetaDTO> FindByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var camiseta = await _repository.FindByIdAsync(id);
+            var camisetaDTO = _mapper.Map<CamisetaDTO>(camiseta);
+
+            return camisetaDTO;
         }
 
         public Task<ICollection<CamisetaDTO>> GetCamisetaByCategoria(int idCategoria)

@@ -73,17 +73,17 @@ public partial class SportSkinContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Camiseta_CategoriaCamiseta");
 
-            entity.HasOne(d => d.IdCondicionCamisetaNavigation).WithMany(p => p.Camiseta)
+            entity.HasOne(d => d.CondicionCamisetaNavigation).WithMany(p => p.Camiseta)
                 .HasForeignKey(d => d.IdCondicionCamiseta)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Camiseta_CondicionCamiseta");
 
-            entity.HasOne(d => d.IdEquipoNavigation).WithMany(p => p.Camiseta)
+            entity.HasOne(d => d.EquipoNavigation).WithMany(p => p.Camiseta)
                 .HasForeignKey(d => d.IdEquipo)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Camiseta_Equipo");
 
-            entity.HasOne(d => d.IdEstadoCamisetaNavigation).WithMany(p => p.Camiseta)
+            entity.HasOne(d => d.EstadoCamisetaNavigation).WithMany(p => p.Camiseta)
                 .HasForeignKey(d => d.IdEstadoCamiseta)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Camiseta_EstadoCamiseta");

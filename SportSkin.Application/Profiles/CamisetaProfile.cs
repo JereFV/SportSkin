@@ -13,12 +13,17 @@ namespace SportSkin.Application.Profiles
     {
         public CamisetaProfile()
         {
-            CreateMap<Camiseta, CamisetaDTO>().ReverseMap();
+            CreateMap<Camiseta, CamisetaDTO>()
+                .ForMember(x => x.ImagenCamiseta, x => x.MapFrom(x => x.ImagenCamiseta))
+                .ForMember(x => x.CondicionCamisetaNavigation, x => x.MapFrom(x => x.CondicionCamisetaNavigation))
+                .ForMember(x => x.EstadoCamisetaNavigation, x => x.MapFrom(x => x.EstadoCamisetaNavigation))
+                .ForMember(x => x.EquipoNavigation, x => x.MapFrom(x => x.EquipoNavigation))
+                .ReverseMap();
 
             CreateMap<CamisetaDTO, Camiseta>()
                 .ForMember(dest => dest.IdCategoriaNavigation, orig => orig.Ignore())
-                .ForMember(dest => dest.IdCondicionCamisetaNavigation, orig => orig.Ignore())
-                .ForMember(dest => dest.IdEquipoNavigation, orig => orig.Ignore())
+                .ForMember(dest => dest.CondicionCamisetaNavigation, orig => orig.Ignore())
+                .ForMember(dest => dest.EquipoNavigation, orig => orig.Ignore())
                 .ForMember(dest => dest.IdJugadorNavigation, orig => orig.Ignore())
                 .ForMember(dest => dest.IdUsuarioVendedorNavigation, orig => orig.Ignore())
                 .ForMember(dest => dest.ImagenCamiseta, orig => orig.Ignore())

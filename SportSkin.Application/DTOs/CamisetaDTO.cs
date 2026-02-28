@@ -11,7 +11,7 @@ namespace SportSkin.Application.DTOs
     public record CamisetaDTO
     {
         [DisplayName("Identificador de la camiseta")]
-        public int IdCamiseta { get; }
+        public int IdCamiseta { get; set; }
 
         [DisplayName("Nombre Camisa")]
         [Required(ErrorMessage ="{0} es un dato requerido")]
@@ -52,11 +52,11 @@ namespace SportSkin.Application.DTOs
         public DateTime FechaModificacion { get; set; }
 
         public CategoriaCamisetaDTO IdCategoriaNavigation { get; set; } = new();
-        public CondicionCamisetaDTO IdCondicionCamisetaNavigation { get; set; } = new();
-        public EquipoDTO IdEquipoNavigation { get; set; } = new();
+        public CondicionCamisetaDTO CondicionCamisetaNavigation { get; set; } = new();
+        public EquipoDTO EquipoNavigation { get; set; } = new();
         public JugadorDTO IdJugadorNavigation { get; set; } = new();
         public UsuarioDTO IdUsuarioVendedorNavigation { get; set; } = new();
-        public EstadoCamisetaDTO IdEstadoCamisetaNavigation { get; set; } = new();
+        public EstadoCamisetaDTO EstadoCamisetaNavigation { get; set; } = new();
 
         public List<ImagenCamisetaDTO> ImagenCamiseta { get; set; } = new();
         public List<SubastaDTO> Subasta { get; set; } = new();

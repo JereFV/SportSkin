@@ -110,17 +110,17 @@ else
                             <!-- Condición y Estado -->
                             <div class="d-flex gap-2 mb-0">
                                 <span class="badge rounded-pill bg-secondary px-3 py-2">
-                                    @(item.IdCondicionCamisetaNavigation?.Nombre ?? "Condición")
+                                    @(item.CondicionCamisetaNavigation?.Nombre ?? "Condición")
                                 </span>
                             <span class="badge rounded-pill px-3 py-2 
-                                @(item.IdEstadoCamisetaNavigation?.Nombre switch
+                                @(item.EstadoCamisetaNavigation?.Nombre switch
                                                       {
                                                           "Disponible" => "bg-success",
                                                           "En Subasta" => "bg-warning",
                                                           "Vendida" => "bg-danger",
                                                           _ => "bg-secondary"
                                                       })">
-                                @(item.IdEstadoCamisetaNavigation?.Nombre ?? "Sin estado")
+                                @(item.EstadoCamisetaNavigation?.Nombre ?? "Sin estado")
                              </span>
                             </div>
 

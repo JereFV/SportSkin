@@ -31,9 +31,18 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             throw new NotImplementedException();
         }
 
-        public Task<Camiseta> FindByIdAsync(int id)
+        public async Task<Camiseta?> FindByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var camiseta = await _context.Set<Camiseta>()
+                                   .Where(x => x.IdCamiseta == id)
+                                   .Include(x => x.ImagenCamiseta)
+                                   .Include(x => x.CondicionCamisetaNavigation)
+                                   .Include(x => x.EstadoCamisetaNavigation)
+                                   .Include(x => x.EquipoNavigation)
+                                   .AsNoTracking()
+                                   .FirstOrDefaultAsync();
+
+            return camiseta;
         }
 
         public Task<ICollection<Camiseta>> GetCamisetaByCategoria(int idCategoria)
@@ -74,25 +83,26 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         public async Task<ICollection<Camiseta>> ListAsync()
         {
             var collection = await _context.Set<Camiseta>()
-                .Include(c => c.IdCondicionCamisetaNavigation)
-                .Include(c => c.IdEquipoNavigation)
+                .Include(c => c.CondicionCamisetaNavigation)
+                .Include(c => c.EquipoNavigation)
                 .Include(c => c.IdJugadorNavigation)
                 .Include(c => c.ImagenCamiseta)
-                .Include(c => c.IdEstadoCamisetaNavigation)
+                .Include(c => c.EstadoCamisetaNavigation)
                 .OrderBy(c => c.IdCamiseta)
                 .AsNoTracking()
                 .ToListAsync();
+
             return collection;
         }
 
         public async Task<ICollection<Camiseta>> GetCamisetasVendidas()
         {
             return await _context.Camiseta
-                .Include(c => c.IdCondicionCamisetaNavigation)
-                .Include(c => c.IdEquipoNavigation)
+                .Include(c => c.CondicionCamisetaNavigation)
+                .Include(c => c.EquipoNavigation)
                 .Include(c => c.IdJugadorNavigation)
                 .Include(c => c.ImagenCamiseta)
-                .Include(c => c.IdEstadoCamisetaNavigation) 
+                .Include(c => c.EstadoCamisetaNavigation) 
                 .Where(c => c.IdEstadoCamiseta == 3         // 3 = Vendida
                          && c.EstadoRegistro == true)        // solo registros activos
                 .AsNoTracking()
@@ -102,11 +112,11 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         public async Task<ICollection<Camiseta>> GetCamisetasEnSubasta()
         {
             return await _context.Camiseta
-                .Include(c => c.IdCondicionCamisetaNavigation)
-                .Include(c => c.IdEquipoNavigation)
+                .Include(c => c.CondicionCamisetaNavigation)
+                .Include(c => c.EquipoNavigation)
                 .Include(c => c.IdJugadorNavigation)
                 .Include(c => c.ImagenCamiseta)
-                .Include(c => c.IdEstadoCamisetaNavigation)
+                .Include(c => c.EstadoCamisetaNavigation)
                 .Where(c => c.IdEstadoCamiseta == 2         // 2 = En Subasta
                          && c.EstadoRegistro == true)
                 .AsNoTracking()
@@ -116,11 +126,11 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         public async Task<ICollection<Camiseta>> GetCamisetasSinSubasta()
         {
             return await _context.Camiseta
-                .Include(c => c.IdCondicionCamisetaNavigation)
-                .Include(c => c.IdEquipoNavigation)
+                .Include(c => c.CondicionCamisetaNavigation)
+                .Include(c => c.EquipoNavigation)
                 .Include(c => c.IdJugadorNavigation)
                 .Include(c => c.ImagenCamiseta)
-                .Include(c => c.IdEstadoCamisetaNavigation)
+                .Include(c => c.EstadoCamisetaNavigation)
                 .Where(c => c.IdEstadoCamiseta == 1         // 1 = Disponible
                          && c.EstadoRegistro == true)
                 .AsNoTracking()

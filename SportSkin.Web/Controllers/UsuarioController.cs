@@ -22,14 +22,14 @@ namespace SportSkin.Web.Controllers
             try
             {
                 var usuarios = await _service.ListAsync();
-                var usuariosView = new List<UsuarioViewModel>();
+                var usuariosView = new List<ListadoUsuariosViewModel>();
 
                 if (usuarios != null)
                 {
                     //Construcción de una colección de tipo ViewModel según el formato esperado por el listado.
                     foreach (var usuario in usuarios)
                     {
-                        var usuarioView = new UsuarioViewModel()
+                        var usuarioView = new ListadoUsuariosViewModel()
                         {
                             NombreCompleto = $"{usuario.Nombre} {usuario.Apellido1} {usuario.Apellido2}",
                             Rol = usuario.RolUsuarioNavigation?.Nombre,

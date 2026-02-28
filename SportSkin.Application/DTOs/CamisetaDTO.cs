@@ -48,18 +48,25 @@ namespace SportSkin.Application.DTOs
         public int IdUsuarioVendedor { get; set; }
 
         public bool Estado { get; set; }
+
         public DateTime FechaRegistro { get; set; }
+
         public DateTime FechaModificacion { get; set; }
 
-        public CategoriaCamisetaDTO IdCategoriaNavigation { get; set; } = new();
         public CondicionCamisetaDTO CondicionCamisetaNavigation { get; set; } = new();
+
         public EquipoDTO EquipoNavigation { get; set; } = new();
-        public JugadorDTO IdJugadorNavigation { get; set; } = new();
-        public UsuarioDTO IdUsuarioVendedorNavigation { get; set; } = new();
+
+        public JugadorDTO JugadorNavigation { get; set; } = new();
+
+        public UsuarioDTO UsuarioVendedorNavigation { get; set; } = new();
+
         public EstadoCamisetaDTO EstadoCamisetaNavigation { get; set; } = new();
 
-        public List<ImagenCamisetaDTO> ImagenCamiseta { get; set; } = new();
-        public List<SubastaDTO> Subasta { get; set; } = new();
+        public List<ImagenCamisetaDTO> ImagenesCamiseta { get; set; } = new();
 
+        public List<SubastaDTO> Subastas { get; set; } = new();
+
+        public List<CategoriaCamisetaDTO> CategoriasCamiseta { get; set; } = new();
     }
 }

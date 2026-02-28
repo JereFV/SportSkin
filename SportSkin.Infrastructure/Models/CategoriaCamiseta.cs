@@ -9,5 +9,5 @@ public partial class CategoriaCamiseta
 
     public string Nombre { get; set; } = null!;
 
-    public virtual ICollection<Camiseta> Camiseta { get; set; } = new List<Camiseta>();
+    public virtual ICollection<Camiseta> IdCamiseta { get; set; } = new List<Camiseta>();
 }

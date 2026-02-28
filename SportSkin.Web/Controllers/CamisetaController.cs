@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
+using SportSkin.Web.ViewModels;
 
 namespace SportSkin.Web.Controllers
 {
@@ -37,6 +38,12 @@ namespace SportSkin.Web.Controllers
 
             if (camiseta == null)
                 return NotFound();
+
+            DetalleCamisetaViewModel detalleCamisetaViewModel = new DetalleCamisetaViewModel()
+            {
+                Camiseta = camiseta,
+                NombreCompleto = $"Camiseta.UsuarioVendedorNavigation?.Nombre"
+            };
 
             return View(camiseta);
         }

@@ -68,22 +68,17 @@ public partial class SportSkinContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.IdCategoriaNavigation).WithMany(p => p.Camiseta)
-                .HasForeignKey(d => d.IdCategoria)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Camiseta_CategoriaCamiseta");
-
-            entity.HasOne(d => d.CondicionCamisetaNavigation).WithMany(p => p.Camiseta)
+            entity.HasOne(d => d.IdCondicionCamisetaNavigation).WithMany(p => p.Camiseta)
                 .HasForeignKey(d => d.IdCondicionCamiseta)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Camiseta_CondicionCamiseta");
 
-            entity.HasOne(d => d.EquipoNavigation).WithMany(p => p.Camiseta)
+            entity.HasOne(d => d.IdEquipoNavigation).WithMany(p => p.Camiseta)
                 .HasForeignKey(d => d.IdEquipo)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Camiseta_Equipo");
 
-            entity.HasOne(d => d.EstadoCamisetaNavigation).WithMany(p => p.Camiseta)
+            entity.HasOne(d => d.IdEstadoCamisetaNavigation).WithMany(p => p.Camiseta)
                 .HasForeignKey(d => d.IdEstadoCamiseta)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Camiseta_EstadoCamiseta");
@@ -97,6 +92,22 @@ public partial class SportSkinContext : DbContext
                 .HasForeignKey(d => d.IdUsuarioVendedor)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Camiseta_Usuario");
+
+            entity.HasMany(d => d.IdCategoriaCamiseta).WithMany(p => p.IdCamiseta)
+                .UsingEntity<Dictionary<string, object>>(
+                    "CategoriasCamiseta",
+                    r => r.HasOne<CategoriaCamiseta>().WithMany()
+                        .HasForeignKey("IdCategoriaCamiseta")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_CategoriasCamiseta_Categoria"),
+                    l => l.HasOne<Camiseta>().WithMany()
+                        .HasForeignKey("IdCamiseta")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_CategoriasCamiseta_Camiseta"),
+                    j =>
+                    {
+                        j.HasKey("IdCamiseta", "IdCategoriaCamiseta");
+                    });
         });
 
         modelBuilder.Entity<CategoriaCamiseta>(entity =>
@@ -365,7 +376,7 @@ public partial class SportSkinContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("Usuario");
 
-            entity.HasOne(d => d.RolUsuarioNavigation).WithMany(p => p.Usuario)
+            entity.HasOne(d => d.IdRolUsuarioNavigation).WithMany(p => p.Usuario)
                 .HasForeignKey(d => d.IdRolUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Usuario_RolUsuario");

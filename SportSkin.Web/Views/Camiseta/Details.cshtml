@@ -6,7 +6,7 @@
 
 <div class="row">
     <div class="col-md-6">
-        @if (Model.ImagenCamiseta.Count > 0)
+        @if (Model.ImagenesCamiseta.Count > 0)
         {
             <div id="imagesCarrousel" class="carousel slide">
                 <div class="carousel-inner">
@@ -24,7 +24,7 @@
                         <span class="carousel-control-next-icon"></span>
                     </button>
 
-                    @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model.ImagenCamiseta)
+                    @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model.ImagenesCamiseta)
                     {
                         <div class="@(imagen.IdImagen == 1 ? "carousel-item active" : "carousel-item")">
                             <div class="ratio ratio-1x1" style="max-width: 615px;">
@@ -36,7 +36,7 @@
                 
                 <!-- Miniaturas de imágenes -->
                 <div class="d-flex gap-1 mt-3">
-                    @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model.ImagenCamiseta)
+                    @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model.ImagenesCamiseta)
                     {
                         <img src="@imagen.RutaImagen" class="img-thumbnail" style="width: 120px; max-height: 120px; object-fit: cover; cursor: pointer;"
                              data-bs-target="#imagesCarrousel" data-bs-slide-to="@imagen.IdImagen - 1">
@@ -56,15 +56,17 @@
             <h4><b>@Model.Nombre</b></h4>
 
             <div style="display:flex" class="gap-2">
-                <h5><span class="badge text-bg-primary">Retro</span></h5>
-                <h5><span class="badge text-bg-primary">Player</span></h5>
+                @foreach (SportSkin.Application.DTOs.CategoriaCamisetaDTO categoria in Model.CategoriasCamiseta)
+                {
+                    <h5><span class="badge text-bg-primary">@categoria.Nombre</span></h5>
+                }             
             </div>
 
             <p>@Model.Descripcion</p>
 
             <h5 style="margin-bottom: 1rem">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                &nbspCondición: @Model.CondicionCamisetaNavigation?.Nombre
+                <i class="fa-solid fa-user"></i>
+                &nbspPropietario: @Model.UsuarioVendedorNavigation?.Nombre
             </h5>
 
             <h5 style="margin-bottom: 1rem">
@@ -73,8 +75,18 @@
             </h5>
 
             <h5 style="margin-bottom: 1rem">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                &nbspCondición: @Model.CondicionCamisetaNavigation?.Nombre
+            </h5>          
+
+            <h5 style="margin-bottom: 1rem">
                 <i class="fa-solid fa-futbol"></i>
                 &nbspEquipo: @Model.EquipoNavigation?.Nombre
+            </h5>
+
+            <h5 style="margin-bottom: 1rem">
+                <i class="fa-solid fa-person-running"></i>
+                &nbspJugador: @Model.JugadorNavigation?.Nombre
             </h5>
         </div>       
     </div>

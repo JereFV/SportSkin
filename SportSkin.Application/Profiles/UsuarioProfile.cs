@@ -14,7 +14,7 @@ namespace SportSkin.Application.Profiles
         public UsuarioProfile()
         {
             CreateMap<Usuario, UsuarioDTO>()
-                .ForMember(x => x.RolUsuarioNavigation, x => x.MapFrom(x => x.RolUsuarioNavigation))
+                .ForMember(x => x.RolUsuarioNavigation, x => x.MapFrom(x => x.IdRolUsuarioNavigation))
                 .ReverseMap();         
         }
     }

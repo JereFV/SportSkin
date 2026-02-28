@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace SportSkin.Web.ViewModels
 {
-    public class UsuarioViewModel
+    public class ListadoUsuariosViewModel
     {
-        [Display(Name = "Nombre Completo")]
+        [DisplayName("Nombre Completo")]
         public string? NombreCompleto { get; set; }
 
         public string? Rol { get; set; }

@@ -22,7 +22,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         public async Task<ICollection<Usuario>> ListAsync()
         {
             var usuarios = await _context.Set<Usuario>()
-                                         .Include(x => x.RolUsuarioNavigation)
+                                         .Include(x => x.IdRolUsuarioNavigation)
                                          .AsNoTracking()
                                          .ToListAsync();
 

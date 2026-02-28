@@ -49,7 +49,7 @@ else
         <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
             @foreach (var item in Model)
             {
-                var primeraImagen = item.IdCamisetaNavigation?.ImagenCamiseta?.FirstOrDefault();
+                var primeraImagen = item.IdCamisetaNavigation?.ImagenesCamiseta?.FirstOrDefault();
                 var fueVendida = item.FechaCompra != null;
 
                 <div class="col">

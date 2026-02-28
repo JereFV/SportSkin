@@ -31,7 +31,7 @@ public partial class Usuario
 
     public virtual ICollection<Camiseta> Camiseta { get; set; } = new List<Camiseta>();
 
-    public virtual RolUsuario RolUsuarioNavigation { get; set; } = null!;
+    public virtual RolUsuario IdRolUsuarioNavigation { get; set; } = null!;
 
     public virtual ICollection<Puja> Puja { get; set; } = new List<Puja>();
 

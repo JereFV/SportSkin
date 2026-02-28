@@ -20,20 +20,20 @@
     <form method="get" class="d-flex align-items-end gap-2 flex-wrap">
         <div>
             <label class="form-label small text-muted mb-1">Desde</label>
-            <input type="date" name="desde" value="@ViewBag.Desde"
+            <input type="date" id="inputDesde" name="desde" value="@ViewBag.Desde"
                    class="form-control form-control-sm" />
         </div>
         <div>
             <label class="form-label small text-muted mb-1">Hasta</label>
-            <input type="date" name="hasta" value="@ViewBag.Hasta"
+            <input type="date" id="inputHasta" name="hasta" value="@ViewBag.Hasta"
                    class="form-control form-control-sm" />
         </div>
-        <button type="submit" class="btn btn-secondary btn-sm">
+        <button type="submit" id="btnFiltrar"class="btn btn-secondary btn-sm">
             <i class="bi bi-search me-1"></i> Filtrar
         </button>
         @if (ViewBag.Desde != null || ViewBag.Hasta != null)
         {
-            <a asp-action="Finalizadas" class="btn btn-outline-secondary btn-sm">
+            <a asp-action="Activas" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-x-circle me-1"></i> Limpiar
             </a>
         }
@@ -129,6 +129,47 @@ else
 }
 
 @section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const inputDesde= document.getElementById('inputDesde');
+            const inputHasta = document.getElementById('inputHasta');
+            const btnFiltrar = document.getElementById('btnFiltrar');
+
+
+            function verificarBoton() {
+                if (inputDesde.value && !inputHasta.value || !inputDesde.value && inputHasta.value) {
+                    btnFiltrar.disabled = true;
+                    btnFiltrar.title = "Debes ingresar la fecha hasta";
+                } else {
+                    btnFiltrar.disabled = false;
+                    btnFiltrar.title = "";
+                }
+            }
+
+            inputDesde.addEventListener('change',function(){
+                if(!this.value) return;
+                const desde = new Date(this.value);
+
+                //calcular máximo (1 mes después)
+                const maxHasta = new Date(desde);
+                maxHasta.setMonth(desde.getMonth()+1);
+                // Cuando cambia "desde", el mínimo de "hasta" se actualiza
+                inputHasta.min= this.value;
+                inputHasta.max = maxHasta.toISOString().split('T')[0];
+                //Si hasta ya tenía una fecha la limpia
+                if(inputHasta.value && inputHasta< this.value){
+                    inputHasta.value='';
+                }
+                verificarBoton();
+            });
+
+            inputHasta.addEventListener('change', function () {
+                // Cuando cambia "hasta", el máximo de "desde" se actualiza
+                inputDesde.max = this.value;
+                verificarBoton();
+            });
+        });
+    </script>
     <style>
         .card:hover {
             transform: translateY(-3px);

@@ -21,7 +21,7 @@ namespace SportSkin.Application.Profiles
                 .ForMember(dest => dest.IdUsuarioCompradorNavigation, opt => opt.Ignore())
                 .ForMember(dest => dest.DatosEnvio, opt => opt.Ignore())
                 .ForMember(dest => dest.Factura, opt => opt.Ignore())
-                .ForMember(dest => dest.Puja, opt => opt.Ignore());
+                .ForMember(x => x.Puja, x => x.MapFrom(x => x.Puja));
         }
     }
 }

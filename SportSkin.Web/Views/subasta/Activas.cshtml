@@ -17,52 +17,27 @@
         </div>
     </div>
 
-    <div class="dropdown">
-        <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false">
-            <i class="bi bi-funnel"></i>
-            @(ViewBag.FiltroActual switch
-            {
-                "vendidos" => "Vendidos",
-                "ensubasta" => "En Subasta",
-                "sinsubasta" => "Sin Subasta",
-                _ => "Filtrar"
-            })
+    <form method="get" class="d-flex align-items-end gap-2 flex-wrap">
+        <div>
+            <label class="form-label small text-muted mb-1">Desde</label>
+            <input type="date" name="desde" value="@ViewBag.Desde"
+                   class="form-control form-control-sm" />
+        </div>
+        <div>
+            <label class="form-label small text-muted mb-1">Hasta</label>
+            <input type="date" name="hasta" value="@ViewBag.Hasta"
+                   class="form-control form-control-sm" />
+        </div>
+        <button type="submit" class="btn btn-secondary btn-sm">
+            <i class="bi bi-search me-1"></i> Filtrar
         </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow">
-            <li><h6 class="dropdown-header">Filtrar por estado</h6></li>
-            <li>
-                <a class="dropdown-item d-flex align-items-center gap-2
-               @(ViewBag.FiltroActual == "vendidos" ? "active" : "")"
-                   asp-action="Index" asp-route-filtro="vendidos">
-                    <i class="bi bi-check-circle text-success"></i> Vendidos
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item d-flex align-items-center gap-2
-               @(ViewBag.FiltroActual == "ensubasta" ? "active" : "")"
-                   asp-action="Index" asp-route-filtro="ensubasta">
-                    <i class="bi bi-hammer text-primary"></i> En Subasta
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item d-flex align-items-center gap-2
-               @(ViewBag.FiltroActual == "sinsubasta" ? "active" : "")"
-                   asp-action="Index" asp-route-filtro="sinsubasta">
-                    <i class="bi bi-tag text-secondary"></i> Sin Subasta
-                </a>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-                <a class="dropdown-item d-flex align-items-center gap-2"
-                   asp-action="Index">
-                    <i class="bi bi-x-circle text-danger"></i> Limpiar filtro
-                </a>
-            </li>
-        </ul>
-    </div>
+        @if (ViewBag.Desde != null || ViewBag.Hasta != null)
+        {
+            <a asp-action="Finalizadas" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-x-circle me-1"></i> Limpiar
+            </a>
+        }
+    </form>
 </div>
 
 @if (Model == null || !Model.Any())

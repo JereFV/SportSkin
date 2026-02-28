@@ -46,9 +46,12 @@
                 </td>               
                 <td class="col-md-6">
                     <div>
-                        <button type="button" class="btn btn-outline-info userstable-action-buttons">
-                            <i class="fa-solid fa-circle-info"></i>&nbspVer detalle
-                        </button>
+                        <a asp-controller="Usuario"
+                           asp-action="Details"
+                           asp-route-id="@item.IdUsuario"
+                           class="btn btn-outline-info userstable-action-buttons">
+                            <i class="fa-solid fa-circle-info"></i>&nbsp;Ver detalle
+                        </a>
 
                         <button type="button" class="btn btn-outline-primary userstable-action-buttons">
                             <i class="fa-regular fa-pen-to-square"></i>&nbspEditar

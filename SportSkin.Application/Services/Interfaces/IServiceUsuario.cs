@@ -11,5 +11,7 @@ namespace SportSkin.Application.Services.Interfaces
     public interface IServiceUsuario
     {
         Task<ICollection<UsuarioDTO>> ListAsync();
+        Task<UsuarioDTO> FindByIdAsync(int id);
+        Task<(int total, int activas, int vendidas, int finalizadas)> GetEstadisticasVendedorAsync(int idUsuario);
     }
 }

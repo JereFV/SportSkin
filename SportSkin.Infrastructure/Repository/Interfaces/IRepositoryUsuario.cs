@@ -9,6 +9,10 @@ namespace SportSkin.Infrastructure.Repository.Interfaces
 {
     public interface IRepositoryUsuario
     {
-        Task<ICollection<Usuario>> ListAsync(); 
+        Task<ICollection<Usuario>> ListAsync();
+        Task<Usuario?> FindByIdAsync(int id);
+        Task<int> CountSubastasByVendedorAsync(int idUsuario);
+        Task<int> CountSubastasActivasByVendedorAsync(int idUsuario);
+        Task<int> CountSubastasVendidasByVendedorAsync(int idUsuario);
     }
 }

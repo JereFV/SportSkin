@@ -11,5 +11,7 @@ namespace SportSkin.Web.ViewModels
         public string? Rol { get; set; }
 
         public string? Estado { get; set; }
+
+        public int IdUsuario {  get; set; }
     }
 }

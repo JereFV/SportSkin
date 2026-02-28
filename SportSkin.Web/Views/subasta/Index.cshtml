@@ -7,9 +7,13 @@
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
     <div>
         <h1 class="h3 mb-1">
-            <i class="bi bi-hammer text-primary me-2"></i>Todas las Subastas
+            <i class="fa-solid fa-gavel text-primary me-2"></i>Todas las Subastas
         </h1>
         <p class="text-muted mb-0">Total: <strong>@total</strong> subastas registradas.</p>
+        <button type="button" class="btn btn-outline-success btn-sm" style="border-radius:12px">
+            <i class="bi bi-plus-circle"></i>
+            Agregar subasta
+        </button>
     </div>
 </div>
 
@@ -31,7 +35,7 @@ else
                 var fueVendida = item.FechaCompra != null;
                 var estadoBadge = esActiva ? "primary" : fueVendida ? "success" : "secondary";
                 var estadoTexto = esActiva ? "Activa" : fueVendida ? "Vendida" : "Finalizada";
-                var estadoIcono = esActiva ? "bi-hammer" : fueVendida ? "bi-check-circle" : "bi-x-circle";
+                var estadoIcono = esActiva ? "fa-solid fa-gavel" : fueVendida ? "bi-check-circle" : "bi-x-circle";
 
                 <div class="col">
                     <article class="card h-100 shadow-sm border-0">
@@ -55,7 +59,7 @@ else
                         <!-- Badge estado sobre imagen -->
                         <div class="position-absolute top-0 end-0 m-2">
                             <span class="badge bg-@estadoBadge">
-                                <i class="bi @estadoIcono me-1"></i>@estadoTexto
+                                <i class=" @estadoIcono me-1"></i>@estadoTexto
                             </span>
                         </div>
                     </div>

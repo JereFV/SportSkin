@@ -27,6 +27,10 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                     .ThenInclude(c => c.ImagenCamiseta)
                 .Include(s => s.IdCamisetaNavigation)
                     .ThenInclude(c => c.IdCondicionCamisetaNavigation)
+                .Include(s => s.IdCamisetaNavigation)
+                    .ThenInclude(c => c.IdEquipoNavigation)             
+                .Include(s => s.IdCamisetaNavigation)
+                    .ThenInclude(c => c.EstadoCamisetaNavigation)
                 .Include(s => s.IdEstadoSubastaNavigation)
                 .Include(s => s.Puja);
         }

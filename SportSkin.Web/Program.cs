@@ -115,7 +115,10 @@ builder.Services.AddAutoMapper(config =>
     config.AddProfile<EstadoCamisetaProfile>();
     config.AddProfile<RolUsuarioProfile>();
     config.AddProfile<SubastaProfile>();
-    //config.AddProfile<SubastaProfile>();
+    config.AddProfile<EstadoSubastaProfile> ();
+    config.AddProfile<PujaProfile>();
+    config.AddProfile<FacturaProfile>();
+    config.AddProfile<DatosEnvioProfile>();
 });
 
 // =======================

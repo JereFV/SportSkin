@@ -30,9 +30,14 @@ body {
   text-align: start;
 }
 
-.userstable-status-btngroup {
-    width: 140px;
-    display: inline;
-    align-items: center;
-    justify-self: center;
+@media (min-width: 1400px) {
+    .userstable-action-buttons {
+        margin-right: 0.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .userstable-status-actions {
+        min-width: 135px;
+    }
 }

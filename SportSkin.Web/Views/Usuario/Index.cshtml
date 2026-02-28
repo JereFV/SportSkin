@@ -46,31 +46,33 @@
                 </td>               
                 <td class="col-md-6">
                     <div>
-                        <button type="button" class="btn btn-outline-info">
+                        <button type="button" class="btn btn-outline-info userstable-action-buttons">
                             <i class="fa-solid fa-circle-info"></i>&nbspVer detalle
                         </button>
 
-                        <button type="button" class="btn btn-outline-primary">
+                        <button type="button" class="btn btn-outline-primary userstable-action-buttons">
                             <i class="fa-regular fa-pen-to-square"></i>&nbspEditar
                         </button>
 
-                        <button type="button" class="btn btn-outline-dark">
+                        <button type="button" class="btn btn-outline-dark userstable-action-buttons">
                             <i class="fa-solid fa-key"></i>&nbspCambiar Contraseña
                         </button>
 
+                        @if (item.Estado == "Activo")
+                        {
+                            <button type="button" class="btn btn-outline-danger userstable-status-actions">
+                                <i class="fa-solid fa-ban"></i>&nbspDeshabilitar
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-outline-success userstable-status-actions">
+                                <i class="fa-solid fa-circle-check"></i>&nbspHabilitar
+                            </button>
+                        }
+
                         <div class="userstable-status-btngroup">
-                            @if (item.Estado == "Activo")
-                            {
-                                <button type="button" class="btn btn-outline-danger">
-                                    <i class="fa-solid fa-ban"></i>&nbspDeshabilitar
-                                </button>
-                            }
-                            else
-                            {
-                                <button type="button" class="btn btn-outline-success">
-                                    <i class="fa-solid fa-circle-check"></i>&nbspHabilitar
-                                </button>
-                            }     
+                                 
                         </div>
                                          
                     </div>                              
@@ -83,11 +85,14 @@
 @section Scripts{
     <script>     
         $(document).ready(function () {
-             //Inicialización del listado utilizando datatables.
+            //Inicialización del listado utilizando datatables.
             $('#usersList').DataTable({
                 "columnDefs": [
                     { "className": "dt-center", "targets": [0, 1, 2, 3] }
-                ]
+                ],
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+                }
             });
         });
     </script>

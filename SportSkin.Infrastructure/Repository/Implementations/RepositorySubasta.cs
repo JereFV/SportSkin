@@ -31,6 +31,8 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                     .ThenInclude(c => c.IdEquipoNavigation)             
                 .Include(s => s.IdCamisetaNavigation)
                     .ThenInclude(c => c.IdEstadoCamisetaNavigation)
+                .Include(s => s.IdCamisetaNavigation)
+                    .ThenInclude(c=> c.IdJugadorNavigation)
                 .Include(s => s.IdEstadoSubastaNavigation)
                 .Include(s => s.Puja);
         }
@@ -131,6 +133,17 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                     .ThenInclude(c => c.IdUsuarioVendedorNavigation)
                 .Where(s => s.IdCamisetaNavigation.IdUsuarioVendedor == idUsuarioVendedor)
                 .OrderByDescending(s => s.FechaInicio)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        // Subastas activas ordenadas por cantidad de pujas
+        public async Task<ICollection<Subasta>> GetSubastasMasPopularesAsync(int top)
+        {
+            return await QueryBase()
+                .Where(s => s.FechaCompra == null && s.FechaCierre > DateTime.Now)
+                .OrderByDescending(s => s.Puja.Count)
+                .Take(top)
                 .AsNoTracking()
                 .ToListAsync();
         }

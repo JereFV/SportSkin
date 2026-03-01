@@ -87,5 +87,11 @@ namespace SportSkin.Application.Services.Implementations
             var list = await _repository.GetSubastasByVendedorAsync(idUsuarioVendedor);
             return _mapper.Map<ICollection<SubastaDTO>>(list);
         }
+
+        public async Task<ICollection<SubastaDTO>> GetSubastasMasPopularesAsync(int top)
+        {
+            var list = await _repository.GetSubastasMasPopularesAsync(top);
+            return _mapper.Map<ICollection<SubastaDTO>>(list);
+        }
     }
 }

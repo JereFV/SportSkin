@@ -139,5 +139,16 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        // Subastas activas ordenadas por cantidad de pujas
+        public async Task<ICollection<Subasta>> GetSubastasMasPopularesAsync(int top)
+        {
+            return await QueryBase()
+                .Where(s => s.FechaCompra == null && s.FechaCierre > DateTime.Now)
+                .OrderByDescending(s => s.Puja.Count)
+                .Take(top)
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }

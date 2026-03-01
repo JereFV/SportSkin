@@ -21,19 +21,12 @@ namespace SportSkin.Application.DTOs
         [Required(ErrorMessage ="{0} es un dato requerido")]
         public string Descripcion {  get; set; } = string.Empty;
 
-        [DisplayName("Categoria")]
-        [Required(ErrorMessage = "{0} es un dato requerido")]
-        public byte IdCategoria { get; set; }
-
-        [DisplayName("Condición de la Camiseta")]
         [Required(ErrorMessage = "{0} es un dato requerido")]
         public byte IdCondicionCamiseta { get; set; }
 
-        [DisplayName("Equipo")]
         [Required(ErrorMessage = "{0} es un dato requerido")]
         public short IdEquipo {  get; set; }
 
-        [DisplayName("Jugador")]
         [Required(ErrorMessage ="{0} es un dato requerido")]
         public int IdJugador {  get; set; }
 
@@ -44,23 +37,30 @@ namespace SportSkin.Application.DTOs
         [DisplayName("¿Autografiada?")]
         public bool Autografiada { get; set; }
 
-        [DisplayName("Vendedor")]
         public int IdUsuarioVendedor { get; set; }
 
         public byte IdEstadoCamiseta { get; set; }
+
         public bool EstadoRegistro { get; set; }
+
+        [DisplayName("Fecha de Creación")]
         public DateTime FechaRegistro { get; set; }
 
         public DateTime FechaModificacion { get; set; }
 
+        [DisplayName("Condición")]
         public CondicionCamisetaDTO CondicionCamisetaNavigation { get; set; } = new();
 
+        [DisplayName("Equipo")]
         public EquipoDTO EquipoNavigation { get; set; } = new();
 
+        [DisplayName("Jugador")]
         public JugadorDTO JugadorNavigation { get; set; } = new();
 
+        [DisplayName("Propietario")]
         public UsuarioDTO UsuarioVendedorNavigation { get; set; } = new();
 
+        [DisplayName("Estado Actual")]
         public EstadoCamisetaDTO EstadoCamisetaNavigation { get; set; } = new();
 
         public List<ImagenCamisetaDTO> ImagenesCamiseta { get; set; } = new();

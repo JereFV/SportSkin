@@ -42,6 +42,8 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                                    .Include(x => x.IdJugadorNavigation)
                                    .Include(x => x.IdCategoriaCamiseta)
                                    .Include(x => x.IdUsuarioVendedorNavigation)
+                                   .Include(x => x.Subasta)
+                                    .ThenInclude(x => x.IdEstadoSubastaNavigation)
                                    .AsNoTracking()
                                    .FirstOrDefaultAsync();
 

@@ -10,7 +10,7 @@ namespace SportSkin.Application.DTOs
 {
     public record SubastaDTO
     {
-        [DisplayName("Identificador Subasta")]
+        [DisplayName("Identificador de Subasta")]
         public int IdSubasta { get; set; }
 
         [DisplayName("Fecha de Inicio")]
@@ -55,7 +55,6 @@ namespace SportSkin.Application.DTOs
         [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar una {0}")]
         public int IdCamiseta { get; set; }
 
-        [DisplayName("Estado Subasta")]
         [Required(ErrorMessage = "{0} es un dato requerido")]
         [Range(1, byte.MaxValue, ErrorMessage = "Debe seleccionar un {0}")]
         public byte IdEstadoSubasta { get; set; }

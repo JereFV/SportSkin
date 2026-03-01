@@ -46,6 +46,8 @@ namespace SportSkin.Application.Services.Implementations
             var camiseta = await _repository.FindByIdAsync(id);
             var camisetaDTO = _mapper.Map<CamisetaDTO>(camiseta);
 
+            //foreach (subas)
+
             return camisetaDTO;
         }
 

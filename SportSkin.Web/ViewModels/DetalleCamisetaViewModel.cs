@@ -6,9 +6,14 @@ namespace SportSkin.Web.ViewModels
 {
     public class DetalleCamisetaViewModel
     {
-        public CamisetaDTO? Camiseta { get; set; }
+        public CamisetaDTO Camiseta { get; set; } = new ();
 
         [DisplayName("Propietario")]
-        public string? NombreCompleto { get; set; }       
+        public string? NombreCompletoPropietario { get; set; }
+
+        [DisplayName("Fecha de Creación")]
+        public string? FechaRegistroFormateada { get; set; }
+
+        public string? SituacionFirma { get; set; }
     }
 }

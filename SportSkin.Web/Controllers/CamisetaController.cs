@@ -2,6 +2,7 @@
 using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
 using SportSkin.Web.ViewModels;
+using System.Globalization;
 
 namespace SportSkin.Web.Controllers
 {
@@ -39,13 +40,16 @@ namespace SportSkin.Web.Controllers
             if (camiseta == null)
                 return NotFound();
 
+            //Creación de entidad ViewModel.
             DetalleCamisetaViewModel detalleCamisetaViewModel = new DetalleCamisetaViewModel()
             {
                 Camiseta = camiseta,
-                NombreCompleto = $"Camiseta.UsuarioVendedorNavigation?.Nombre"
+                NombreCompletoPropietario = $"{camiseta.UsuarioVendedorNavigation?.Nombre} {camiseta.UsuarioVendedorNavigation?.Apellido1} {camiseta.UsuarioVendedorNavigation?.Apellido2}",
+                FechaRegistroFormateada = camiseta.FechaRegistro.ToString("dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture),
+                SituacionFirma = camiseta.Autografiada ? "Firmada" : "No Firmada"
             };
 
-            return View(camiseta);
+            return View(detalleCamisetaViewModel);
         }
 
         // GET: Camiseta/Create

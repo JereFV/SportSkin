@@ -1,21 +1,27 @@
-﻿@model SportSkin.Application.DTOs.CamisetaDTO
+﻿@model SportSkin.Web.ViewModels.DetalleCamisetaViewModel
 
 @{
     ViewData["Title"] = "Detalle";
 }
 
+<div class="row" style="margin-bottom: 1rem">
+    <a class="icon-link icon-link-hover link-info" asp-action="Index">
+        <svg xmlns="http://www.w3.org/2000/svg" class="bi" viewBox="0 0 16 16" aria-hidden="true">
+            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+        </svg>
+        Regresar al Listado
+    </a>
+</div>
+
 <div class="row">
     <div class="col-md-6">
-        @if (Model.ImagenesCamiseta.Count > 0)
+        @if (Model.Camiseta.ImagenesCamiseta?.Count > 0)
         {
-            <div id="imagesCarrousel" class="carousel slide">
-                <div class="carousel-inner">
-                    @* <div class="carousel-item active">
-                        <div class="ratio ratio-1x1" style="max-width: 615px;">
-                            <img src="@Model.ImagenCamiseta.First().RutaImagen" class="object-fit-cover" alt="...">
-                        </div>
-                    </div> *@
+            //Variable auxiliar para controlar la posición de la imagen en iteración.
+            int contador = 1;
 
+            <div id="imagesCarrousel" class="carousel slide">
+                <div class="carousel-inner">                   
                     <!-- Botones de navegación -->
                     <button class="carousel-control-prev" type="button" data-bs-target="#imagesCarrousel" data-bs-slide="prev">
                         <span class="carousel-control-prev-icon"></span>
@@ -24,70 +30,145 @@
                         <span class="carousel-control-next-icon"></span>
                     </button>
 
-                    @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model.ImagenesCamiseta)
+                    @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model.Camiseta.ImagenesCamiseta)
                     {
-                        <div class="@(imagen.IdImagen == 1 ? "carousel-item active" : "carousel-item")">
+                        <div class="@(contador++ == 1 ? "carousel-item active" : "carousel-item")">
                             <div class="ratio ratio-1x1" style="max-width: 615px;">
                                 <img src="@imagen.RutaImagen" class="object-fit-cover" alt="...">
                             </div>
                         </div>
                     }   
                 </div>
-                
+             
                 <!-- Miniaturas de imágenes -->
                 <div class="d-flex gap-1 mt-3">
-                    @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model.ImagenesCamiseta)
+                    <!-- Se reestablece el valor del contador auxiliar previo a una nueva iteración. -->
+                    @{contador = 0;}
+
+                    @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model.Camiseta.ImagenesCamiseta)
                     {
                         <img src="@imagen.RutaImagen" class="img-thumbnail" style="width: 120px; max-height: 120px; object-fit: cover; cursor: pointer;"
-                             data-bs-target="#imagesCarrousel" data-bs-slide-to="@imagen.IdImagen - 1">
-                    }                  
+                             data-bs-target="#imagesCarrousel" data-bs-slide-to="@contador">
+
+                         //Aumento en contador auxiliar.
+                        {contador++;}
+                    }        
                 </div>
-            </div>
+            </div>           
         }    
     </div>   
    
     <div class="col-md-6">
-        <h3 style="margin-bottom: 1.5rem">
-            <i class="fa-solid fa-shirt"></i>
+        <h3 style="margin-bottom: 1rem">
+            <i class="fa-solid fa-shirt text-primary"></i>
             &nbspInformación de la Camiseta
         </h3>
 
         <div style="margin-left: 3rem">
-            <h4><b>@Model.Nombre</b></h4>
+            <h4 style="margin-bottom: 0.10rem"><b>@Model.Camiseta.Nombre</b></h4>          
 
-            <div style="display:flex" class="gap-2">
-                @foreach (SportSkin.Application.DTOs.CategoriaCamisetaDTO categoria in Model.CategoriasCamiseta)
+            <div style="display:flex; margin-top:0" class="gap-2">              
+                @foreach (SportSkin.Application.DTOs.CategoriaCamisetaDTO categoria in Model.Camiseta.CategoriasCamiseta ?? Enumerable.Empty<SportSkin.Application.DTOs.CategoriaCamisetaDTO>())
                 {
                     <h5><span class="badge text-bg-primary">@categoria.Nombre</span></h5>
-                }             
+                }
+
+                <h5>
+                    <span class="badge @(Model.Camiseta.Autografiada ? "text-bg-success" : "text-bg-warning")">
+                        <i class="fa-solid fa-signature"></i>&nbsp;@Html.DisplayFor(model => model.SituacionFirma)
+                    </span>
+                </h5>                
             </div>
 
-            <p>@Model.Descripcion</p>
+            <p>@Model.Camiseta.Descripcion</p>
 
             <h5 style="margin-bottom: 1rem">
-                <i class="fa-solid fa-user"></i>
-                &nbspPropietario: @Model.UsuarioVendedorNavigation?.Nombre
+                <i class="fa-solid fa-user text-primary"></i>
+                &nbsp<b>@Html.DisplayNameFor(model => model.NombreCompletoPropietario):</b> @Html.DisplayFor(model => model.NombreCompletoPropietario)
+            </h5>               
+
+            <h5 style="margin-bottom: 1rem">
+                <i class="fa-solid fa-clock text-primary"></i>
+                &nbsp<b>@Html.DisplayNameFor(model => model.FechaRegistroFormateada):</b> @Html.DisplayFor(model => model.FechaRegistroFormateada)
+            </h5>            
+
+            <h5 style="margin-bottom: 1rem">
+                <i class="fa-solid fa-gavel text-primary"></i>
+                &nbsp<b>@Html.DisplayNameFor(model => model.Camiseta.EstadoCamisetaNavigation):</b> @Html.DisplayFor(model => model.Camiseta.EstadoCamisetaNavigation.Nombre)
             </h5>
 
             <h5 style="margin-bottom: 1rem">
-                <i class="fa-solid fa-gavel"></i>
-                &nbspEstado Actual: @Model.EstadoCamisetaNavigation?.Nombre
-            </h5>
-
-            <h5 style="margin-bottom: 1rem">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                &nbspCondición: @Model.CondicionCamisetaNavigation?.Nombre
+                <i class="fa-solid fa-magnifying-glass text-primary"></i>
+                &nbsp<b>@Html.DisplayNameFor(model => model.Camiseta.CondicionCamisetaNavigation):</b> @Html.DisplayFor(model => model.Camiseta.CondicionCamisetaNavigation.Nombre)
             </h5>          
 
             <h5 style="margin-bottom: 1rem">
-                <i class="fa-solid fa-futbol"></i>
-                &nbspEquipo: @Model.EquipoNavigation?.Nombre
+                <i class="fa-solid fa-futbol text-primary"></i>
+                &nbsp<b>@Html.DisplayNameFor(model => model.Camiseta.EquipoNavigation):</b> @Html.DisplayFor(model => model.Camiseta.EquipoNavigation.Nombre)
             </h5>
 
             <h5 style="margin-bottom: 1rem">
-                <i class="fa-solid fa-person-running"></i>
-                &nbspJugador: @Model.JugadorNavigation?.Nombre
+                <i class="fa-solid fa-person-running text-primary"></i>
+                &nbsp<b>@Html.DisplayNameFor(model => model.Camiseta.JugadorNavigation):</b> @Html.DisplayFor(model => model.Camiseta.JugadorNavigation.Nombre)
             </h5>
-        </div>       
+
+            <h5 style="margin-bottom: 1rem">
+                <i class="fa-solid fa-calendar-days text-primary"></i>
+                &nbsp<b>@Html.DisplayNameFor(model => model.Camiseta.Temporada):</b> @Html.DisplayFor(model => model.Camiseta.Temporada)
+            </h5>
+        </div> 
+        
+        <h3 style="margin-top: 2.5rem; margin-bottom: 1.5rem">
+            <i class="fa-solid fa-clock-rotate-left text-primary"></i>
+            &nbspHistorial de Subastas
+        </h3>  
+
+        @if (Model.Camiseta.Subastas.Count > 0)
+        {
+            <table class="table" id="auctionsHistory" style="text-align: center">
+                <thead>
+                    <tr>
+                        <th>
+                            Identificador de Subasta
+                        </th>
+                        <th>
+                            Fecha de Inicio
+                        </th>
+                        <th>
+                            Fecha de Cierre
+                        </th>
+                        <th>
+                            Estado Subasta
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model.Camiseta.Subastas)
+                {
+                    <tr>
+                        <td>
+                            @item.IdSubasta
+                        </td>
+                        <td>
+                            @item.FechaInicio.ToString("dd/MM/yyyy HH:mm")
+                        </td>
+                        <td>
+                            @item.FechaCierre.ToString("dd/MM/yyyy HH:mm")
+                        </td>
+                        <td>
+                            @item.IdEstadoSubastaNavigation.Nombre
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <h6 style="text-align: center">
+                <i class="fa-solid fa-exclamation text-primary"></i>No existen subastas relacionadas a la camiseta.
+            </h6>
+        }
+
     </div>
 </div>

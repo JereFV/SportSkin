@@ -54,67 +54,113 @@ else
 
             @foreach (var item in Model)
             {
-                var primeraImagen = item.IdCamisetaNavigation.ImagenesCamiseta?.FirstOrDefault();
+                var primeraImagen = item.IdCamisetaNavigation?.ImagenesCamiseta?.FirstOrDefault();
+                var esActiva = item.FechaCompra == null && item.FechaCierre > DateTime.Now;
+                var fueVendida = item.FechaCompra != null;
+                var tiempoRestante = item.FechaCierre - DateTime.Now;
+                var urgencia = tiempoRestante.TotalHours < 2 ? "danger"
+                : tiempoRestante.TotalHours < 24 ? "warning"
+                : "success";
+                var precioFinal = fueVendida
+                ? (item.MontoCompra?.ToString("C") ?? item.PrecioBase.ToString("C"))
+                : item.Puja.Any()
+                ? item.Puja.Max(p => p.Monto).ToString("C")
+                : item.PrecioBase.ToString("C");
+                var estadoTexto = esActiva ? "Activa" : fueVendida ? "Vendida" : "Sin compra";
+                var estadoColor = esActiva ? "primary" : fueVendida ? "success" : "danger";
+                var estadoIcono = esActiva ? "fa-solid fa-gavel" : fueVendida ? "bi bi-check-circle" : "bi bi-x-circle";
+
                 <div class="col">
                     <article class="card h-100 shadow-sm border-0">
+
                         <!-- Imagen -->
-                        <div class="rounded-top overflow-hidden bg-body-tertiary" style="height: 320px; border-radius:16px">
-                            @* Si hay imagen, la mostramos; si no, placeholder *@
+                        <div class="rounded-top overflow-hidden bg-body-tertiary position-relative" style="height: 240px;">
                             @if (primeraImagen != null)
                             {
-                                <img class="w-100 h-100 object-fit-cover  rounded-top"
+                                <img class="w-100 h-100 object-fit-cover rounded-top"
                                      src="@primeraImagen.RutaImagen"
-                                     alt="Imagen de @item.IdCamisetaNavigation.Nombre"
+                                     alt="@item.IdCamisetaNavigation?.Nombre"
                                      loading="lazy" />
                             }
                             else
                             {
-                                <div class="d-flex flex-column justify-content-center align-items-center text-muted">
+                                <div class="d-flex flex-column justify-content-center align-items-center text-muted h-100">
                                     <i class="bi bi-image fs-1"></i>
-                                    <span class="small">Sin imagen</span>
+                                    <span class="small">Foto/Fotos</span>
+                                </div>
+                            }                            
+                        </div>
+
+                        <!-- Contenido -->
+                        <div class="card-body">
+                            <h2 class="h6 fw-semibold mb-2 text-truncate"
+                                title="@item.IdCamisetaNavigation?.Nombre">
+                                @item.IdCamisetaNavigation?.Nombre
+                            </h2>
+
+                            @if (esActiva)
+                            {
+                                <!-- Card activa: precio actual + pujas + tiempo restante -->
+                                <div class="d-flex gap-2 mb-2">
+                                    <span class="badge rounded-pill bg-primary px-3 py-2">
+                                        <i class="bi bi-cash me-1"></i>@precioFinal
+                                    </span>
+                                    <span class="badge rounded-pill bg-secondary px-3 py-2">
+                                        <i class="bi bi-people me-1"></i>@item.Puja.Count pujas
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 small">
+                                    <i class="bi bi-clock text-@urgencia"></i>
+                                    <span class="text-@urgencia fw-semibold">
+                                        @if (tiempoRestante.TotalHours < 1)
+                                        {
+                                            @($"Cierra en {(int)tiempoRestante.TotalMinutes} min")
+                                        }
+                                        else if (tiempoRestante.TotalHours < 24)
+                                        {
+                                            @($"Cierra en {(int)tiempoRestante.TotalHours} h")
+                                        }
+                                        else
+                                        {
+                                            @($"Cierra el {item.FechaCierre:d/M/yy HH:mm}")
+                                        }
+                                    </span>
                                 </div>
                             }
-                    </div>
+                            else
+                            {
+                                <!-- Card finalizada: estado final + precio + fecha cierre -->
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="small text-muted">
+                                        Estado Final:
+                                        <span class="fw-semibold text-@estadoColor">@estadoTexto</span>
+                                    </span>
+                                    <span class="small text-muted">
+                                        Precio: <span class="fw-semibold">@precioFinal</span>
+                                    </span>
+                                </div>
 
-                    <!-- Contenido -->
-                    <div class="card-body">
-                        <h2 class="h6 fw-semibold mb-1 text-truncate" title="@item.IdCamisetaNavigation.Nombre">
-                            @item.IdCamisetaNavigation.Nombre
-                        </h2>
-
-                        <!-- Precio y Cantidad de pujas-->
-                        <div class="d-flex gap-2 mb-0">
-                            <span class="badge rounded-pill bg-primary px-3 py-2">
-                                @(item.Puja.Any()?item.Puja.Max(p=> p.Monto).ToString("C"):item.PrecioBase.ToString("C"))
-                            </span>
-                                <span class="badge rounded-pill bg-secondary px-3 py-2">
-                                    <i class="bi bi-people me-1"></i>
-                                @item.Puja.Count pujas
-                            </span>
-                            
+                                <div class="d-flex align-items-center gap-2 text-muted small">
+                                    <i class="bi bi-clock"></i>
+                                    <span>Fecha de cierre: @item.FechaCierre.ToString("d/M/yy HH:mm")</span>
+                                </div>
+                            }
                         </div>
 
-                        <div class="d-flex align-items-center gap-2 text-muted small">
-                             <i class="bi bi-clock text-primary"></i>
-                             <span>Fecha de cierre: @item.FechaCierre.ToString("d/M/yy HH:mm")</span>
-                         </div>
-                    </div>
-
-                    <!-- Acciones -->
-                    <div class="card-footer bg-body border-0 pt-0 pb-2">
-                        <div class="d-flex gap-2 px-2">                            
-                            <a asp-controller="Camiseta"
-                               asp-action="Details"
-                               asp-route-id="@item.IdCamiseta"
-                               class="btn btn-info flex-fill">
-                                    <i class="bi bi-eye me-1"></i> Ver detalle
+                        <!-- Acciones -->
+                        <div class="card-footer bg-body border-0 pt-0 pb-3 px-3">
+                            <a asp-controller="Subasta"
+                               asp-action="Detalle"
+                               asp-route-id="@item.IdSubasta"
+                               class="btn btn-@(esActiva ? "primary" : "outline-secondary") w-100">
+                                <i class="bi bi-eye me-1"></i>
+                                @(esActiva ? "Ver subasta" : "Ver detalle")
                             </a>
-
                         </div>
-                    </div>
-                </article>
-            </div>
-                }
+
+                    </article>
+                </div>
+            }
 
         </div>
     </section>

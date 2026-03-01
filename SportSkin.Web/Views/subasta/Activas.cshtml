@@ -17,52 +17,27 @@
         </div>
     </div>
 
-    <div class="dropdown">
-        <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false">
-            <i class="bi bi-funnel"></i>
-            @(ViewBag.FiltroActual switch
-            {
-                "vendidos" => "Vendidos",
-                "ensubasta" => "En Subasta",
-                "sinsubasta" => "Sin Subasta",
-                _ => "Filtrar"
-            })
+    <form method="get" class="d-flex align-items-end gap-2 flex-wrap">
+        <div>
+            <label class="form-label small text-muted mb-1">Desde</label>
+            <input type="date" id="inputDesde" name="desde" value="@ViewBag.Desde"
+                   class="form-control form-control-sm" />
+        </div>
+        <div>
+            <label class="form-label small text-muted mb-1">Hasta</label>
+            <input type="date" id="inputHasta" name="hasta" value="@ViewBag.Hasta"
+                   class="form-control form-control-sm" />
+        </div>
+        <button type="submit" id="btnFiltrar"class="btn btn-secondary btn-sm">
+            <i class="bi bi-search me-1"></i> Filtrar
         </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow">
-            <li><h6 class="dropdown-header">Filtrar por estado</h6></li>
-            <li>
-                <a class="dropdown-item d-flex align-items-center gap-2
-               @(ViewBag.FiltroActual == "vendidos" ? "active" : "")"
-                   asp-action="Index" asp-route-filtro="vendidos">
-                    <i class="bi bi-check-circle text-success"></i> Vendidos
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item d-flex align-items-center gap-2
-               @(ViewBag.FiltroActual == "ensubasta" ? "active" : "")"
-                   asp-action="Index" asp-route-filtro="ensubasta">
-                    <i class="bi bi-hammer text-primary"></i> En Subasta
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item d-flex align-items-center gap-2
-               @(ViewBag.FiltroActual == "sinsubasta" ? "active" : "")"
-                   asp-action="Index" asp-route-filtro="sinsubasta">
-                    <i class="bi bi-tag text-secondary"></i> Sin Subasta
-                </a>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-                <a class="dropdown-item d-flex align-items-center gap-2"
-                   asp-action="Index">
-                    <i class="bi bi-x-circle text-danger"></i> Limpiar filtro
-                </a>
-            </li>
-        </ul>
-    </div>
+        @if (ViewBag.Desde != null || ViewBag.Hasta != null)
+        {
+            <a asp-action="Activas" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-x-circle me-1"></i> Limpiar
+            </a>
+        }
+    </form>
 </div>
 
 @if (Model == null || !Model.Any())
@@ -109,12 +84,14 @@ else
 
                         <!-- Precio y Cantidad de pujas-->
                         <div class="d-flex gap-2 mb-0">
-                            <span class="badge rounded-pill bg-secondary px-3 py-2">
+                            <span class="badge rounded-pill bg-primary px-3 py-2">
                                 @(item.Puja.Any()?item.Puja.Max(p=> p.Monto).ToString("C"):item.PrecioBase.ToString("C"))
                             </span>
-                            <span class="badge rounded-pill px-3 py-2">
-                                @(item.Puja.Count)
+                                <span class="badge rounded-pill bg-secondary px-3 py-2">
+                                    <i class="bi bi-people me-1"></i>
+                                @item.Puja.Count pujas
                             </span>
+                            
                         </div>
 
                         <div class="d-flex align-items-center gap-2 text-muted small">
@@ -125,24 +102,14 @@ else
 
                     <!-- Acciones -->
                     <div class="card-footer bg-body border-0 pt-0 pb-2">
-                        <div class="d-flex gap-2 px-2">
-                            <a asp-controller="Subasta"
-                               asp-action="Create"
-                               asp-route-id="@item.IdCamiseta"
-                               class="btn btn-primary flex-fill">
-                                <i class="bi bi-cart-check me-1"></i> Subastar
-                            </a>
+                        <div class="d-flex gap-2 px-2">                            
                             <a asp-controller="Camiseta"
                                asp-action="Details"
                                asp-route-id="@item.IdCamiseta"
                                class="btn btn-info flex-fill">
-                                <i class="bi bi-plus-circle me-1"></i> Ver detalle
+                                    <i class="bi bi-eye me-1"></i> Ver detalle
                             </a>
 
-
-                            @*<button type="button" class="btn btn-outline-secondary">
-                                    <i class="bi bi-bag-plus me-1"></i> Agregar
-                                </button>*@
                         </div>
                     </div>
                 </article>
@@ -154,6 +121,47 @@ else
 }
 
 @section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const inputDesde= document.getElementById('inputDesde');
+            const inputHasta = document.getElementById('inputHasta');
+            const btnFiltrar = document.getElementById('btnFiltrar');
+
+
+            function verificarBoton() {
+                if (inputDesde.value && !inputHasta.value || !inputDesde.value && inputHasta.value) {
+                    btnFiltrar.disabled = true;
+                    btnFiltrar.title = "Debes ingresar la fecha hasta";
+                } else {
+                    btnFiltrar.disabled = false;
+                    btnFiltrar.title = "";
+                }
+            }
+
+            inputDesde.addEventListener('change',function(){
+                if(!this.value) return;
+                const desde = new Date(this.value);
+
+                //calcular máximo (1 mes después)
+                const maxHasta = new Date(desde);
+                maxHasta.setMonth(desde.getMonth()+1);
+                // Cuando cambia "desde", el mínimo de "hasta" se actualiza
+                inputHasta.min= this.value;
+                inputHasta.max = maxHasta.toISOString().split('T')[0];
+                //Si hasta ya tenía una fecha la limpia
+                if(inputHasta.value && inputHasta< this.value){
+                    inputHasta.value='';
+                }
+                verificarBoton();
+            });
+
+            inputHasta.addEventListener('change', function () {
+                // Cuando cambia "hasta", el máximo de "desde" se actualiza
+                inputDesde.max = this.value;
+                verificarBoton();
+            });
+        });
+    </script>
     <style>
         .card:hover {
             transform: translateY(-3px);

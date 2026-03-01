@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
 
 namespace SportSkin.Web.Controllers
@@ -13,9 +14,20 @@ namespace SportSkin.Web.Controllers
         }
 
         // GET: Subasta/Index
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? filtro, DateTime? desde, DateTime? hasta)
         {
-            var lista = await _service.ListAsync();
+            ICollection<SubastaDTO> lista = filtro switch
+            {
+                "activas" => await _service.GetSubastasActivasAsync(desde, hasta),
+                "finalizadas" => await _service.GetSubastasFinalizadasAsync(desde, hasta),
+                "vendidas" => await _service.GetSubastasVendidasAsync(),
+                _ => await _service.ListAsync()
+            };
+
+            ViewBag.FiltroActual = filtro;
+            ViewBag.Desde = desde?.ToString("yyyy-MM-dd");
+            ViewBag.Hasta = hasta?.ToString("yyyy-MM-dd");
+
             return View(lista);
         }
 

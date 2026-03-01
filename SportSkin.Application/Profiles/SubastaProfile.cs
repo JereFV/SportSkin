@@ -14,8 +14,10 @@ namespace SportSkin.Application.Profiles
         public SubastaProfile()
         {
             CreateMap<Subasta, SubastaDTO>()
-                .ForMember(x => x.IdEstadoSubastaNavigation, x => x.MapFrom(x => x.IdEstadoSubastaNavigation))
+                .ForMember(x => x.Puja, x => x.MapFrom(x => x.Puja))
                 .ForMember(x => x.IdCamisetaNavigation, x => x.MapFrom(x => x.IdCamisetaNavigation))
+                .ForMember(x => x.IdEstadoSubastaNavigation, x => x.MapFrom(x => x.IdEstadoSubastaNavigation))
+                .ForMember(x => x.IdUsuarioCompradorNavigation, opt => opt.Ignore()) 
                 .ReverseMap();
 
             CreateMap<SubastaDTO, Subasta>()
@@ -24,7 +26,7 @@ namespace SportSkin.Application.Profiles
                 .ForMember(dest => dest.IdUsuarioCompradorNavigation, opt => opt.Ignore())
                 .ForMember(dest => dest.DatosEnvio, opt => opt.Ignore())
                 .ForMember(dest => dest.Factura, opt => opt.Ignore())
-                .ForMember(dest => dest.Puja, opt => opt.Ignore());
+                .ForMember(x => x.Puja, x => x.MapFrom(x => x.Puja));
         }
     }
 }

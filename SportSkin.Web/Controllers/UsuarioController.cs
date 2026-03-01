@@ -31,6 +31,7 @@ namespace SportSkin.Web.Controllers
                     {
                         var usuarioView = new ListadoUsuariosViewModel()
                         {
+                            IdUsuario = usuario.IdUsuario,
                             NombreCompleto = $"{usuario.Nombre} {usuario.Apellido1} {usuario.Apellido2}",
                             Rol = usuario.RolUsuarioNavigation?.Nombre,
                             Estado = usuario.Estado ? "Activo" : "Inactivo"
@@ -50,9 +51,22 @@ namespace SportSkin.Web.Controllers
         }
 
         // GET: UsuarioController/Details/5
-        public ActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            return View();
+            var usuario = await _service.FindByIdAsync(id);
+            if (usuario == null)
+                return NotFound();
+
+            if (usuario.IdRolUsuario == 2) // Vendedor
+            {
+                var stats = await _service.GetEstadisticasVendedorAsync(id);
+                ViewBag.TotalSubastas = stats.total;
+                ViewBag.SubastasActivas = stats.activas;
+                ViewBag.SubastasVendidas = stats.vendidas;
+                ViewBag.SubastasFinalizadas = stats.finalizadas;
+            }
+
+            return View(usuario);
         }
 
         // GET: UsuarioController/Create

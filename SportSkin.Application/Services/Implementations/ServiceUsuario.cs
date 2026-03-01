@@ -30,5 +30,19 @@ namespace SportSkin.Application.Services.Implementations
 
             return usuariosDTO;
         }
+
+        public async Task<UsuarioDTO> FindByIdAsync(int id)
+        {
+            var entity = await _repository.FindByIdAsync(id);
+            return _mapper.Map<UsuarioDTO>(entity);
+        }
+        public async Task<(int total, int activas, int vendidas, int finalizadas)> GetEstadisticasVendedorAsync(int idUsuario)
+        {
+            var total = await _repository.CountSubastasByVendedorAsync(idUsuario);
+            var activas = await _repository.CountSubastasActivasByVendedorAsync(idUsuario);
+            var vendidas = await _repository.CountSubastasVendidasByVendedorAsync(idUsuario);
+            var finalizadas = total - activas - vendidas;
+            return (total, activas, vendidas, finalizadas);
+        }
     }
 }

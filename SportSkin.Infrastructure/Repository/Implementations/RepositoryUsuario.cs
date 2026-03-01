@@ -28,5 +28,39 @@ namespace SportSkin.Infrastructure.Repository.Implementations
 
             return usuarios;
         }
+        public async Task<Usuario?> FindByIdAsync(int id)
+        {
+            return await _context.Usuario
+                .Include(u => u.IdRolUsuarioNavigation)
+                .Include(u => u.Camiseta)
+                    .ThenInclude(c => c.Subasta)
+                .Include(u => u.Puja)
+                .Include(u => u.Subasta)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.IdUsuario == id);
+        }
+        public async Task<int> CountSubastasByVendedorAsync(int idUsuario)
+        {
+            return await _context.Subasta
+                .Include(s => s.IdCamisetaNavigation)
+                .CountAsync(s => s.IdCamisetaNavigation.IdUsuarioVendedor == idUsuario);
+        }
+
+        public async Task<int> CountSubastasActivasByVendedorAsync(int idUsuario)
+        {
+            return await _context.Subasta
+                .Include(s => s.IdCamisetaNavigation)
+                .CountAsync(s => s.IdCamisetaNavigation.IdUsuarioVendedor == idUsuario
+                              && s.FechaCompra == null
+                              && s.FechaCierre > DateTime.Now);
+        }
+
+        public async Task<int> CountSubastasVendidasByVendedorAsync(int idUsuario)
+        {
+            return await _context.Subasta
+                .Include(s => s.IdCamisetaNavigation)
+                .CountAsync(s => s.IdCamisetaNavigation.IdUsuarioVendedor == idUsuario
+                              && s.FechaCompra != null);
+        }
     }
 }

@@ -4,18 +4,94 @@
     var total = Model?.Count() ?? 0;
 }
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
-    <div>
-        <h1 class="h3 mb-1">
-            <i class="fa-solid fa-gavel text-primary me-2"></i>Todas las Subastas
-        </h1>
-        <p class="text-muted mb-0">Total: <strong>@total</strong> subastas registradas.</p>
-        <button type="button" class="btn btn-outline-success btn-sm" style="border-radius:12px">
-            <i class="bi bi-plus-circle"></i>
-            Agregar subasta
-        </button>
+<form method="get" id="filtroForm">
+    
+    <input type="hidden" name="filtro" id="filtroHidden" value="@ViewBag.FiltroActual" />
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fa-solid fa-gavel text-primary me-2"></i>Todas las Subastas
+            </h1>
+            <p class="text-muted mb-0">Total: <strong>@total</strong> subastas registradas.</p>
+            <button type="button" class="btn btn-outline-success btn-sm" style="border-radius:12px">
+                <i class="bi bi-plus-circle"></i> Agregar subasta
+            </button>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-end gap-2">
+
+            <!-- Dropdown estado actualiza el hidden y hace submit -->
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2"
+                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-funnel"></i>
+                    @(ViewBag.FiltroActual switch
+                    {
+                        "activas" => "Activas",
+                        "finalizadas" => "Finalizadas",
+                        "vendidas" => "Vendidas",
+                        _ => "Estado"
+                    })
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li><h6 class="dropdown-header">Filtrar por estado</h6></li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2
+                           @(ViewBag.FiltroActual == "activas" ? "active" : "")"
+                           href="#" onclick="aplicarFiltro('activas')">
+                            <i class="fa-solid fa-gavel text-primary"></i> Activas
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2
+                           @(ViewBag.FiltroActual == "finalizadas" ? "active" : "")"
+                           href="#" onclick="aplicarFiltro('finalizadas')">
+                            <i class="bi bi-x-circle text-secondary"></i> Finalizadas
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2
+                           @(ViewBag.FiltroActual == "vendidas" ? "active" : "")"
+                           href="#" onclick="aplicarFiltro('vendidas')">
+                            <i class="bi bi-check-circle text-success"></i> Vendidas
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2"
+                           href="#" onclick="aplicarFiltro('')">
+                            <i class="bi bi-x-circle text-danger"></i> Limpiar estado
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Filtro por fecha -->
+            <div>
+                <label class="form-label small text-muted mb-1">Desde</label>
+                <input type="date" id="inputDesde" name="desde" value="@ViewBag.Desde"
+                       class="form-control form-control-sm" />
+            </div>
+            <div>
+                <label class="form-label small text-muted mb-1">Hasta</label>
+                <input type="date" id="inputHasta" name="hasta" value="@ViewBag.Hasta"
+                       class="form-control form-control-sm" />
+            </div>
+
+            <button type="submit" id="btnFiltrar" class="btn btn-primary btn-sm align-self-end">
+                <i class="bi bi-search me-1"></i> Filtrar
+            </button>
+
+            @if (ViewBag.Desde != null || ViewBag.Hasta != null || ViewBag.FiltroActual != null)
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm align-self-end">
+                    <i class="bi bi-x-circle me-1"></i> Limpiar todo
+                </a>
+            }
+        </div>
     </div>
-</div>
+</form>
 
 @if (Model == null || !Model.Any())
 {
@@ -33,87 +109,167 @@ else
                 var primeraImagen = item.IdCamisetaNavigation?.ImagenesCamiseta?.FirstOrDefault();
                 var esActiva = item.FechaCompra == null && item.FechaCierre > DateTime.Now;
                 var fueVendida = item.FechaCompra != null;
-                var estadoBadge = esActiva ? "primary" : fueVendida ? "success" : "secondary";
-                var estadoTexto = esActiva ? "Activa" : fueVendida ? "Vendida" : "Finalizada";
-                var estadoIcono = esActiva ? "fa-solid fa-gavel" : fueVendida ? "bi-check-circle" : "bi-x-circle";
+                var tiempoRestante = item.FechaCierre - DateTime.Now;
+                var urgencia = tiempoRestante.TotalHours < 2 ? "danger"
+                : tiempoRestante.TotalHours < 24 ? "warning"
+                : "success";
+                var precioFinal = fueVendida
+                ? (item.MontoCompra?.ToString("C") ?? item.PrecioBase.ToString("C"))
+                : item.Puja.Any()
+                ? item.Puja.Max(p => p.Monto).ToString("C")
+                : item.PrecioBase.ToString("C");
+                var estadoTexto = esActiva ? "Activa" : fueVendida ? "Vendida" : "Sin compra";
+                var estadoColor = esActiva ? "primary" : fueVendida ? "success" : "danger";
+                var estadoIcono = esActiva ? "fa-solid fa-gavel" : fueVendida ? "bi bi-check-circle" : "bi bi-x-circle";
 
                 <div class="col">
                     <article class="card h-100 shadow-sm border-0">
 
-                        <!-- Imagen con badge de estado -->
+                        <!-- Imagen -->
                         <div class="rounded-top overflow-hidden bg-body-tertiary position-relative" style="height: 240px;">
                             @if (primeraImagen != null)
                             {
                                 <img class="w-100 h-100 object-fit-cover rounded-top"
                                      src="@primeraImagen.RutaImagen"
-                                     alt="Imagen de @item.IdCamisetaNavigation.Nombre"
+                                     alt="@item.IdCamisetaNavigation?.Nombre"
                                      loading="lazy" />
                             }
                             else
                             {
                                 <div class="d-flex flex-column justify-content-center align-items-center text-muted h-100">
                                     <i class="bi bi-image fs-1"></i>
-                                    <span class="small">Sin imagen</span>
+                                    <span class="small">Foto/Fotos</span>
                                 </div>
                             }
-                        <!-- Badge estado sobre imagen -->
-                        <div class="position-absolute top-0 end-0 m-2">
-                            <span class="badge bg-@estadoBadge">
-                                <i class=" @estadoIcono me-1"></i>@estadoTexto
-                            </span>
+                            <!-- Badge estado -->
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge bg-@estadoColor">
+                                    <i class="@estadoIcono me-1"></i>@estadoTexto
+                                </span>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Contenido -->
-                    <div class="card-body">
-                        <h2 class="h6 fw-semibold mb-2 text-truncate"
-                            title="@item.IdCamisetaNavigation?.Nombre">
-                            @item.IdCamisetaNavigation?.Nombre
-                        </h2>
+                        <!-- Contenido -->
+                        <div class="card-body">
+                            <h2 class="h6 fw-semibold mb-2 text-truncate"
+                                title="@item.IdCamisetaNavigation?.Nombre">
+                                @item.IdCamisetaNavigation?.Nombre
+                            </h2>
 
-                        <!-- Precio y pujas -->
-                        <div class="d-flex gap-2 mb-2">
-                            <span class="badge rounded-pill bg-primary px-3 py-2">
-                                <i class="bi bi-cash me-1"></i>
-                                @(item.Puja.Any()
-                                                            ? item.Puja.Max(p => p.Monto).ToString("C")
-                                                            : item.PrecioBase.ToString("C"))
-                                                                                        </span>
-                                                                                        <span class="badge rounded-pill bg-secondary px-3 py-2">
-                                                                                            <i class="bi bi-people me-1"></i>
-                                                                                            @item.Puja.Count pujas
-                                                                                        </span>
-                                                                                    </div>
-
-                        <!-- Fecha cierre -->
-                        <div class="d-flex align-items-center gap-2 text-muted small">
-                            <i class="bi bi-calendar"></i>
-                            <span>
-                                @(esActiva
-                                                            ? $"Cierra el {item.FechaCierre:d/M/yy HH:mm}"
-                                                            : $"Cerró el {item.FechaCierre:d/M/yy HH:mm}")
-                        </span>
-                    </div>
-                </div>
+                            @if (esActiva)
+                            {
+                                <!-- Card activa: precio actual + pujas + tiempo restante -->
+                                <div class="d-flex gap-2 mb-2">
+                                    <span class="badge rounded-pill bg-primary px-3 py-2">
+                                        <i class="bi bi-cash me-1"></i>@precioFinal
+                                    </span>
+                                    <span class="badge rounded-pill bg-secondary px-3 py-2">
+                                        <i class="bi bi-people me-1"></i>@item.Puja.Count pujas
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 small">
+                                    <i class="bi bi-clock text-@urgencia"></i>
+                                    <span class="text-@urgencia fw-semibold">
+                                        @if (tiempoRestante.TotalHours < 1)
+                                        {
+                                            @($"Cierra en {(int)tiempoRestante.TotalMinutes} min")
+                                        }
+                                        else if (tiempoRestante.TotalHours < 24)
+                                        {
+                                            @($"Cierra en {(int)tiempoRestante.TotalHours} h")
+                                        }
+                                        else
+                                        {
+                                            @($"Cierra el {item.FechaCierre:d/M/yy HH:mm}")
+                                        }
+                                    </span>
+                                </div>
+                            }
+                            else
+                            {
+                                <!-- Card finalizada: estado final + precio + fecha cierre -->
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="small text-muted">
+                                        Estado Final:
+                                        <span class="fw-semibold text-@estadoColor">@estadoTexto</span>
+                                    </span>
+                                    <span class="small text-muted">
+                                        Precio: <span class="fw-semibold">@precioFinal</span>
+                                    </span>
+                                </div>
+                                
+                                <div class="d-flex align-items-center gap-2 text-muted small">
+                                    <i class="bi bi-clock"></i>
+                                    <span>Fecha de cierre: @item.FechaCierre.ToString("d/M/yy HH:mm")</span>
+                                </div>
+                            }
+                        </div>
 
                         <!-- Acciones -->
                         <div class="card-footer bg-body border-0 pt-0 pb-3 px-3">
                             <a asp-controller="Subasta"
                                asp-action="Details"
                                asp-route-id="@item.IdSubasta"
-                               class="btn btn-primary w-100">
-                                <i class="bi bi-eye me-1"></i> Ver subasta
+                               class="btn btn-@(esActiva ? "primary" : "outline-secondary") w-100">
+                                <i class="bi bi-eye me-1"></i>
+                                @(esActiva ? "Ver subasta" : "Ver detalle")
                             </a>
                         </div>
 
                     </article>
                 </div>
-                }
+            }
         </div>
     </section>
 }
 
 @section Scripts {
+    <script>
+        function aplicarFiltro(valor) {
+            document.getElementById('filtroHidden').value = valor;
+            document.getElementById('filtroForm').submit();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const inputDesde= document.getElementById('inputDesde');
+            const inputHasta = document.getElementById('inputHasta');
+            const btnFiltrar = document.getElementById('btnFiltrar');
+
+
+            function verificarBoton() {
+                if (inputDesde.value && !inputHasta.value || !inputDesde.value && inputHasta.value) {
+                    btnFiltrar.disabled = true;
+                    btnFiltrar.title = "Debes ingresar la fecha hasta";
+                } else {
+                    btnFiltrar.disabled = false;
+                    btnFiltrar.title = "";
+                }
+            }
+
+            inputDesde.addEventListener('change',function(){
+                if(!this.value) return;
+                const desde = new Date(this.value);
+
+                //calcular máximo (1 mes después)
+                const maxHasta = new Date(desde);
+                maxHasta.setMonth(desde.getMonth()+1);
+                // Cuando cambia "desde", el mínimo de "hasta" se actualiza
+                inputHasta.min= this.value;
+                inputHasta.max = maxHasta.toISOString().split('T')[0];
+                //Si hasta ya tenía una fecha la limpia
+                if(inputHasta.value && inputHasta< this.value){
+                    inputHasta.value='';
+                }
+                verificarBoton();
+            });
+
+            inputHasta.addEventListener('change', function () {
+                // Cuando cambia "hasta", el máximo de "desde" se actualiza
+                inputDesde.max = this.value;
+                verificarBoton();
+            });
+        });
+    </script>
     <style>
         .card:hover {
             transform: translateY(-3px);

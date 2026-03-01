@@ -65,7 +65,7 @@ namespace SportSkin.Application.DTOs
 
         public List<ImagenCamisetaDTO> ImagenesCamiseta { get; set; } = new();
 
-        public List<SubastaDTO> Subastas { get; set; } = new();
+        public List<SubastaDTO> Subasta { get; set; } = new();
 
         public List<CategoriaCamisetaDTO> CategoriasCamiseta { get; set; } = new();
     }

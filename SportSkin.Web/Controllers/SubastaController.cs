@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
+using SportSkin.Web.ViewModels;
 
 namespace SportSkin.Web.Controllers
 {
@@ -59,13 +60,22 @@ namespace SportSkin.Web.Controllers
         }
 
         // GET: Subasta/Details/5
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Detalle(int id)
         {
             var subasta = await _service.FindByIdAsync(id);
+
             if (subasta == null)
                 return NotFound();
 
-            return View(subasta);
+            DetalleSubastaViewModel detalleSubastaViewModel = new DetalleSubastaViewModel()
+            {
+                Subasta = subasta,
+                SituacionFirma = subasta.IdCamisetaNavigation.Autografiada ? "Firmada" : "No Firmada",
+                PujaActual = subasta.Puja.Any() ? subasta.Puja.Max(x => x.Monto) : subasta.PrecioBase,
+                CantidadTotalPujas = subasta.Puja?.Count ?? 0
+            };
+
+            return View(detalleSubastaViewModel);
         }
     }
 }

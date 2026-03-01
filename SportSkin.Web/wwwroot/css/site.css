@@ -30,6 +30,12 @@ body {
   text-align: start;
 }
 
+.keep-icon::-webkit-calendar-picker-indicator {
+    display: block !important;
+    opacity: 1 !important;
+    pointer-events: none; /* Evita que el calendario se abra al hacer clic */
+}
+
 @media (min-width: 1400px) {
     .userstable-action-buttons {
         margin-right: 0.5rem;

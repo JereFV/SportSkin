@@ -1,0 +1,275 @@
+﻿@model SportSkin.Web.ViewModels.DetalleSubastaViewModel
+
+@{
+    ViewData["Title"] = "Detalle Subasta";
+}
+
+<div class="row" style="margin-bottom: 1rem">
+    <a class="icon-link icon-link-hover link-info" asp-action="Index">
+        <svg xmlns="http://www.w3.org/2000/svg" class="bi" viewBox="0 0 16 16" aria-hidden="true">
+            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+        </svg>
+        Regresar al Listado
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        @if (Model.Subasta.IdCamisetaNavigation?.ImagenesCamiseta?.Count > 0)
+        {
+            //Variable auxiliar para controlar la posición de la imagen en iteración.
+            int contador = 1;
+
+            <div id="imagesCarrousel" class="carousel slide">
+                <div class="carousel-inner">
+                    <!-- Botones de navegación -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#imagesCarrousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#imagesCarrousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+
+                    @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model.Subasta.IdCamisetaNavigation.ImagenesCamiseta)
+                    {
+                        <div class="@(contador++ == 1 ? "carousel-item active" : "carousel-item")">
+                            <div class="ratio ratio-1x1" style="max-width: 615px;">
+                                <img src="@imagen.RutaImagen" class="object-fit-cover rounded" alt="...">
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Miniaturas de imágenes -->
+                <div class="d-flex gap-1 mt-3">
+                    <!-- Se reestablece el valor del contador auxiliar previo a una nueva iteración. -->
+                    @{
+                        contador = 0;
+                    }
+
+                    @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model.Subasta.IdCamisetaNavigation.ImagenesCamiseta)
+                    {
+                        <img src="@imagen.RutaImagen" class="img-thumbnail" style="width: 120px; max-height: 120px; object-fit: cover; cursor: pointer;" data-bs-target="#imagesCarrousel" data-bs-slide-to="@contador">
+
+                        //Aumento en contador auxiliar.
+                        { contador++; }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-6">       
+        <div class="card" style="margin-bottom: 1rem">
+            <div class="card-header">
+                <h3 style="margin-bottom: 0.10rem"><b>@Html.DisplayFor(model => model.Subasta.IdCamisetaNavigation.Nombre)</b></h3>
+
+                <div style="display:flex" class="gap-2">
+                    @foreach (SportSkin.Application.DTOs.CategoriaCamisetaDTO categoria in Model.Subasta.IdCamisetaNavigation?.CategoriasCamiseta ?? Enumerable.Empty<SportSkin.Application.DTOs.CategoriaCamisetaDTO>())
+                    {
+                        <h5><span class="badge text-bg-primary">@categoria.Nombre</span></h5>
+                    }
+
+                    <h5>
+                        <span class="badge @(Model.Subasta.IdCamisetaNavigation?.Autografiada ?? false ? "text-bg-success" : "text-bg-warning")">
+                            <i class="fa-solid fa-signature"></i>&nbsp;@Html.DisplayFor(model => model.SituacionFirma)
+                        </span>
+                    </h5>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <p>@Html.DisplayFor(model => model.Subasta.IdCamisetaNavigation.Descripcion)</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; justify-items: center">
+                    <div style="display: flex; flex-direction: column; align-items: center">
+                        <h6 style="color: gray">
+                            @Html.DisplayNameFor(model => model.Subasta.IdCamisetaNavigation.CondicionCamisetaNavigation)
+                        </h6>
+
+                        <h5>
+                            <span class="badge text-bg-primary">
+                                <i class="fa-solid fa-magnifying-glass"></i>&nbsp;@Html.DisplayFor(model => model.Subasta.IdCamisetaNavigation.CondicionCamisetaNavigation.Nombre)
+                            </span>
+                        </h5>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; align-items: center">
+                        <h6 style="color: gray">
+                            @Html.DisplayNameFor(model => model.Subasta.IdCamisetaNavigation.EquipoNavigation)
+                        </h6>
+
+                        <h5>
+                            <span class="badge text-bg-primary">
+                                <i class="fa-solid fa-futbol"></i>&nbsp;@Html.DisplayFor(model => model.Subasta.IdCamisetaNavigation.EquipoNavigation.Nombre)
+                            </span>
+                        </h5>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; align-items: center">
+                        <h6 style="color: gray">
+                            @Html.DisplayNameFor(model => model.Subasta.IdCamisetaNavigation.JugadorNavigation)
+                        </h6>
+
+                        <h5>
+                            <span class="badge text-bg-primary">
+                                <i class="fa-solid fa-person-running"></i>&nbsp;@Html.DisplayFor(model => model.Subasta.IdCamisetaNavigation.JugadorNavigation.Nombre)
+                            </span>
+                        </h5>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; align-items: center">
+                        <h6 style="color: gray">
+                            @Html.DisplayNameFor(model => model.Subasta.IdCamisetaNavigation.Temporada)
+                        </h6>
+
+                        <h5>
+                            <span class="badge text-bg-primary">
+                                <i class="fa-solid fa-calendar-days"></i>&nbsp;@Html.DisplayFor(model => model.Subasta.IdCamisetaNavigation.Temporada)
+                            </span>
+                        </h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr />  
+
+        <div style="margin-top: 1rem; margin-bottom: 2rem">
+            <h3 style="margin-bottom: 1rem">
+                <i class="fa-solid fa-gavel"></i>&nbsp;Datos de la Subasta
+            </h3>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; justify-items: center; margin-bottom: 2rem">
+                <div style="display: flex; flex-direction: column; align-items: center">
+                    <h6 style="color: gray">
+                        @Html.DisplayNameFor(model => model.Subasta.FechaInicio)
+                    </h6>
+
+                    <div class="input-group"> 
+                        <input asp-for="Subasta.FechaInicio" asp-format="{0:yyyy-MM-ddTHH:mm}" type="datetime-local" class="form-control" disabled style="text-align: center" />
+                       
+                        <span class="input-group-text">
+                            <i class="bi bi-calendar3"></i>
+                        </span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; align-items: center">
+                    <h6 style="color: gray">
+                        @Html.DisplayNameFor(model => model.Subasta.FechaCierre)
+                    </h6>
+
+                    <div class="input-group">
+                        <input asp-for="Subasta.FechaCierre" asp-format="{0:yyyy-MM-ddTHH:mm}" type="datetime-local" class="form-control" disabled style="text-align: center" />
+                        
+                        <span class="input-group-text">
+                            <i class="bi bi-calendar3"></i>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; justify-items: center; margin-bottom: 2rem">
+                <div style="display: flex; flex-direction: column; align-items: center">
+                    <h6 style="color: gray">
+                        @Html.DisplayNameFor(model => model.Subasta.PrecioBase)
+                    </h6>
+
+                    <h5 style="font-weight: 500">@Html.DisplayFor(model => model.Subasta.PrecioBase)</h5>
+                </div>
+
+                <div style="display: flex; flex-direction: column; align-items: center">
+                    <h6 style="color: gray">
+                        @Html.DisplayNameFor(model => model.PujaActual)
+                    </h6>
+
+                    <h5 style="font-weight: 900">@Html.DisplayFor(model => model.PujaActual)</h5>
+                </div>
+
+                <div style="display: flex; flex-direction: column; align-items: center">
+                    <h6 style="color: gray">
+                        @Html.DisplayNameFor(model => model.Subasta.IncrementoMinimo)
+                    </h6>
+
+                    <h5 style="font-weight: 500">@Html.DisplayFor(model => model.Subasta.PrecioBase)</h5>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.25rem; justify-items: center">
+                <div style="display: flex; flex-direction: row; align-items: center">
+                    <h6 style="color: gray; margin-right: 1rem">
+                        @Html.DisplayNameFor(model => model.Subasta.IdEstadoSubastaNavigation)
+                    </h6>
+
+                    <h5>
+                        <span class="badge text-bg-primary">
+                            <i class="fa-solid fa-basket-shopping"></i>&nbsp;@Html.DisplayFor(model => model.Subasta.IdEstadoSubastaNavigation.Nombre)
+                        </span>
+                    </h5>
+                </div>
+
+                <div style="display: flex; flex-direction: row; align-items: center">
+                    <h6 style="color: gray; margin-right: 1rem">
+                        @Html.DisplayNameFor(model => model.CantidadTotalPujas)
+                    </h6>
+
+                    <h5>
+                        <span class="badge text-bg-success">
+                            <i class="fa-solid fa-hashtag"></i>&nbsp;@Html.DisplayFor(model => model.CantidadTotalPujas)
+                        </span>
+                    </h5>
+                </div>
+            </div>
+        </div>
+
+        <p class="d-inline-flex gap-1">
+            <button class="btn btn-outline-info btn-lg" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                <i class="fa-solid fa-arrow-right-arrow-left"></i>&nbspListado de Pujas
+            </button>
+        </p>
+        <div class="collapse" id="collapseExample">
+            @if (Model.Subasta.Puja.Count > 0)
+            {
+                <table class="table" id="auctionsHistory" style="text-align: center">
+                    <thead>
+                        <tr>
+                            <th>
+                                Usuario
+                            </th>
+                            <th>
+                                Monto
+                            </th>
+                            <th>
+                                Fecha
+                            </th>                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Subasta.Puja.OrderByDescending(x => x.Fecha))
+                        {
+                            <tr>
+                                <td>
+                                    @item.IdUsuarioPujaNavigation.Nombre
+                                </td>
+                                <td>
+                                    @item.Monto.ToString("C0")
+                                </td>
+                                <td>
+                                    @item.Fecha.ToString("dd/MM/yyyy HH:mm")
+                                </td>                               
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <h5 style="text-align: center">
+                    <i class="fa-solid fa-exclamation text-primary"></i>No existen pujas realizadas para la subasta.
+                </h5>
+            }
+        </div>
+    </div>
+</div>

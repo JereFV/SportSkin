@@ -1,7 +1,7 @@
 ﻿@model SportSkin.Web.ViewModels.DetalleCamisetaViewModel
 
 @{
-    ViewData["Title"] = "Detalle";
+    ViewData["Title"] = "Detalle Camiseta";
 }
 
 <div class="row" style="margin-bottom: 1rem">
@@ -34,7 +34,7 @@
                     {
                         <div class="@(contador++ == 1 ? "carousel-item active" : "carousel-item")">
                             <div class="ratio ratio-1x1" style="max-width: 615px;">
-                                <img src="@imagen.RutaImagen" class="object-fit-cover" alt="...">
+                                <img src="@imagen.RutaImagen" class="object-fit-cover rounded" alt="...">
                             </div>
                         </div>
                     }   

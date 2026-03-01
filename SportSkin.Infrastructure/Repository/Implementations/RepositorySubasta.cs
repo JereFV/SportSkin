@@ -31,8 +31,13 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                     .ThenInclude(c => c.IdEquipoNavigation)             
                 .Include(s => s.IdCamisetaNavigation)
                     .ThenInclude(c => c.IdEstadoCamisetaNavigation)
+                .Include(s => s.IdCamisetaNavigation)
+                    .ThenInclude(c => c.IdJugadorNavigation)
+                .Include(s => s.IdCamisetaNavigation)
+                    .ThenInclude(c => c.IdCategoriaCamiseta)
                 .Include(s => s.IdEstadoSubastaNavigation)
-                .Include(s => s.Puja);
+                .Include(s => s.Puja)
+                    .ThenInclude(c => c.IdUsuarioPujaNavigation);
         }
 
         public async Task<ICollection<Subasta>> ListAsync()
@@ -43,7 +48,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .ToListAsync();
         }
 
-        public async Task<Subasta> FindByIdAsync(int id)
+        public async Task<Subasta?> FindByIdAsync(int id)
         {
             return await QueryBase()
                 .AsNoTracking()

@@ -4,6 +4,7 @@ using SportSkin.Infrastructure.Models;
 using SportSkin.Infrastructure.Repository.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -83,9 +84,12 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         public async Task<ICollection<Subasta>> GetSubastasActivasAsync(
         DateTime? desde, DateTime? hasta)
         {
+            //Solución vuelta loca
+            //var fechaActual = DateTime.ParseExact(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.fff", CultureInfo.InvariantCulture), ("yyyy/MM/dd HH:mm:ss.fff"), CultureInfo.InvariantCulture);
+            var fechaPrueba = DateTime.Now;
             var query = QueryBase()
                 .Where(s => s.FechaCompra == null
-                         && s.FechaCierre > DateTime.Now);
+                         && s.FechaCierre > fechaPrueba);
 
             // Aplica filtro de fecha solo si se proporcionó
             if (desde.HasValue)
@@ -104,8 +108,9 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         public async Task<ICollection<Subasta>> GetSubastasFinalizadasAsync(
         DateTime? desde, DateTime? hasta)
         {
+            var fechaActual = DateTime.Now;
             var query = QueryBase()
-                .Where(s => s.FechaCierre <= DateTime.Now);
+                .Where(s => s.FechaCierre <= fechaActual);
 
             if (desde.HasValue)
                 query = query.Where(s => s.FechaCierre >= desde.Value);
@@ -143,8 +148,9 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         // Subastas activas ordenadas por cantidad de pujas
         public async Task<ICollection<Subasta>> GetSubastasMasPopularesAsync(int top)
         {
+            var fechaActual = DateTime.Now;
             return await QueryBase()
-                .Where(s => s.FechaCompra == null && s.FechaCierre > DateTime.Now)
+                .Where(s => s.FechaCompra == null && s.FechaCierre > fechaActual)
                 .OrderByDescending(s => s.Puja.Count)
                 .Take(top)
                 .AsNoTracking()

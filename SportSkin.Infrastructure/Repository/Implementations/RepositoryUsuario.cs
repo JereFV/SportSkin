@@ -48,11 +48,12 @@ namespace SportSkin.Infrastructure.Repository.Implementations
 
         public async Task<int> CountSubastasActivasByVendedorAsync(int idUsuario)
         {
+            var fechaActual = DateTime.Now;
             return await _context.Subasta
                 .Include(s => s.IdCamisetaNavigation)
                 .CountAsync(s => s.IdCamisetaNavigation.IdUsuarioVendedor == idUsuario
                               && s.FechaCompra == null
-                              && s.FechaCierre > DateTime.Now);
+                              && s.FechaCierre > fechaActual);
         }
 
         public async Task<int> CountSubastasVendidasByVendedorAsync(int idUsuario)

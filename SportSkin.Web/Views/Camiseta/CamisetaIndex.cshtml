@@ -36,28 +36,28 @@
             <li>
                 <a class="dropdown-item d-flex align-items-center gap-2
                @(ViewBag.FiltroActual == "vendidos" ? "active" : "")"
-                   asp-action="Index" asp-route-filtro="vendidos">
+                   asp-action="CamisetaIndex" asp-route-filtro="vendidos">
                     <i class="bi bi-check-circle text-success"></i> Vendidos
                 </a>
             </li>
             <li>
                 <a class="dropdown-item d-flex align-items-center gap-2
                @(ViewBag.FiltroActual == "ensubasta" ? "active" : "")"
-                   asp-action="Index" asp-route-filtro="ensubasta">
+                   asp-action="CamisetaIndex" asp-route-filtro="ensubasta">
                     <i class="fa-solid fa-gavel text-primary"></i> En Subasta
                 </a>
             </li>
             <li>
                 <a class="dropdown-item d-flex align-items-center gap-2
                @(ViewBag.FiltroActual == "sinsubasta" ? "active" : "")"
-                   asp-action="Index" asp-route-filtro="sinsubasta">
+                   asp-action="CamisetaIndex" asp-route-filtro="sinsubasta">
                     <i class="bi bi-tag text-secondary"></i> Sin Subasta
                 </a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
                 <a class="dropdown-item d-flex align-items-center gap-2"
-                   asp-action="Index">
+                   asp-action="CamisetaIndex">
                     <i class="bi bi-x-circle text-danger"></i> Limpiar filtro
                 </a>
             </li>
@@ -136,7 +136,7 @@ else
                                     <i class="bi bi-cart-check me-1"></i> Subastar
                                 </a>
                                 <a asp-controller="Camiseta"
-                                   asp-action="Details"
+                                   asp-action="CamisetaDetails"
                                    asp-route-id="@item.IdCamiseta"
                                    class="btn btn-info flex-fill">
                                     <i class="bi bi-plus-circle me-1"></i> Ver detalle

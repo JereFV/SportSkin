@@ -24,7 +24,7 @@ namespace SportSkin.Web.Controllers
             _serviceCamiseta = serviceCamiseta;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> HomeIndex()
         {
             _logger.LogInformation("Entrando al método Index del HomeController");
 

@@ -15,7 +15,7 @@ namespace SportSkin.Web.Controllers
         }
 
         // GET: Subasta/Index
-        public async Task<IActionResult> Index(string? filtro, DateTime? desde, DateTime? hasta)
+        public async Task<IActionResult> SubastaIndex(string? filtro, DateTime? desde, DateTime? hasta)
         {
             ICollection<SubastaDTO> lista = filtro switch
             {

@@ -16,7 +16,7 @@ namespace SportSkin.Web.Controllers
         }
 
         // GET: Camiseta
-        public async Task<IActionResult> Index(string? filtro)
+        public async Task<IActionResult> CamisetaIndex(string? filtro)
         {
             ICollection<CamisetaDTO> lista;
 
@@ -33,7 +33,7 @@ namespace SportSkin.Web.Controllers
         }
 
         // GET: Camiseta/Details/5
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> CamisetaDetails(int id)
         {
             var camiseta = await _service.FindByIdAsync(id);
 

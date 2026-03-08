@@ -1,0 +1,64 @@
+{
+  "title": "Auctions",
+  "allAuctions": "All Auctions",
+  "activeAuctions": "Active Auctions",
+  "finishedAuctions": "Finished Auctions",
+  "myAuctions": "My Auctions",
+  "totalLabel": "Total:",
+  "totalRegistered": "registered auctions.",
+  "sellerSummary": "Summary of your auctions as a seller.",
+  "noActive": "No shirts available at this time.",
+  "noFinished": "There are no finished auctions.",
+  "noMine": "You have no registered auctions.",
+  "detail": "Auction Detail",
+  "closedLabel": "Closed. Total:",
+  "fields": {
+    "startDate": "Start Date",
+    "closeDate": "Close Date",
+    "basePrice": "Base Price",
+    "currentBid": "Current Bid",
+    "minIncrement": "Minimum Increment",
+    "auctionStatus": "Auction Status",
+    "totalBids": "Total Bids",
+    "buyNowPrice": "Buy Now Price",
+    "purchaseDate": "Purchase Date",
+    "commissionPercent": "Commission Percentage",
+    "commissionAmount": "Commission Amount"
+  },
+  "bids": {
+    "title": "Bid History",
+    "user": "User",
+    "amount": "Amount",
+    "date": "Date",
+    "noBids": "There are no bids for this auction.",
+    "count_one": "bid",
+    "count_other": "bids",
+    "badge_one": "bid",
+    "badge_other": "bids"
+  },
+  "time": {
+    "closesIn": "Closes in",
+    "closedOn": "Closed:",
+    "closeDate": "Close date:",
+    "closed": "Closed",
+    "days_one": "day",
+    "days_other": "days",
+    "hours_one": "hour",
+    "hours_other": "hours",
+    "min_one": "minute",
+    "min_other": "minutes"
+  },
+  "stats": {
+    "active": "Active",
+    "sold": "Sold",
+    "finished": "Finished"
+  },
+  "popular": {
+    "title": "Most Popular Auctions",
+    "subtitle": "The ones generating the most attention right now",
+    "viewAll": "View all",
+    "basePrice": "Base price",
+    "buyNow": "Buy now",
+    "noPopular": "No active auctions at this time. Check back soon!"
+  }
+}

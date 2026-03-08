@@ -9,7 +9,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="bi" viewBox="0 0 16 16" aria-hidden="true">
             <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
         </svg>
-        Regresar al Listado
+        <span data-i18n="actions.back">  </span>
     </a>
 </div>
 
@@ -61,7 +61,7 @@
     <div class="col-md-6">
         <h3 style="margin-bottom: 1rem">
             <i class="fa-solid fa-shirt text-primary"></i>
-            &nbspInformación de la Camiseta
+            &nbsp;<span data-i18n="shirts:info">   </span>
         </h3>
 
         <div style="margin-left: 3rem">
@@ -84,43 +84,43 @@
 
             <h5 style="margin-bottom: 1rem">
                 <i class="fa-solid fa-user text-primary"></i>
-                &nbsp<b>@Html.DisplayNameFor(model => model.NombreCompletoPropietario):</b> @Html.DisplayFor(model => model.NombreCompletoPropietario)
+                &nbsp;<b><span data-i18n="shirts:fields.owner"> </span>:</b> @Html.DisplayFor(model => model.NombreCompletoPropietario)
             </h5>               
 
             <h5 style="margin-bottom: 1rem">
                 <i class="fa-solid fa-clock text-primary"></i>
-                &nbsp<b>@Html.DisplayNameFor(model => model.FechaRegistroFormateada):</b> @Html.DisplayFor(model => model.FechaRegistroFormateada)
+                &nbsp;<b><span data-i18n="shirts:fields.registrationDate"> </span>: </b> @Html.DisplayFor(model => model.FechaRegistroFormateada)
             </h5>            
 
             <h5 style="margin-bottom: 1rem">
                 <i class="fa-solid fa-gavel text-primary"></i>
-                &nbsp<b>@Html.DisplayNameFor(model => model.Camiseta.EstadoCamisetaNavigation):</b> @Html.DisplayFor(model => model.Camiseta.EstadoCamisetaNavigation.Nombre)
+                &nbsp;<b><span data-i18n="shirts:fields.currentStatus"> </span>:</b> @Html.DisplayFor(model => model.Camiseta.EstadoCamisetaNavigation.Nombre)
             </h5>
 
             <h5 style="margin-bottom: 1rem">
                 <i class="fa-solid fa-magnifying-glass text-primary"></i>
-                &nbsp<b>@Html.DisplayNameFor(model => model.Camiseta.CondicionCamisetaNavigation):</b> @Html.DisplayFor(model => model.Camiseta.CondicionCamisetaNavigation.Nombre)
+                &nbsp;<b><span data-i18n="shirts:fields.condition"> </span>:</b> @Html.DisplayFor(model => model.Camiseta.CondicionCamisetaNavigation.Nombre)
             </h5>          
 
             <h5 style="margin-bottom: 1rem">
                 <i class="fa-solid fa-futbol text-primary"></i>
-                &nbsp<b>@Html.DisplayNameFor(model => model.Camiseta.EquipoNavigation):</b> @Html.DisplayFor(model => model.Camiseta.EquipoNavigation.Nombre)
+                &nbsp;<b><span data-i18n="shirts:fields.team"> </span>:</b> @Html.DisplayFor(model => model.Camiseta.EquipoNavigation.Nombre)
             </h5>
 
             <h5 style="margin-bottom: 1rem">
                 <i class="fa-solid fa-person-running text-primary"></i>
-                &nbsp<b>@Html.DisplayNameFor(model => model.Camiseta.JugadorNavigation):</b> @Html.DisplayFor(model => model.Camiseta.JugadorNavigation.Nombre)
+                &nbsp;<b><span data-i18n="shirts:fields.player"> </span>:</b> @Html.DisplayFor(model => model.Camiseta.JugadorNavigation.Nombre)
             </h5>
 
             <h5 style="margin-bottom: 1rem">
                 <i class="fa-solid fa-calendar-days text-primary"></i>
-                &nbsp<b>@Html.DisplayNameFor(model => model.Camiseta.Temporada):</b> @Html.DisplayFor(model => model.Camiseta.Temporada)
+                &nbsp;<b><span data-i18n="shirts:fields.season"> </span>: </b> @Html.DisplayFor(model => model.Camiseta.Temporada)
             </h5>
         </div> 
         
         <h3 style="margin-top: 2.5rem; margin-bottom: 1.5rem">
             <i class="fa-solid fa-clock-rotate-left text-primary"></i>
-            &nbspHistorial de Subastas
+            &nbsp;<span data-i18n="shirts:auctionHistory">Historial de Subastas</span>
         </h3>  
 
         @if (Model.Camiseta.Subastas.Count > 0)
@@ -129,16 +129,16 @@
                 <thead>
                     <tr>
                         <th>
-                            Identificador de Subasta
+                            <span data-i18n="shirts:auctionTable.auctionId">Identificador de Subasta</span>
                         </th>
                         <th>
-                            Fecha de Inicio
+                            <span data-i18n="shirts:auctionTable.startDate">Fecha de Inicio</span>
                         </th>
                         <th>
-                            Fecha de Cierre
+                            <span data-i18n="shirts:auctionTable.closeDate">Fecha de Cierre</span>
                         </th>
                         <th>
-                            Estado Subasta
+                            <span data-i18n="shirts:auctionTable.auctionStatus">Estado Subasta</span>
                         </th>
                     </tr>
                 </thead>
@@ -166,7 +166,8 @@
         else
         {
             <h6 style="text-align: center">
-                <i class="fa-solid fa-exclamation text-primary"></i>No existen subastas relacionadas a la camiseta.
+                <i class="fa-solid fa-exclamation text-primary"></i>
+                <span data-i18n="shirts:noAuctions">No existen subastas relacionadas a la camiseta.</span>
             </h6>
         }
 

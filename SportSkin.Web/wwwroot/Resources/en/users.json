@@ -1,0 +1,32 @@
+{
+  "title": "Users",
+  "listTitle": "User List",
+  "detail": "User Detail",
+  "fields": {
+    "fullName": "Full Name",
+    "role": "Role",
+    "status": "Status",
+    "registrationDate": "Registration Date",
+    "email": "Email",
+    "phone": "Phone",
+    "username": "Username",
+    "password": "Password",
+    "firstName": "First Name",
+    "lastName1": "First Surname",
+    "lastName2": "Second Surname"
+  },
+  "actions": "Actions",
+  "sellerStats": {
+    "createdAuctions": "Created Auctions:",
+    "soldBadge_one": "sold",
+    "soldBadge_other": "sold",
+    "activeBadge_one": "active",
+    "activeBadge_other": "active",
+    "finishedBadge_one": "finished",
+    "finishedBadge_other": "finished"
+  },
+  "buyerStats": {
+    "bidsCount": "Total Bids Placed:"
+  },
+  "adminNote": "Administrative role — no auction activity"
+}

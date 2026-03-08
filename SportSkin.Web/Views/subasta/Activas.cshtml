@@ -7,34 +7,38 @@
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
     <div>
-        <h1 class="h3 mb-1">Subastas de camisetas</h1>
-        <p class="text-muted mb-0">Explora el catálogo disponible. Total: <strong>@total</strong>.</p>
+        <h1 class="h3 mb-1">
+            <span data-i18n="auctions:activeAuctions"></span>
+        </h1>
+        <p class="text-muted mb-0">
+            <span data-i18n="auctions:totalLabel"></span> <strong>@total</strong>.
+        </p>
         <div class="d-grid gap-2 d-md-flex justify-content-md">
             <button type="button" class="btn btn-outline-success btn-sm" style="border-radius:12px">
                 <i class="bi bi-plus-circle"></i>
-                Agregar subasta
+                <span data-i18n="actions.addAuction"></span>
             </button>
         </div>
     </div>
 
     <form method="get" class="d-flex align-items-end gap-2 flex-wrap">
         <div>
-            <label class="form-label small text-muted mb-1">Desde</label>
+            <label class="form-label small text-muted mb-1" data-i18n="filters.from"></label>
             <input type="date" id="inputDesde" name="desde" value="@ViewBag.Desde"
                    class="form-control form-control-sm" />
         </div>
         <div>
-            <label class="form-label small text-muted mb-1">Hasta</label>
+            <label class="form-label small text-muted mb-1" data-i18n="filters.until"></label>
             <input type="date" id="inputHasta" name="hasta" value="@ViewBag.Hasta"
                    class="form-control form-control-sm" />
         </div>
-        <button type="submit" id="btnFiltrar"class="btn btn-secondary btn-sm">
-            <i class="bi bi-search me-1"></i> Filtrar
+        <button type="submit" id="btnFiltrar" class="btn btn-secondary btn-sm">
+            <i class="bi bi-search me-1"></i> <span data-i18n="actions.filter"></span>
         </button>
         @if (ViewBag.Desde != null || ViewBag.Hasta != null)
         {
             <a asp-action="Activas" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-x-circle me-1"></i> Limpiar
+                <i class="bi bi-x-circle me-1"></i> <span data-i18n="actions.clear"></span>
             </a>
         }
     </form>
@@ -44,7 +48,7 @@
 {
     <div class="alert alert-info d-flex align-items-center" role="alert">
         <i class="bi bi-info-circle me-2"></i>
-        <div>No hay camisetas disponibles en este momento.</div>
+        <div data-i18n="auctions:noActive"></div>
     </div>
 }
 else
@@ -106,7 +110,7 @@ else
                                         <i class="bi bi-cash me-1"></i>@precioFinal
                                     </span>
                                     <span class="badge rounded-pill bg-secondary px-3 py-2">
-                                        <i class="bi bi-people me-1"></i>@item.Puja.Count pujas
+                                        <i class="bi bi-people me-1"></i><span data-i18n="auctions:bids.count" data-i18n-options='{"count":@item.Puja.Count}'>@(item.Puja.Count == 1 ? "puja" : "pujas")</span>
                                     </span>
                                 </div>
                                 <div class="d-flex align-items-center gap-2 small">
@@ -114,11 +118,11 @@ else
                                     <span class="text-@urgencia fw-semibold">
                                         @if (tiempoRestante.TotalHours < 1)
                                         {
-                                            @($"Cierra en {(int)tiempoRestante.TotalMinutes} min")
+                                            <span data-i18n="auctions:time.closesIn">Cierra en</span> @((int)tiempoRestante.TotalMinutes) <span data-i18n="auctions:time.min" data-i18n-options='{"count":@((int)tiempoRestante.TotalMinutes)}'>@((int)tiempoRestante.TotalMinutes != 1 ? "minutos" : "minuto")</span>
                                         }
                                         else if (tiempoRestante.TotalHours < 24)
                                         {
-                                            @($"Cierra en {(int)tiempoRestante.TotalHours} h")
+                                            <span data-i18n="auctions:time.closesIn">Cierra en</span> @((int)tiempoRestante.TotalHours) <span data-i18n="auctions:time.hours" data-i18n-options='{"count":@((int)tiempoRestante.TotalHours)}'>@((int)tiempoRestante.TotalHours != 1 ? "horas" : "hora")</span>
                                         }
                                         else
                                         {
@@ -132,17 +136,17 @@ else
                                 <!-- Card finalizada: estado final + precio + fecha cierre -->
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="small text-muted">
-                                        Estado Final:
+                                        <span data-i18n="auctions:fields.auctionStatus"></span>
                                         <span class="fw-semibold text-@estadoColor">@estadoTexto</span>
                                     </span>
                                     <span class="small text-muted">
-                                        Precio: <span class="fw-semibold">@precioFinal</span>
+                                        <span data-i18n="auctions:fields.basePrice"></span> <span class="fw-semibold">@precioFinal</span>
                                     </span>
                                 </div>
 
                                 <div class="d-flex align-items-center gap-2 text-muted small">
                                     <i class="bi bi-clock"></i>
-                                    <span>Fecha de cierre: @item.FechaCierre.ToString("d/M/yy HH:mm")</span>
+                                    <span><span data-i18n="auctions:time.closeDate"></span> @item.FechaCierre.ToString("d/M/yy HH:mm")</span>
                                 </div>
                             }
                         </div>
@@ -154,7 +158,7 @@ else
                                asp-route-id="@item.IdSubasta"
                                class="btn btn-@(esActiva ? "primary" : "outline-secondary") w-100">
                                 <i class="bi bi-eye me-1"></i>
-                                @(esActiva ? "Ver subasta" : "Ver detalle")
+                                <span data-i18n="@(esActiva ? "actions.viewAuction" : "actions.details")">@(esActiva ? "Ver subasta" : "Ver detalle")</span>
                             </a>
                         </div>
 

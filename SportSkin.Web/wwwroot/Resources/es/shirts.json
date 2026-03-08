@@ -1,0 +1,29 @@
+{
+  "title": "Camisetas",
+  "myShirts": "Mis camisetas",
+  "totalLabel": "Explora el catálogo disponible. Total:",
+  "noShirts": "No hay camisetas disponibles en este momento.",
+  "detail": "Detalle Camiseta",
+  "info": "Información de la Camiseta",
+  "auctionHistory": "Historial de Subastas",
+  "noAuctions": "No existen subastas relacionadas a la camiseta.",
+  "fields": {
+    "name": "Nombre Camisa",
+    "description": "Descripción",
+    "condition": "Condición",
+    "team": "Equipo",
+    "player": "Jugador",
+    "season": "Temporada",
+    "autographed": "¿Autografiada?",
+    "owner": "Propietario",
+    "registrationDate": "Fecha de Creación",
+    "currentStatus": "Estado Actual",
+    "categories": "Categorías"
+  },
+  "auctionTable": {
+    "auctionId": "Identificador de Subasta",
+    "startDate": "Fecha de Inicio",
+    "closeDate": "Fecha de Cierre",
+    "auctionStatus": "Estado Subasta"
+  }
+}

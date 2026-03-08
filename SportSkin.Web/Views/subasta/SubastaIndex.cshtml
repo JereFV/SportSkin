@@ -11,11 +11,14 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
         <div>
             <h1 class="h3 mb-1">
-                <i class="fa-solid fa-gavel text-primary me-2"></i>Todas las Subastas
+                <i class="fa-solid fa-gavel text-primary me-2"></i>
+                <span data-i18n="auctions:allAuctions"></span>
             </h1>
-            <p class="text-muted mb-0">Total: <strong>@total</strong> subastas registradas.</p>
+            <p class="text-muted mb-0">
+                <span data-i18n="auctions:totalLabel"></span> <strong>@total</strong> <span data-i18n="auctions:totalRegistered"></span>
+            </p>
             <button type="button" class="btn btn-outline-success btn-sm" style="border-radius:12px">
-                <i class="bi bi-plus-circle"></i> Agregar subasta
+                <i class="bi bi-plus-circle"></i> <span data-i18n="actions.addAuction"></span>
             </button>
         </div>
 
@@ -35,33 +38,33 @@
                     })
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow">
-                    <li><h6 class="dropdown-header">Filtrar por estado</h6></li>
+                    <li><h6 class="dropdown-header" data-i18n="filters.byStatus"></h6></li>
                     <li>
                         <a class="dropdown-item d-flex align-items-center gap-2
                            @(ViewBag.FiltroActual == "activas" ? "active" : "")"
                            href="#" onclick="aplicarFiltro('activas')">
-                            <i class="fa-solid fa-gavel text-primary"></i> Activas
+                            <i class="fa-solid fa-gavel text-primary"></i> <span data-i18n="filters.active"></span>
                         </a>
                     </li>
                     <li>
                         <a class="dropdown-item d-flex align-items-center gap-2
                            @(ViewBag.FiltroActual == "finalizadas" ? "active" : "")"
                            href="#" onclick="aplicarFiltro('finalizadas')">
-                            <i class="bi bi-x-circle text-secondary"></i> Finalizadas
+                            <i class="bi bi-x-circle text-secondary"></i> <span data-i18n="filters.finished"></span>
                         </a>
                     </li>
                     <li>
                         <a class="dropdown-item d-flex align-items-center gap-2
                            @(ViewBag.FiltroActual == "vendidas" ? "active" : "")"
                            href="#" onclick="aplicarFiltro('vendidas')">
-                            <i class="bi bi-check-circle text-success"></i> Vendidas
+                            <i class="bi bi-check-circle text-success"></i> <span data-i18n="filters.sold"></span>
                         </a>
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item d-flex align-items-center gap-2"
                            href="#" onclick="aplicarFiltro('')">
-                            <i class="bi bi-x-circle text-danger"></i> Limpiar estado
+                            <i class="bi bi-x-circle text-danger"></i> <span data-i18n="filters.clearStatus"></span>
                         </a>
                     </li>
                 </ul>
@@ -69,24 +72,24 @@
 
             <!-- Filtro por fecha -->
             <div>
-                <label class="form-label small text-muted mb-1">Desde</label>
+                <label class="form-label small text-muted mb-1" data-i18n="filters.from">Desde</label>
                 <input type="date" id="inputDesde" name="desde" value="@ViewBag.Desde"
                        class="form-control form-control-sm" />
             </div>
             <div>
-                <label class="form-label small text-muted mb-1">Hasta</label>
+                <label class="form-label small text-muted mb-1" data-i18n="filters.until">Hasta</label>
                 <input type="date" id="inputHasta" name="hasta" value="@ViewBag.Hasta"
                        class="form-control form-control-sm" />
             </div>
 
             <button type="submit" id="btnFiltrar" class="btn btn-primary btn-sm align-self-end">
-                <i class="bi bi-search me-1"></i> Filtrar
+                <i class="bi bi-search me-1"></i> <span data-i18n="actions.filter"></span>
             </button>
 
             @if (ViewBag.Desde != null || ViewBag.Hasta != null || ViewBag.FiltroActual != null)
             {
                 <a asp-action="SubastaIndex" class="btn btn-outline-secondary btn-sm align-self-end">
-                    <i class="bi bi-x-circle me-1"></i> Limpiar todo
+                    <i class="bi bi-x-circle me-1"></i> <span data-i18n="actions.clearAll"></span>
                 </a>
             }
         </div>
@@ -97,7 +100,7 @@
 {
     <div class="alert alert-info d-flex align-items-center" role="alert">
         <i class="bi bi-info-circle me-2"></i>
-        <div>No hay subastas registradas.</div>
+        <div data-i18n="errors.noData"></div>
     </div>
 }
 else
@@ -164,7 +167,7 @@ else
                                         <i class="bi bi-cash me-1"></i>@precioFinal
                                     </span>
                                     <span class="badge rounded-pill bg-secondary px-3 py-2">
-                                        <i class="bi bi-people me-1"></i>@item.Puja.Count pujas
+                                        <i class="bi bi-people me-1"></i>@item.Puja.Count <span data-i18n="auctions:bids.count">pujas</span>
                                     </span>
                                 </div>
                                 <div class="d-flex align-items-center gap-2 small">
@@ -172,11 +175,11 @@ else
                                     <span class="text-@urgencia fw-semibold">
                                         @if (tiempoRestante.TotalHours < 1)
                                         {
-                                            @($"Cierra en {(int)tiempoRestante.TotalMinutes} min")
+                                            <span data-i18n="auctions:time.closesIn">Cierra en</span> @($"{(int)tiempoRestante.TotalMinutes}") <span data-i18n="auctions:time.min">min</span>
                                         }
                                         else if (tiempoRestante.TotalHours < 24)
                                         {
-                                            @($"Cierra en {(int)tiempoRestante.TotalHours} h")
+                                            <span data-i18n="auctions:time.closesIn">Cierra en</span> @($"{(int)tiempoRestante.TotalHours}") <span data-i18n="auctions:time.hours">h</span>
                                         }
                                         else
                                         {
@@ -190,16 +193,16 @@ else
                                 <!-- Card finalizada: estado final + precio + fecha cierre -->
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="badge rounded-pill bg-secondary px-3 py-2">
-                                        <i class="bi bi-people me-1"></i>@item.Puja.Count pujas
+                                        <i class="bi bi-people me-1"></i>@item.Puja.Count <span data-i18n="auctions:bids.count" data-i18n-options='{"count":@item.Puja.Count}'></span>
                                     </span>
                                     <span class="small text-muted">
-                                        Precio: <span class="fw-semibold">@precioFinal</span>
+                                        <span data-i18n="auctions:fields.basePrice">Precio:</span> <span class="fw-semibold">@precioFinal</span>
                                     </span>
                                 </div>
                                 
                                 <div class="d-flex align-items-center gap-2 text-muted small">
                                     <i class="bi bi-clock"></i>
-                                    <span>Fecha de cierre: @item.FechaCierre.ToString("d/M/yy HH:mm")</span>
+                                    <span><span data-i18n="auctions:time.closeDate">Fecha de cierre:</span> @item.FechaCierre.ToString("d/M/yy HH:mm")</span>
                                 </div>
                             }
                         </div>
@@ -211,7 +214,7 @@ else
                                asp-route-id="@item.IdSubasta"
                                class="btn btn-@(esActiva ? "primary" : "outline-secondary") w-100">
                                 <i class="bi bi-eye me-1"></i>
-                                @(esActiva ? "Ver subasta" : "Ver detalle")
+                                <span data-i18n="@(esActiva ? "actions.viewAuction" : "actions.details")">@(esActiva ? "Ver subasta" : "Ver detalle")</span>
                             </a>
                         </div>
 

@@ -1,0 +1,29 @@
+{
+  "title": "Shirts",
+  "myShirts": "My Shirts",
+  "totalLabel": "Browse the available catalog. Total:",
+  "noShirts": "No shirts available at this time.",
+  "detail": "Shirt Detail",
+  "info": "Shirt Information",
+  "auctionHistory": "Auction History",
+  "noAuctions": "There are no auctions related to this shirt.",
+  "fields": {
+    "name": "Shirt Name",
+    "description": "Description",
+    "condition": "Condition",
+    "team": "Team",
+    "player": "Player",
+    "season": "Season",
+    "autographed": "Autographed?",
+    "owner": "Owner",
+    "registrationDate": "Registration Date",
+    "currentStatus": "Current Status",
+    "categories": "Categories"
+  },
+  "auctionTable": {
+    "auctionId": "Auction ID",
+    "startDate": "Start Date",
+    "closeDate": "Close Date",
+    "auctionStatus": "Auction Status"
+  }
+}

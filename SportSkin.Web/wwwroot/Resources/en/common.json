@@ -1,0 +1,74 @@
+{
+  "nav": {
+    "home": "Home",
+    "shirts": "Shirts",
+    "auctions": "Auctions",
+    "activeAuctions": "Active",
+    "finishedAuctions": "Finished",
+    "myAuctions": "My Auctions",
+    "users": "Users",
+    "login": "Login",
+    "logout": "Log Out",
+    "changePassword": "Change Password"
+  },
+  "footer": {
+    "tagline": "\"The Skin of Sport\"",
+    "rights": "All rights reserved"
+  },
+  "actions": {
+    "back": "Back to List",
+    "details": "View details",
+    "edit": "Edit",
+    "disable": "Disable",
+    "enable": "Enable",
+    "filter": "Filter",
+    "clear": "Clear",
+    "clearAll": "Clear all",
+    "clearFilter": "Clear filter",
+    "add": "Add",
+    "save": "Save",
+    "cancel": "Cancel",
+    "search": "Search",
+    "viewAuction": "View auction",
+    "addShirt": "Add shirt",
+    "addAuction": "Add auction",
+    "auction": "Auction",
+    "auctionList": "Bid History"
+  },
+  "filters": {
+    "title": "Filter",
+    "byStatus": "Filter by status",
+    "from": "From",
+    "until": "Until",
+    "active": "Active",
+    "finished": "Finished",
+    "sold": "Sold",
+    "clearStatus": "Clear status",
+    "status": "Status"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "available": "Available",
+    "inAuction": "In Auction",
+    "sold": "Sold",
+    "noSale": "No sale",
+    "cancelled": "Cancelled"
+  },
+  "badges": {
+    "seller": "Seller",
+    "buyer": "Buyer",
+    "autographed": "Autographed",
+    "notAutographed": "Not autographed"
+  },
+  "language": {
+    "select": "Language",
+    "es": "Español",
+    "en": "English"
+  },
+  "errors": {
+    "noData": "No data available at this time.",
+    "systemError": "An error has occurred",
+    "noErrorDetails": "No error details were found."
+  }
+}

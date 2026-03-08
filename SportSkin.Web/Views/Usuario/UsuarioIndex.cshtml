@@ -6,7 +6,7 @@
 
 <h3>
     <i class="fa-solid fa-users text-primary"></i>
-    &nbspListado de Usuarios
+    &nbsp;<span data-i18n="users:listTitle">  </span>
 </h3>
 
 <br />
@@ -18,16 +18,16 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.NombreCompleto)
+                <span data-i18n="users:fields.fullName"> </span>:
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Rol)
+                <span data-i18n="users:fields.role"> </span>:
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Estado)
+                <span data-i18n="users:fields.status"> </span>:
             </th>
             <th>
-                Acciones
+                <span data-i18n="users:actions">Acciones</span>
             </th>
         </tr>
     </thead>
@@ -43,50 +43,50 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Estado)
-                </td>               
+                </td>
                 <td class="col-md-6">
                     <div>
                         <a asp-controller="Usuario"
                            asp-action="UsuarioDetails"
                            asp-route-id="@item.IdUsuario"
                            class="btn btn-outline-info userstable-action-buttons">
-                            <i class="fa-solid fa-circle-info"></i>&nbsp;Ver detalle
+                            <i class="fa-solid fa-circle-info"></i>&nbsp;<span data-i18n="actions.details"> </span>
                         </a>
 
                         <button type="button" class="btn btn-outline-primary userstable-action-buttons">
-                            <i class="fa-regular fa-pen-to-square"></i>&nbspEditar
+                            <i class="fa-regular fa-pen-to-square"></i>&nbsp;<span data-i18n="actions.edit"></span>
                         </button>
 
                         <button type="button" class="btn btn-outline-dark userstable-action-buttons">
-                            <i class="fa-solid fa-key"></i>&nbspCambiar Contraseña
+                            <i class="fa-solid fa-key"></i>&nbsp;<span data-i18n="nav.changePassword"> </span>
                         </button>
 
                         @if (item.Estado == "Activo")
                         {
                             <button type="button" class="btn btn-outline-danger userstable-status-actions">
-                                <i class="fa-solid fa-ban"></i>&nbspDeshabilitar
+                                <i class="fa-solid fa-ban"></i>&nbsp;<span data-i18n="actions.disable"></span>
                             </button>
                         }
                         else
                         {
                             <button type="button" class="btn btn-outline-success userstable-status-actions">
-                                <i class="fa-solid fa-circle-check"></i>&nbspHabilitar
+                                <i class="fa-solid fa-circle-check"></i>&nbsp;<span data-i18n="actions.enable"></span>
                             </button>
                         }
 
                         <div class="userstable-status-btngroup">
-                                 
                         </div>
-                                         
-                    </div>                              
+
+                    </div>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
-@section Scripts{
-    <script>     
+@section Scripts {
+    <script>
+
         $(document).ready(function () {
             //Inicialización del listado utilizando datatables.
             $('#usersList').DataTable({

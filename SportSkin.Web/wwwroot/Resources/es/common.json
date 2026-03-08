@@ -1,0 +1,74 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "shirts": "Camisas",
+    "auctions": "Subastas",
+    "activeAuctions": "Activas",
+    "finishedAuctions": "Finalizadas",
+    "myAuctions": "Mis Subastas",
+    "users": "Usuarios",
+    "login": "Login",
+    "logout": "Cerrar Sesión",
+    "changePassword": "Cambiar Contraseña"
+  },
+  "footer": {
+    "tagline": "\"La piel del deporte\"",
+    "rights": "Todos los derechos reservados"
+  },
+  "actions": {
+    "back": "Volver al Listado",
+    "details": "Ver detalle",
+    "edit": "Editar",
+    "disable": "Deshabilitar",
+    "enable": "Habilitar",
+    "filter": "Filtrar",
+    "clear": "Limpiar",
+    "clearAll": "Limpiar todo",
+    "clearFilter": "Limpiar filtro",
+    "add": "Agregar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "search": "Buscar",
+    "viewAuction": "Ver subasta",
+    "addShirt": "Agregar camiseta",
+    "addAuction": "Agregar subasta",
+    "auction": "Subastar",
+    "auctionList": "Listado de Pujas"
+  },
+  "filters": {
+    "title": "Filtrar",
+    "byStatus": "Filtrar por estado",
+    "from": "Desde",
+    "until": "Hasta",
+    "active": "Activas",
+    "finished": "Finalizadas",
+    "sold": "Vendidas",
+    "clearStatus": "Limpiar estado",
+    "status": "Estado"
+  },
+  "status": {
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "available": "Disponible",
+    "inAuction": "En Subasta",
+    "sold": "Vendida",
+    "noSale": "Sin compra",
+    "cancelled": "Cancelada"
+  },
+  "badges": {
+    "seller": "Vendedor",
+    "buyer": "Comprador",
+    "autographed": "Autografiada",
+    "notAutographed": "Sin autógrafo"
+  },
+  "language": {
+    "select": "Idioma",
+    "es": "Español",
+    "en": "English"
+  },
+  "errors": {
+    "noData": "No hay datos disponibles en este momento.",
+    "systemError": "Se ha presentado un error",
+    "noErrorDetails": "No se encontraron detalles del error."
+  }
+}

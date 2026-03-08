@@ -6,6 +6,4 @@ namespace SportSkin.Web.ViewModels
     {
         public ICollection<CamisetaDTO>? Camisetas { get; set; }
     }
-
-    public 
 }

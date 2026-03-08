@@ -17,9 +17,12 @@
     <!--Datatables-->
     <link rel="stylesheet" href="~/lib/datatables/css/jquery.dataTables.min.css" />
     <!--Font Awesome-->
-    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css">
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
+    <!--Boostrap Multiselect-->  
+    <link rel="stylesheet" href="~/lib/bootstrap-multiselect/css/bootstrap-multiselect.css" />
     <!--Estilos propios-->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="d-flex flex-column min-vh-100 bg-body">
@@ -60,6 +63,9 @@
     <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
     <!--SweetAlert 2-->
     <script src="~/lib/sweetalert2/dist/sweetalert2.all.min.js"></script>
+    <!--Boostrap Multiselect-->
+    <script src="~/lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+
     <!-- SWEETALERT NOTIFICATION -->
     @if (TempData["Notificacion"] != null || ViewBag.Notificacion != null)
     {

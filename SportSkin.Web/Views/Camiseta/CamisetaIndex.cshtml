@@ -159,6 +159,18 @@ else
 @section Scripts {
     <partial name="_CamisetaCreate" />
 
+    <script>
+        $(document).ready(function() {
+            $('#categorias').multiselect({
+                nonSelectedText: 'Seleccione alguna categoría',
+                buttonWidth: '100%',
+                buttonTextAlignment: 'left',
+                allSelectedText: false,
+                numberDisplayed: 0
+            });
+        });
+    </script>
+
     <style>
         .card:hover {
             transform: translateY(-3px);

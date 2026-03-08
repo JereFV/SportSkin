@@ -24,7 +24,9 @@
                     </span>
                     <span class="badge rounded-pill px-3 py-2
                         @(Model.Estado ? "bg-success" : "bg-danger")">
-                        @(Model.Estado ? "Activo" : "Inactivo")
+                        @(Model.Estado
+                                                ? Html.Raw($"<span data-i18n=\"status.active\">Activo</span>")
+                                                : Html.Raw($"<span data-i18n=\"status.inactive\">Inactivo</span>"))
                     </span>
                 </div>
             </div>
@@ -40,7 +42,7 @@
                         <i class="bi bi-calendar3 fs-5"></i>
                     </div>
                     <div>
-                        <div class="small text-muted">Fecha de Registro</div>
+                        <div class="small text-muted" data-i18n="users:fields.registrationDate">  </div>
                         <div class="fw-semibold">@Model.FechaCreacion.ToString("d/M/yyyy")</div>
                     </div>
                 </div>
@@ -51,7 +53,7 @@
                         <i class="bi bi-envelope fs-5"></i>
                     </div>
                     <div>
-                        <div class="small text-muted">Correo</div>
+                        <div class="small text-muted" data-i18n="users:fields.email"></div>
                         <div class="fw-semibold">@Model.Correo</div>
                     </div>
                 </div>
@@ -62,7 +64,7 @@
                         <i class="bi bi-telephone fs-5"></i>
                     </div>
                     <div>
-                        <div class="small text-muted">Teléfono</div>
+                        <div class="small text-muted" data-i18n="users:fields.phone"></div>
                         <div class="fw-semibold">@Model.Telefono</div>
                     </div>
                 </div>
@@ -72,32 +74,33 @@
                 @if (Model.IdRolUsuario == 2)
                 {
                     <div class="d-flex align-items-center justify-content-between p-2 rounded bg-body-tertiary mb-2">
-                        <span class="text-muted small">Subastas Creadas:</span>
+                        <span class="text-muted small" data-i18n="users:sellerStats.createdAuctions"> </span>
                         <div class="d-flex align-items-center gap-2">
                             <span class="fw-bold text-primary fs-5">@ViewBag.TotalSubastas</span>
-                            <span class="badge bg-primary small">Vendedor</span>
+                            <span class="badge bg-primary small" data-i18n="badges.seller"></span>
                         </div>
                     </div>
                     <div class="d-flex gap-2 px-2">
-                        <span class="badge bg-success">@ViewBag.SubastasVendidas vendidas</span>
-                        <span class="badge bg-primary">@ViewBag.SubastasActivas activas</span>
-                        <span class="badge bg-secondary">@ViewBag.SubastasFinalizadas finalizadas</span>
+                        <span class="badge bg-success">@ViewBag.SubastasVendidas <span data-i18n="users:sellerStats.soldBadge" data-i18n-options='{"count":@ViewBag.SubastasVendidas}'>@(ViewBag.SubastasVendidas != 1 ? "vendidas" : "vendida")</span></span>
+                        <span class="badge bg-primary">@ViewBag.SubastasActivas <span data-i18n="users:sellerStats.activeBadge" data-i18n-options='{"count":@ViewBag.SubastasActivas}'>@(ViewBag.SubastasActivas != 1 ? "activas" : "activa")</span></span>
+                        <span class="badge bg-secondary">@ViewBag.SubastasFinalizadas <span data-i18n="users:sellerStats.finishedBadge" data-i18n-options='{"count":@ViewBag.SubastasFinalizadas}'>@(ViewBag.SubastasFinalizadas != 1 ? "finalizadas" : "finalizada")</span></span>
                     </div>
                 }
                 else if (Model.IdRolUsuario == 3) // Comprador
                 {
                     <div class="d-flex align-items-center justify-content-between p-2 rounded bg-body-tertiary">
-                        <span class="text-muted small">Cantidad de Pujas Realizadas:</span>
+                        <span class="text-muted small" data-i18n="users:buyerStats.bidsCount"> </span>
                         <div class="d-flex align-items-center gap-2">
                             <span class="fw-bold text-primary fs-5">@Model.Puja.Count</span>
-                            <span class="badge bg-success small">Comprador</span>
+                            <span class="badge bg-success small" data-i18n="badges.buyer"></span>
                         </div>
                     </div>
                 }
                 else // Administrador u otro rol
                 {
                     <div class="p-2 rounded bg-body-tertiary text-muted small text-center">
-                        <i class="bi bi-shield-check me-1"></i> Rol administrativo — sin actividad de subastas
+                        <i class="bi bi-shield-check me-1"></i>
+                        <span data-i18n="users:adminNote"></span>
                     </div>
                 }
             </div>
@@ -105,7 +108,7 @@
             <!-- Footer con botón volver -->
             <div class="card-footer bg-body border-0 pb-3 px-3">
                 <a asp-action="UsuarioIndex" class="btn btn-outline-secondary w-100">
-                    <i class="bi bi-arrow-left me-1"></i> Volver al listado
+                    <i class="bi bi-arrow-left me-1"></i> <span data-i18n="actions.back"> </span>
                 </a>
             </div>
 

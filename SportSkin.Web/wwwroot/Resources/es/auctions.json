@@ -1,0 +1,64 @@
+{
+  "title": "Subastas",
+  "allAuctions": "Todas las Subastas",
+  "activeAuctions": "Subastas Activas",
+  "finishedAuctions": "Subastas Finalizadas",
+  "myAuctions": "Mis Subastas",
+  "totalLabel": "Total:",
+  "totalRegistered": "subastas registradas.",
+  "sellerSummary": "Resumen de tus subastas como vendedor.",
+  "noActive": "No hay camisetas disponibles en este momento.",
+  "noFinished": "No hay subastas finalizadas.",
+  "noMine": "No tienes subastas registradas.",
+  "detail": "Detalle Subasta",
+  "closedLabel": "Cerradas. Total:",
+  "fields": {
+    "startDate": "Fecha de Inicio",
+    "closeDate": "Fecha de Cierre",
+    "basePrice": "Precio Base",
+    "currentBid": "Puja Actual",
+    "minIncrement": "Incremento Mínimo",
+    "auctionStatus": "Estado Subasta",
+    "totalBids": "Total Pujas",
+    "buyNowPrice": "Precio Compra Inmediata",
+    "purchaseDate": "Fecha de Compra",
+    "commissionPercent": "Porcentaje Comisión",
+    "commissionAmount": "Monto Comisión"
+  },
+  "bids": {
+    "title": "Listado de Pujas",
+    "user": "Usuario",
+    "amount": "Monto",
+    "date": "Fecha",
+    "noBids": "No existen pujas realizadas para la subasta.",
+    "count_one": "puja",
+    "count_other": "pujas",
+    "badge_one": "puja",
+    "badge_other": "pujas"
+  },
+  "time": {
+    "closesIn": "Cierra en",
+    "closedOn": "Cerró:",
+    "closeDate": "Fecha de cierre:",
+    "closed": "Cerrada",
+    "days_one": "día",
+    "days_other": "días",
+    "hours_one": "hora",
+    "hours_other": "horas",
+    "min_one": "minuto",
+    "min_other": "minutos"
+  },
+  "stats": {
+    "active": "Activas",
+    "sold": "Vendidas",
+    "finished": "Finalizadas"
+  },
+  "popular": {
+    "title": "Subastas más populares",
+    "subtitle": "Las que más atención están generando ahora mismo",
+    "viewAll": "Ver todas",
+    "basePrice": "Precio base",
+    "buyNow": "Compra inmediata",
+    "noPopular": "No hay subastas activas en este momento. ¡Vuelve pronto!"
+  }
+}

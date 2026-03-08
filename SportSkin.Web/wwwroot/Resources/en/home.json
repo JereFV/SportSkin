@@ -1,0 +1,26 @@
+{
+  "hero": {
+    "slide1Title": "Welcome to SportSkin",
+    "slide1Subtitle": "The most exclusive football shirt auction marketplace",
+    "slide1Button": "View Active Auctions",
+    "slide2Title": "Unique Shirts",
+    "slide2Subtitle": "Autographed, special editions and historic sports pieces",
+    "slide2Button": "Browse Shirts",
+    "slide3Title": "Buy Now",
+    "slide3Subtitle": "Don't want to wait? Take advantage of the buy-now price",
+    "slide3Button": "View Available",
+    "slide4Subtitle": "The Skin of Sport",
+    "slide4Tagline": "Collect, Auction and Win."
+  },
+  "stats": {
+    "activeAuctions": "Active Auctions",
+    "totalShirts": "Shirts on Platform",
+    "verified": "Verified Shirts"
+  },
+  "cta": {
+    "title": "Ready to participate?",
+    "subtitle": "Register for free and start bidding on the most exclusive sports shirts",
+    "register": "Register",
+    "login": "Sign In"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "title": "Usuarios",
+  "listTitle": "Listado de Usuarios",
+  "detail": "Detalle Usuario",
+  "fields": {
+    "fullName": "Nombre Completo",
+    "role": "Rol",
+    "status": "Estado",
+    "registrationDate": "Fecha de Registro",
+    "email": "Correo",
+    "phone": "Teléfono",
+    "username": "Usuario",
+    "password": "Contraseña",
+    "firstName": "Nombre",
+    "lastName1": "Primer Apellido",
+    "lastName2": "Segundo Apellido"
+  },
+  "actions": "Acciones",
+  "sellerStats": {
+    "createdAuctions": "Subastas Creadas:",
+    "soldBadge_one": "vendida",
+    "soldBadge_other": "vendidas",
+    "activeBadge_one": "activa",
+    "activeBadge_other": "activas",
+    "finishedBadge_one": "finalizada",
+    "finishedBadge_other": "finalizadas"
+  },
+  "buyerStats": {
+    "bidsCount": "Cantidad de Pujas Realizadas:"
+  },
+  "adminNote": "Rol administrativo — sin actividad de subastas"
+}

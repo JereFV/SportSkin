@@ -1,0 +1,26 @@
+{
+  "hero": {
+    "slide1Title": "Bienvenido a SportSkin",
+    "slide1Subtitle": "El mercado de subastas de camisetas de fútbol más exclusivo",
+    "slide1Button": "Ver Subastas Activas",
+    "slide2Title": "Camisetas Únicas",
+    "slide2Subtitle": "Autografiadas, ediciones especiales y piezas históricas del deporte",
+    "slide2Button": "Explorar Camisetas",
+    "slide3Title": "Compra Inmediata",
+    "slide3Subtitle": "¿No quieres esperar? Aprovecha el precio de compra inmediata",
+    "slide3Button": "Ver Disponibles",
+    "slide4Subtitle": "La piel del Deporte",
+    "slide4Tagline": "Colecciona, Subasta y Gana."
+  },
+  "stats": {
+    "activeAuctions": "Subastas Activas",
+    "totalShirts": "Camisetas en Plataforma",
+    "verified": "Camisetas Verificadas"
+  },
+  "cta": {
+    "title": "¿Listo para participar?",
+    "subtitle": "Regístrate gratis y empieza a pujar por las camisetas más exclusivas del deporte",
+    "register": "Registrarse",
+    "login": "Iniciar Sesión"
+  }
+}

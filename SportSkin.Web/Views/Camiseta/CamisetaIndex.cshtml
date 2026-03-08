@@ -7,151 +7,137 @@
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
     <div>
-        <h1 class="h3 mb-1"><i class="fa-solid fa-shirt text-primary"></i>&nbspMis camisetas</h1>
-        <p class="text-muted mb-0">Explora el catálogo disponible. Total: <strong>@total</strong>.</p>
-        <div class="d-grid gap-2 d-md-flex justify-content-md">
-            <button type="button" class="btn btn-outline-success btn-sm"  style="border-radius:12px">
-                <i class="bi bi-plus-circle"></i>
-                Agregar camiseta
-                </button>
-        </div>
+        <h1 class="h3 mb-1">
+            <i class="fa-solid fa-shirt text-primary"></i>&nbsp;
+            <span data-i18n="shirts:myShirts"></span>
+        </h1>
+        <p class="text-muted mb-0">
+            <span data-i18n="shirts:totalLabel"></span>
+            <strong>@total</strong>.
+        </p>
+        <button type="button" class="btn btn-outline-success btn-sm mt-1" style="border-radius:12px">
+            <i class="bi bi-plus-circle"></i>
+            <span data-i18n="actions.addShirt"> </span>
+        </button>
     </div>
-    
+
     <div class="dropdown">
         <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false">
+                type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-funnel"></i>
-            @(ViewBag.FiltroActual switch
-            {
-                "vendidos" => "Vendidos",
-                "ensubasta" => "En Subasta",
-                "sinsubasta" => "Sin Subasta",
-                _ => "Filtrar"
-            })
+            <span data-i18n="filters.title"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end shadow">
-            <li><h6 class="dropdown-header">Filtrar por estado</h6></li>
+            <li>
+                <h6 class="dropdown-header" data-i18n="filters.byStatus"></h6>
+            </li>
             <li>
                 <a class="dropdown-item d-flex align-items-center gap-2
-               @(ViewBag.FiltroActual == "vendidos" ? "active" : "")"
+                   @(ViewBag.FiltroActual == "vendidos" ? "active" : "")"
                    asp-action="CamisetaIndex" asp-route-filtro="vendidos">
-                    <i class="bi bi-check-circle text-success"></i> Vendidos
+                    <i class="bi bi-check-circle text-success"></i>
+                    <span data-i18n="filters.sold"></span>
                 </a>
             </li>
             <li>
                 <a class="dropdown-item d-flex align-items-center gap-2
-               @(ViewBag.FiltroActual == "ensubasta" ? "active" : "")"
+                   @(ViewBag.FiltroActual == "ensubasta" ? "active" : "")"
                    asp-action="CamisetaIndex" asp-route-filtro="ensubasta">
-                    <i class="fa-solid fa-gavel text-primary"></i> En Subasta
+                    <i class="fa-solid fa-gavel text-primary"></i>
+                    <span data-i18n="status.inAuction"></span>
                 </a>
             </li>
             <li>
                 <a class="dropdown-item d-flex align-items-center gap-2
-               @(ViewBag.FiltroActual == "sinsubasta" ? "active" : "")"
+                   @(ViewBag.FiltroActual == "sinsubasta" ? "active" : "")"
                    asp-action="CamisetaIndex" asp-route-filtro="sinsubasta">
-                    <i class="bi bi-tag text-secondary"></i> Sin Subasta
+                    <i class="bi bi-tag text-secondary"></i>
+                    <span data-i18n="status.available"></span>
                 </a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
-                <a class="dropdown-item d-flex align-items-center gap-2"
-                   asp-action="CamisetaIndex">
-                    <i class="bi bi-x-circle text-danger"></i> Limpiar filtro
+                <a class="dropdown-item d-flex align-items-center gap-2" asp-action="CamisetaIndex">
+                    <i class="bi bi-x-circle text-danger"></i>
+                    <span data-i18n="actions.clearFilter"> </span>
                 </a>
             </li>
         </ul>
-    </div>    
+    </div>
 </div>
 
 @if (Model == null || !Model.Any())
 {
     <div class="alert alert-info d-flex align-items-center" role="alert">
         <i class="bi bi-info-circle me-2"></i>
-        <div>No hay camisetas disponibles en este momento.</div>
+        <div data-i18n="shirts:noShirts"></div>
     </div>
 }
 else
 {
     <section aria-label="Listado de camisetas">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
-
             @foreach (var item in Model)
             {
                 var primeraImagen = item.ImagenesCamiseta?.FirstOrDefault();
                 <div class="col">
                     <article class="card h-100 shadow-sm border-0">
-                        <!-- Imagen -->
-                        <div class="rounded-top overflow-hidden bg-body-tertiary" style="height: 320px; border-radius:16px">
-                            @* Si hay imagen, la mostramos; si no, placeholder *@
+
+                        <div class="rounded-top overflow-hidden bg-body-tertiary" style="height:320px">
                             @if (primeraImagen != null)
                             {
-                                <img class="w-100 h-100 object-fit-cover  rounded-top"
+                                <img class="w-100 h-100 object-fit-cover rounded-top"
                                      src="@primeraImagen.RutaImagen"
-                                     alt="Imagen de @item.Nombre"
-                                     loading="lazy" />
+                                     alt="@item.Nombre" loading="lazy" />
                             }
                             else
                             {
-                                <div class="d-flex flex-column justify-content-center align-items-center text-muted">
+                                <div class="d-flex flex-column justify-content-center align-items-center text-muted h-100">
                                     <i class="bi bi-image fs-1"></i>
-                                    <span class="small">Sin imagen</span>
                                 </div>
                             }
-                        </div>
+                    </div>
 
-                        <!-- Contenido -->
-                        <div class="card-body">
-                            <h2 class="h6 fw-semibold mb-1 text-truncate" title="@item.Nombre">
-                                @item.Nombre
-                            </h2>
-
-                            <!-- Condición y Estado -->
-                            <div class="d-flex gap-2 mb-0">
-                                <span class="badge rounded-pill bg-secondary px-3 py-2">
-                                    @(item.CondicionCamisetaNavigation?.Nombre ?? "Condición")
-                                </span>
-                            <span class="badge rounded-pill px-3 py-2 
-                                @(item.EstadoCamisetaNavigation?.Nombre switch
-                                                      {
-                                                          "Disponible" => "bg-success",
-                                                          "En Subasta" => "bg-warning",
-                                                          "Vendida" => "bg-danger",
-                                                          _ => "bg-secondary"
-                                                      })">
-                                @(item.EstadoCamisetaNavigation?.Nombre ?? "Sin estado")
-                             </span>
-                            </div>
-
-                        </div>
-
-                        <!-- Acciones -->
-                        <div class="card-footer bg-body border-0 pt-0 pb-2">
-                            <div class="d-flex gap-2 px-2">
-                                <a asp-controller="Subasta"
-                                   asp-action="Create"
-                                   asp-route-id="@item.IdCamiseta"
-                                   class="btn btn-primary flex-fill">
-                                    <i class="bi bi-cart-check me-1"></i> Subastar
-                                </a>
-                                <a asp-controller="Camiseta"
-                                   asp-action="CamisetaDetails"
-                                   asp-route-id="@item.IdCamiseta"
-                                   class="btn btn-info flex-fill">
-                                    <i class="bi bi-plus-circle me-1"></i> Ver detalle
-                                </a>
-
-
-                                @*<button type="button" class="btn btn-outline-secondary">
-                                    <i class="bi bi-bag-plus me-1"></i> Agregar
-                                </button>*@
-                            </div>
-                        </div>
-                    </article>
+                    <div class="card-body">
+                        <h2 class="h6 fw-semibold mb-1 text-truncate" title="@item.Nombre">
+                            @item.Nombre
+                        </h2>
+                        <div class="d-flex gap-2 mb-0">
+                            <span class="badge rounded-pill bg-secondary px-3 py-2">
+                                @(item.CondicionCamisetaNavigation?.Nombre ?? "—")
+                            </span>
+                            <span class="badge rounded-pill px-3 py-2
+                                        @(item.EstadoCamisetaNavigation?.Nombre switch
+                                  {
+                                      "Disponible" => "bg-success",
+                                      "En Subasta" => "bg-warning",
+                                      "Vendida" => "bg-danger",
+                                      _ => "bg-secondary"
+                                  })">
+                            @(item.EstadoCamisetaNavigation?.Nombre ?? "—")
+                        </span>
+                    </div>
                 </div>
-            }
 
+                    <div class="card-footer bg-body border-0 pt-0 pb-2">
+                        <div class="d-flex gap-2 px-2">
+                            <a asp-controller="Subasta" asp-action="Create"
+                               asp-route-id="@item.IdCamiseta"
+                               class="btn btn-primary flex-fill">
+                                <i class="bi bi-cart-check me-1"></i>
+                                <span data-i18n="actions.auction"></span>
+                            </a>
+                            <a asp-controller="Camiseta" asp-action="CamisetaDetails"
+                               asp-route-id="@item.IdCamiseta"
+                               class="btn btn-info flex-fill">
+                                <i class="bi bi-info-circle me-1"></i>
+                                <span data-i18n="actions.details"> </span>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+                }
         </div>
     </section>
 }

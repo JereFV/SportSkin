@@ -1,0 +1,72 @@
+@* _LanguageSelector.cshtml
+   Partial view: selector de idioma para incluir en _Menu.cshtml.
+   Usa el dropdown de Bootstrap + sportSkinI18n para cambiar idioma en tiempo real.
+*@
+
+<li class="nav-item dropdown" id="languageSelectorContainer">
+    <a class="nav-link dropdown-toggle d-flex align-items-center gap-1"
+       data-bs-toggle="dropdown"
+       href="#"
+       role="button"
+       aria-haspopup="true"
+       aria-expanded="false">
+        <span id="langCurrentFlag">🌐</span>
+        <span data-i18n="language.select" class="ms-1">Idioma</span>
+    </a>
+
+    <div class="dropdown-menu dropdown-menu-end shadow">
+        <h6 class="dropdown-header" data-i18n="language.select">Idioma</h6>
+
+        <a class="dropdown-item d-flex align-items-center gap-2 lang-option"
+           href="#" data-lang="es" id="langOption-es">
+            <span>🇨🇷</span>
+            <span data-i18n="language.es">Español</span>
+            <i class="bi bi-check-lg ms-auto text-success" id="langCheck-es" style="display:none"></i>
+        </a>
+
+        <a class="dropdown-item d-flex align-items-center gap-2 lang-option"
+           href="#" data-lang="en" id="langOption-en">
+            <span>🇺🇸</span>
+            <span data-i18n="language.en">English</span>
+            <i class="bi bi-check-lg ms-auto text-success" id="langCheck-en" style="display:none"></i>
+        </a>
+    </div>
+</li>
+
+<script>
+(function () {
+    const FLAGS = { es: '🇨🇷', en: '🇺🇸' };
+
+    /** Actualiza la UI del selector para reflejar el idioma activo */
+    function syncSelectorUI(lng) {
+        // Bandera en el botón
+        const flagEl = document.getElementById('langCurrentFlag');
+        if (flagEl) flagEl.textContent = FLAGS[lng] || '🌐';
+
+        // Checkmark y clase active
+        document.querySelectorAll('.lang-option').forEach(el => {
+            const isActive = el.dataset.lang === lng;
+            const checkEl  = document.getElementById('langCheck-' + el.dataset.lang);
+            el.classList.toggle('active', isActive);
+            if (checkEl) checkEl.style.display = isActive ? '' : 'none';
+        });
+    }
+
+    // Clic en una opción de idioma
+    document.addEventListener('click', function (e) {
+        const option = e.target.closest('.lang-option');
+        if (!option) return;
+        e.preventDefault();
+
+        const lng = option.dataset.lang;
+        if (typeof sportSkinI18n !== 'undefined') {
+            sportSkinI18n.changeLanguage(lng);
+        }
+    });
+
+    // Sincronizar UI cuando i18next esté listo
+    document.addEventListener('i18n:ready',   e => syncSelectorUI(e.detail.lng));
+    // Sincronizar UI cuando cambia el idioma
+    document.addEventListener('i18n:changed', e => syncSelectorUI(e.detail.lng));
+})();
+</script>

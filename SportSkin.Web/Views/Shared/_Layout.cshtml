@@ -1,31 +1,23 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es" id="htmlRoot">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SportSkin</title>
     <script type="importmap"></script>
-    <!--Preconección (mejorar carga CDN)-->
-    <link rel="preconnect" href="https://cdnjs.cloudfare.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-    <!--Boostrap 5.3.8-->
     <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
-    <!--Boostrap Icons-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <!--SweetAlert 2-->
     <link rel="stylesheet" href="~/lib/sweetalert2/dist/sweetalert2.min.css" />
-    <!--Datatables-->
     <link rel="stylesheet" href="~/lib/datatables/css/jquery.dataTables.min.css" />
-    <!--Font Awesome-->
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.css">
-    <!--Estilos propios-->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="d-flex flex-column min-vh-100 bg-body">
-    <!-- Accesibilidad: salto a contenido -->
-    <a class="visually-hidden-focusable position-absolute top-0 start-0 p-2 bg-body border rounded"
-       href="#mainContent">
+
+    <a class="visually-hidden-focusable position-absolute top-0 start-0 p-2 bg-body border rounded" href="#mainContent">
         Saltar al contenido
     </a>
 
@@ -41,9 +33,7 @@
 
     <footer class="mt-auto border-top">
         <div class="container py-3 small text-muted d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center">
-            <div>
-                &copy; @DateTime.Now.Year - SportSkin by Rodrigo Herrera y Jeremy Fuentes
-            </div>
+            <div>&copy; @DateTime.Now.Year - SportSkin by Rodrigo Herrera y Jeremy Fuentes</div>
             <div>
                 <a class="link-secondary text-decoration-none" asp-area="" asp-controller="Home" asp-action="Index">
                     "La piel del deporte"
@@ -52,25 +42,24 @@
         </div>
     </footer>
 
+    <!-- Scripts base -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!--Jquery-->
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <!--Datatables-->
     <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
-    <!--SweetAlert 2-->
     <script src="~/lib/sweetalert2/dist/sweetalert2.all.min.js"></script>
-    <!-- SWEETALERT NOTIFICATION -->
+
+    <!-- i18next: bundles en lib/i18next/, config en js/i18n/ -->
+    <!-- BrowserLanguageDetector eliminado: persistencia manejada manualmente -->
+    <script src="~/lib/i18next/i18next.min.js" asp-append-version="true"></script>
+    <script src="~/lib/i18next/i18next-http-backend.min.js" asp-append-version="true"></script>
+    <script src="~/js/i18n/sportskin-i18n.js" asp-append-version="true"></script>
+
     @if (TempData["Notificacion"] != null || ViewBag.Notificacion != null)
     {
         var notificacion = TempData["Notificacion"] ?? ViewBag.Notificacion;
         <script type="text/javascript">
-
             const payload = @Html.Raw(notificacion);
-
-            if (payload) {
-                Swal.fire(payload);
-            }
+            if (payload) { Swal.fire(payload); }
         </script>
     }
 

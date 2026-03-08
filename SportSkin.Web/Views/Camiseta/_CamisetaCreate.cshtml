@@ -1,0 +1,87 @@
+﻿@* @model SportSkin.Application.DTOs.CamisetaDTO *@
+
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    <i class="fa-solid fa-circle-plus"></i>
+                     &nbspNueva Camiseta
+                </h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                ...
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* <div class="row">
+    <div class="col-md-4">
+        <form asp-action="CamisetaCreate">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Nombre" class="control-label"></label>
+                <input asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Descripcion" class="control-label"></label>
+                <input asp-for="Descripcion" class="form-control" />
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdCondicionCamiseta" class="control-label"></label>
+                <select asp-for="IdCondicionCamiseta" class ="form-control" asp-items="ViewBag.IdCondicionCamiseta"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdEquipo" class="control-label"></label>
+                <select asp-for="IdEquipo" class ="form-control" asp-items="ViewBag.IdEquipo"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdJugador" class="control-label"></label>
+                <select asp-for="IdJugador" class ="form-control" asp-items="ViewBag.IdJugador"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Temporada" class="control-label"></label>
+                <input asp-for="Temporada" class="form-control" />
+                <span asp-validation-for="Temporada" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Autografiada" /> @Html.DisplayNameFor(model => model.Autografiada)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdUsuarioVendedor" class="control-label"></label>
+                <select asp-for="IdUsuarioVendedor" class ="form-control" asp-items="ViewBag.IdUsuarioVendedor"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdEstadoCamiseta" class="control-label"></label>
+                <select asp-for="IdEstadoCamiseta" class ="form-control" asp-items="ViewBag.IdEstadoCamiseta"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="FechaRegistro" class="control-label"></label>
+                <input asp-for="FechaRegistro" class="form-control" />
+                <span asp-validation-for="FechaRegistro" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FechaModificacion" class="control-label"></label>
+                <input asp-for="FechaModificacion" class="form-control" />
+                <span asp-validation-for="FechaModificacion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div> *@
+
+

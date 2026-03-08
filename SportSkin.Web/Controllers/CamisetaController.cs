@@ -53,7 +53,7 @@ namespace SportSkin.Web.Controllers
         }
 
         // GET: Camiseta/Create
-        public IActionResult Create()
+        public IActionResult CamisetaCreate()
         {
             return View();
         }

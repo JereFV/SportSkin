@@ -1,8 +1,8 @@
-﻿@model IEnumerable<SportSkin.Application.DTOs.CamisetaDTO>
+﻿@model SportSkin.Web.ViewModels.CamisetaViewModel
 
 @{
     ViewData["Title"] = "Camisetas";
-    var total = Model?.Count() ?? 0;
+    var total = Model?.Camisetas?.Count() ?? 0;
 }
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
@@ -67,7 +67,7 @@
     </div>
 </div>
 
-@if (Model == null || !Model.Any())
+@if (Model?.Camisetas == null || !Model.Camisetas.Any())
 {
     <div class="alert alert-info d-flex align-items-center" role="alert">
         <i class="bi bi-info-circle me-2"></i>
@@ -78,7 +78,7 @@ else
 {
     <section aria-label="Listado de camisetas">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
-            @foreach (var item in Model)
+            @foreach (var item in Model.Camisetas)
             {
                 var primeraImagen = item.ImagenesCamiseta?.FirstOrDefault();
                 <div class="col">
@@ -144,7 +144,7 @@ else
 }
 
 @section Scripts {
-    <partial name="_CamisetaCreate" />
+    <partial name="_CamisetaCreate" model="Model?.CreacionCamiseta" />
 
     <script>
         $(document).ready(function() {

@@ -86,12 +86,16 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IRepositoryCamiseta, RepositoryCamiseta>();
 builder.Services.AddTransient<IRepositoryUsuario, RepositoryUsuario>();
 builder.Services.AddTransient<IRepositorySubasta, RepositorySubasta>();
+builder.Services.AddTransient<IRepositoryCategoriaCamiseta, RepositoryCategoriaCamiseta>();
+builder.Services.AddTransient<IRepositoryCondicionCamiseta, RepositoryCondicionCamiseta>();
 
 //*** Services
 //builder.Services.AddTransient<IServiceAutor, ServiceAutor>();
 builder.Services.AddTransient<IServiceCamiseta, ServiceCamiseta>();
 builder.Services.AddTransient<IServiceUsuario, ServiceUsuario>();
 builder.Services.AddTransient<IServiceSubasta, ServiceSubasta>();
+builder.Services.AddTransient<IServiceCategoriaCamiseta, ServiceCategoriaCamiseta>();
+builder.Services.AddTransient<IServiceCondicionCamiseta, ServiceCondicionCamiseta>();
 
 //Conf images route
 builder.Services.Configure<ImageSettings>(

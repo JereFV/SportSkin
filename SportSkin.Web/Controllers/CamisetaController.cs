@@ -8,34 +8,52 @@ namespace SportSkin.Web.Controllers
 {
     public class CamisetaController : Controller
     {
-        private readonly IServiceCamiseta _service;
+        private readonly IServiceCamiseta _serviceCamiseta;
+        private readonly IServiceCategoriaCamiseta _serviceCategoriaCamiseta;
+        private readonly IServiceCondicionCamiseta _serviceCondicionCamiseta;
 
-        public CamisetaController(IServiceCamiseta service)
+        public CamisetaController(IServiceCamiseta service, IServiceCategoriaCamiseta serviceCategoriaCamiseta, IServiceCondicionCamiseta serviceCondicionCamiseta)
         {
-            _service = service;
+            _serviceCamiseta = service;
+            _serviceCategoriaCamiseta = serviceCategoriaCamiseta;
+            _serviceCondicionCamiseta = serviceCondicionCamiseta;
         }
 
         // GET: Camiseta
         public async Task<IActionResult> CamisetaIndex(string? filtro)
-        {
+        {         
             ICollection<CamisetaDTO> lista;
+            ICollection<CategoriaCamisetaDTO> categoriasCamiseta = await _serviceCategoriaCamiseta.ListAsync();
+            ICollection<CondicionCamisetaDTO> condicionesCamiseta = await _serviceCondicionCamiseta.ListAsync();
 
             lista = filtro switch
             {
-                "vendidos" => await _service.GetCamisetasVendidas(),
-                "ensubasta" => await _service.GetCamisetasEnSubasta(),
-                "sinsubasta" => await _service.GetCamisetasSinSubasta(),
-                _ => await _service.ListAsync()
+                "vendidos" => await _serviceCamiseta.GetCamisetasVendidas(),
+                "ensubasta" => await _serviceCamiseta.GetCamisetasEnSubasta(),
+                "sinsubasta" => await _serviceCamiseta.GetCamisetasSinSubasta(),
+                _ => await _serviceCamiseta.ListAsync()
+            };
+
+            //Creación de ViewModel general para la pantalla de camisetas.
+            CamisetaViewModel camisetaViewModel = new()
+            {
+                Camisetas = lista,
+                CreacionCamiseta = new CreacionCamisetaViewModel 
+                {
+                    CategoriasCamiseta = categoriasCamiseta,
+                    CondicionesCamiseta = condicionesCamiseta
+                }
             };
 
             ViewBag.FiltroActual = filtro;
-            return View(lista);
+
+            return View(camisetaViewModel);
         }
 
         // GET: Camiseta/Details/5
         public async Task<IActionResult> CamisetaDetails(int id)
         {
-            var camiseta = await _service.FindByIdAsync(id);
+            var camiseta = await _serviceCamiseta.FindByIdAsync(id);
 
             if (camiseta == null)
                 return NotFound();
@@ -68,7 +86,7 @@ namespace SportSkin.Web.Controllers
 
             try
             {
-                await _service.AddAsync(dto);
+                await _serviceCamiseta.AddAsync(dto);
                 TempData["success"] = "Camiseta creada correctamente.";
                 return RedirectToAction(nameof(Index));
             }
@@ -82,7 +100,7 @@ namespace SportSkin.Web.Controllers
         // GET: Camiseta/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var camiseta = await _service.FindByIdAsync(id);
+            var camiseta = await _serviceCamiseta.FindByIdAsync(id);
             if (camiseta == null)
                 return NotFound();
 
@@ -99,7 +117,7 @@ namespace SportSkin.Web.Controllers
 
             try
             {
-                await _service.UpdateAsync(id, dto);
+                await _serviceCamiseta.UpdateAsync(id, dto);
                 TempData["success"] = "Camiseta actualizada correctamente.";
                 return RedirectToAction(nameof(Index));
             }
@@ -117,7 +135,7 @@ namespace SportSkin.Web.Controllers
         // GET: Camiseta/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            var camiseta = await _service.FindByIdAsync(id);
+            var camiseta = await _serviceCamiseta.FindByIdAsync(id);
             if (camiseta == null)
                 return NotFound();
 
@@ -131,7 +149,7 @@ namespace SportSkin.Web.Controllers
         {
             try
             {
-                await _service.DeleteAsync(id);
+                await _serviceCamiseta.DeleteAsync(id);
                 TempData["success"] = "Camiseta eliminada correctamente.";
                 return RedirectToAction(nameof(Index));
             }

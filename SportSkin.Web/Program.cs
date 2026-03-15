@@ -96,6 +96,7 @@ builder.Services.AddTransient<IServiceCategoriaCamiseta, ServiceCategoriaCamiset
 builder.Services.AddTransient<IServiceCondicionCamiseta, ServiceCondicionCamiseta>();
 builder.Services.AddTransient<IServiceEquipo, ServiceEquipo>();
 builder.Services.AddTransient<IServiceJugador, ServiceJugador>();
+builder.Services.AddTransient<IServiceTrayectoriaJugador, ServiceTrayectoriaJugador>();
 
 //Conf images route
 builder.Services.Configure<ImageSettings>(

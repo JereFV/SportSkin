@@ -1,7 +1,7 @@
 ﻿@model SportSkin.Web.ViewModels.CreacionCamisetaViewModel
 
 <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">
@@ -13,7 +13,7 @@
 
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-7">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             <label for="nombre" class="form-label fw-semibold">Nombre</label>
                             <input type="text" class="form-control" id="nombre">
@@ -59,8 +59,10 @@
                                     }
                                 }
                             </select>
-                        </div>
-                        
+                        </div>                                               
+                    </div>
+
+                    <div class="col-md-6">
                         <div class="mb-3" style="display: flex; flex-direction: column">
                             <label for="equipo" class="form-label fw-semibold">Equipo</label>
                             <select class="form-select" id="equipo" placeholder="Digite el nombre del equipo"></select>
@@ -70,8 +72,12 @@
                             <label for="jugador" class="form-label fw-semibold">Jugador</label>
                             <select class="form-select" id="jugador" placeholder="Digite el nombre del jugador"></select>
                         </div>
-                    </div>
 
+                        <div class="mb-3" style="display: flex; flex-direction: column">
+                            <label for="temporada" class="form-label fw-semibold">Temporada</label>
+                            <select class="form-select" id="temporada" placeholder="Seleccione la temporada"></select>
+                        </div>
+                    </div>
                 </div>
             </div>
 

@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace SportSkin.Application.Services.Interfaces
 {
-    public interface IServiceEquipo
+    public interface IServiceTrayectoriaJugador
     {
-        Task<ICollection<EquipoAPIFootballDTO>> ListEquiposFromAPIAsync(string filtro);
+        Task<ICollection<int>> ListTemporadasJugadorByTeamAsync(int idEquipo, int idJugador);
     }
 }

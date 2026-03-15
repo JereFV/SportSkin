@@ -158,9 +158,9 @@ else
 
             let selectEquipo = new TomSelect('#equipo', {
                 //controlClass: 'form-control',
-                valueField: 'idEquipo',
-                labelField: 'nombre',
-                searchField: 'nombre',
+                valueField: 'id',
+                labelField: 'name',
+                searchField: 'name',
                 loadThrottle: 400,
                 load: function(query, callback) {                    
                     let url = '/Camiseta/ListEquipos?filtro=' + encodeURIComponent(query);
@@ -184,7 +184,7 @@ else
                         selectJugador.clear();
                         selectJugador.clearOptions();                      
                     } else {
-                        //Al borrar el equipo se deshabilita equipo y jugadores.
+                        //Al borrar el equipo se deshabilita el campo de jugador.
                         selectJugador.disable();
                         selectJugador.clear();
                     }
@@ -192,25 +192,15 @@ else
                 render: {
                     no_results: function(data, escape) {
                         return '<div class="no-results">No se encontraron equipos...</div>';
-                    },
-                    // option: function(item, escape) {
-                    //     return `<div class="py-2 d-flex">
-                    //                 <span style="fontsize: 2rem">${item.nombre}</span>
-                    //             </div>`;
-                    // },
-                    // item: function(item, escape) {
-                    //     return `<div class="py-2 d-flex">
-                    //                 <span style="fontsize: 2rem">${item.nombre}</span>
-                    //             </div>`;
-                    // }
+                    }                 
                 },
             });
 
             let selectJugador = new TomSelect('#jugador', {
                 //controlClass: 'form-control',
-                valueField: 'idJugador',
-                labelField: 'nombre',
-                searchField: 'nombre',
+                valueField: 'id',
+                labelField: 'name',
+                searchField: 'name',
                 loadThrottle: 400,
                 load: function(query, callback) {
                     let url = '/Camiseta/ListJugadores?filtro=' + encodeURIComponent(query) + '&idEquipo=' + encodeURIComponent(selectEquipo.getValue());
@@ -232,10 +222,50 @@ else
                         return '<div class="no-results">No se encontraron jugadores para el valor digitado y el equipo seleccionado...</div>';
                     },                 
                 },
+                onChange: function(value) {
+                    if (value) {
+                        //Limpieza de opciones en el select de temporada.
+                        selectTemporada.clear();
+                        selectTemporada.clearOptions();
+
+                        fetch('/Camiseta/ListTemporadas?idEquipo=' + encodeURIComponent(selectEquipo.getValue()) + '&idJugador=' + encodeURIComponent(selectJugador.getValue()))
+                            .then(response => response.json())
+                            .then(json => {
+                                //Agrega cada una de los valores devueltos  por el controlador como opción en el select de temporada.
+                                json.forEach((item, index) => {
+                                   selectTemporada.addOption({
+                                       id: index,
+                                       anio: item
+                                   });
+                                });
+
+                                selectTemporada.enable();
+                            }).catch((error)=>{
+                                console.error(error)
+                            });
+                    } else {
+                        //Al borrar el jugador se borra y deshabilita el campo de temporada.
+                        selectTemporada.disable();
+                        selectTemporada.clear();
+                    }
+                },
             });
 
-            //El select de jugador está deshabilitado hasta seleccionar un equipo.
+            let selectTemporada = new TomSelect('#temporada', {
+                //controlClass: 'form-control',
+                valueField: 'id',
+                labelField: 'anio',
+                searchField: [],                              
+                render: {
+                    no_results: function(data, escape) {
+                        return '<div class="no-results">No se encontraron temporadas para el jugador y equipo seleccionado..</div>';
+                    },
+                },
+            });
+
+            //Se deshabilitan campos dependientes.
             selectJugador.disable();
+            selectTemporada.disable();
         });
     </script>
 

@@ -16,14 +16,16 @@ namespace SportSkin.Web.Controllers
         private readonly IServiceCondicionCamiseta _serviceCondicionCamiseta;
         private readonly IServiceEquipo _serviceEquipo;
         private readonly IServiceJugador _serviceJugador;
+        private readonly IServiceTrayectoriaJugador _serviceTrayectoriaJugador;
 
-        public CamisetaController(IServiceCamiseta service, IServiceCategoriaCamiseta serviceCategoriaCamiseta, IServiceCondicionCamiseta serviceCondicionCamiseta, IServiceEquipo serviceEquipo, IServiceJugador serviceJugador)
+        public CamisetaController(IServiceCamiseta service, IServiceCategoriaCamiseta serviceCategoriaCamiseta, IServiceCondicionCamiseta serviceCondicionCamiseta, IServiceEquipo serviceEquipo, IServiceJugador serviceJugador, IServiceTrayectoriaJugador serviceTrayectoriaJugador)
         {
             _serviceCamiseta = service;
             _serviceCategoriaCamiseta = serviceCategoriaCamiseta;
             _serviceCondicionCamiseta = serviceCondicionCamiseta;
             _serviceEquipo = serviceEquipo;
             _serviceJugador = serviceJugador;
+            _serviceTrayectoriaJugador = serviceTrayectoriaJugador;
         }
 
         // GET: Camiseta
@@ -192,13 +194,29 @@ namespace SportSkin.Web.Controllers
         {
             try
             {
-                var equipos = await _serviceJugador.ListJugadoresFromAPIAsync(filtro, idEquipo);
+                var jugadores = await _serviceJugador.ListJugadoresFromAPIAsync(filtro, idEquipo);
 
-                return Ok(equipos);
+                return Ok(jugadores);
             }
             catch (Exception)
             {
                 ViewBag.Exception = SweetAlertHelper.CrearNotificacion("Crear Camiseta", "Ha ocurrido un error al intentar obtener el listado de jugadores para el equipo seleccionado.", SweetAlertMessageType.error);
+                return BadRequest();
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ListTemporadas(int idEquipo, int idJugador)
+        {
+            try
+            {
+                var temporadas = await _serviceTrayectoriaJugador.ListTemporadasJugadorByTeamAsync(idEquipo, idJugador);
+
+                return Ok(temporadas);
+            }
+            catch (Exception)
+            {
+                ViewBag.Exception = SweetAlertHelper.CrearNotificacion("Crear Camiseta", "Ha ocurrido un error al intentar obtener el listado de temporadas para el jugador y equipo seleccionado.", SweetAlertMessageType.error);
                 return BadRequest();
             }
         }

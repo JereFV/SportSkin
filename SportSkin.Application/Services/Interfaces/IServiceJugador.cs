@@ -9,6 +9,6 @@ namespace SportSkin.Application.Services.Interfaces
 {
     public interface IServiceJugador
     {
-        Task<ICollection<JugadorDTO>> ListJugadoresFromAPIAsync(string filtro, int idEquipo);
+        Task<ICollection<JugadorAPIFootballDTO>> ListJugadoresFromAPIAsync(string filtro, int idEquipo);
     }
 }

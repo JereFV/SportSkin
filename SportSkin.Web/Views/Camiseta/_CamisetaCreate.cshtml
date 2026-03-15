@@ -24,6 +24,16 @@
                             <textarea class="form-control no-resize" id="descripcion" rows="2"></textarea>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="estado" class="form-label fw-semibold">Estado</label>
+                            <input type="text" class="form-control" id="estado" value="Activo" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="vendedor" class="form-label fw-semibold">Vendedor</label>
+                            <input type="text" class="form-control" id="vendedor" value="@Model.NombreCompletoVendedor" disabled>
+                        </div>
+
                         <div class="mb-3" style="display: flex; flex-direction: column">
                             <label for="categorias" class="form-label fw-semibold">Categorias</label>
                             <select class="form-select" multiple id="categorias">
@@ -40,15 +50,16 @@
                         <div class="mb-3" style="display: flex; flex-direction: column">
                             <label for="condicion" class="form-label fw-semibold">Condición</label>
                             <select class="form-select" id="condicion">
+                                <option hidden>Seleccione la condición</option>
                                 @if (Model.CondicionesCamiseta != null)
                                 {
-                                    @foreach (SportSkin.Application.DTOs.CondicionCamisetaDTO categoria in Model.CondicionesCamiseta)
+                                    @foreach (SportSkin.Application.DTOs.CondicionCamisetaDTO condicion in Model.CondicionesCamiseta)
                                     {
-                                        <option value="@categoria.IdCondicionCamiseta">@categoria.Nombre</option>
+                                        <option value="@condicion.IdCondicionCamiseta">@condicion.Nombre</option>
                                     }
                                 }
                             </select>
-                        </div>
+                        </div>                   
                     </div>
 
                 </div>

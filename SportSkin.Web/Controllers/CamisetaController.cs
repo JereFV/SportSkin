@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
 using SportSkin.Web.ViewModels;
@@ -24,7 +25,7 @@ namespace SportSkin.Web.Controllers
         {         
             ICollection<CamisetaDTO> lista;
             ICollection<CategoriaCamisetaDTO> categoriasCamiseta = await _serviceCategoriaCamiseta.ListAsync();
-            ICollection<CondicionCamisetaDTO> condicionesCamiseta = await _serviceCondicionCamiseta.ListAsync();
+            ICollection<CondicionCamisetaDTO> condicionesCamiseta = await _serviceCondicionCamiseta.ListAsync();       
 
             lista = filtro switch
             {
@@ -34,6 +35,9 @@ namespace SportSkin.Web.Controllers
                 _ => await _serviceCamiseta.ListAsync()
             };
 
+            //Lectura del usuario en un objeto dinámico de tipo JObject.
+            var usuarioSesion = JObject.Parse(HttpContext.Session.GetString("UsuarioSesion") ?? "");    
+
             //Creación de ViewModel general para la pantalla de camisetas.
             CamisetaViewModel camisetaViewModel = new()
             {
@@ -41,7 +45,8 @@ namespace SportSkin.Web.Controllers
                 CreacionCamiseta = new CreacionCamisetaViewModel 
                 {
                     CategoriasCamiseta = categoriasCamiseta,
-                    CondicionesCamiseta = condicionesCamiseta
+                    CondicionesCamiseta = condicionesCamiseta,
+                    NombreCompletoVendedor = $"{usuarioSesion["Nombre"]} {usuarioSesion["Apellido1"]} {usuarioSesion["Apellido2"]}"
                 }
             };
 

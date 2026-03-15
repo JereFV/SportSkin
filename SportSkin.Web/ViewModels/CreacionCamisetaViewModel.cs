@@ -5,6 +5,9 @@ namespace SportSkin.Web.ViewModels
     public class CreacionCamisetaViewModel
     {
         public ICollection<CategoriaCamisetaDTO>? CategoriasCamiseta { get; set; }
+
         public ICollection<CondicionCamisetaDTO>? CondicionesCamiseta { get; set; }
+
+        public string? NombreCompletoVendedor { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Libreria.Web.Util;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp;
 using Newtonsoft.Json.Linq;
 using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
@@ -12,20 +14,24 @@ namespace SportSkin.Web.Controllers
         private readonly IServiceCamiseta _serviceCamiseta;
         private readonly IServiceCategoriaCamiseta _serviceCategoriaCamiseta;
         private readonly IServiceCondicionCamiseta _serviceCondicionCamiseta;
+        private readonly IServiceEquipo _serviceEquipo;
+        private readonly IServiceJugador _serviceJugador;
 
-        public CamisetaController(IServiceCamiseta service, IServiceCategoriaCamiseta serviceCategoriaCamiseta, IServiceCondicionCamiseta serviceCondicionCamiseta)
+        public CamisetaController(IServiceCamiseta service, IServiceCategoriaCamiseta serviceCategoriaCamiseta, IServiceCondicionCamiseta serviceCondicionCamiseta, IServiceEquipo serviceEquipo, IServiceJugador serviceJugador)
         {
             _serviceCamiseta = service;
             _serviceCategoriaCamiseta = serviceCategoriaCamiseta;
             _serviceCondicionCamiseta = serviceCondicionCamiseta;
+            _serviceEquipo = serviceEquipo;
+            _serviceJugador = serviceJugador;
         }
 
         // GET: Camiseta
         public async Task<IActionResult> CamisetaIndex(string? filtro)
-        {         
+        {
             ICollection<CamisetaDTO> lista;
             ICollection<CategoriaCamisetaDTO> categoriasCamiseta = await _serviceCategoriaCamiseta.ListAsync();
-            ICollection<CondicionCamisetaDTO> condicionesCamiseta = await _serviceCondicionCamiseta.ListAsync();       
+            ICollection<CondicionCamisetaDTO> condicionesCamiseta = await _serviceCondicionCamiseta.ListAsync();
 
             lista = filtro switch
             {
@@ -36,13 +42,13 @@ namespace SportSkin.Web.Controllers
             };
 
             //Lectura del usuario en un objeto dinámico de tipo JObject.
-            var usuarioSesion = JObject.Parse(HttpContext.Session.GetString("UsuarioSesion") ?? "");    
+            var usuarioSesion = JObject.Parse(HttpContext.Session.GetString("UsuarioSesion") ?? "");
 
             //Creación de ViewModel general para la pantalla de camisetas.
             CamisetaViewModel camisetaViewModel = new()
             {
                 Camisetas = lista,
-                CreacionCamiseta = new CreacionCamisetaViewModel 
+                CreacionCamiseta = new CreacionCamisetaViewModel
                 {
                     CategoriasCamiseta = categoriasCamiseta,
                     CondicionesCamiseta = condicionesCamiseta,
@@ -162,6 +168,38 @@ namespace SportSkin.Web.Controllers
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ListEquipos(string filtro)
+        {
+            try
+            {
+                var equipos = await _serviceEquipo.ListEquiposFromAPIAsync(filtro);
+
+                return Ok(equipos);
+            }
+            catch (Exception)
+            {
+                ViewBag.Exception = SweetAlertHelper.CrearNotificacion("Crear Camiseta", "Ha ocurrido un error al intentar obtener el listado de equipos.", SweetAlertMessageType.error);
+                return BadRequest();
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ListJugadores(string filtro, int idEquipo)
+        {
+            try
+            {
+                var equipos = await _serviceJugador.ListJugadoresFromAPIAsync(filtro, idEquipo);
+
+                return Ok(equipos);
+            }
+            catch (Exception)
+            {
+                ViewBag.Exception = SweetAlertHelper.CrearNotificacion("Crear Camiseta", "Ha ocurrido un error al intentar obtener el listado de jugadores para el equipo seleccionado.", SweetAlertMessageType.error);
+                return BadRequest();
             }
         }
     }

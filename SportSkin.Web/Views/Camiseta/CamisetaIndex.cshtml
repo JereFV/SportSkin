@@ -155,6 +155,87 @@ else
                 allSelectedText: false,
                 numberDisplayed: 0
             });
+
+            let selectEquipo = new TomSelect('#equipo', {
+                //controlClass: 'form-control',
+                valueField: 'idEquipo',
+                labelField: 'nombre',
+                searchField: 'nombre',
+                loadThrottle: 400,
+                load: function(query, callback) {                    
+                    let url = '/Camiseta/ListEquipos?filtro=' + encodeURIComponent(query);
+
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(json => {
+                            callback(json);
+                        }).catch(()=>{
+                            callback();
+                        });
+                },
+                shouldLoad: function(query) {
+                    //Solo ejecuta si se digitan 3 o más caracteres.
+                    return query.length >= 3;
+                },
+                onChange: function(value) {
+                    if (value) {
+                        //Habilita el campo de jugador y limpia las opciones al cambiar el equipo seleccionado.
+                        selectJugador.enable();
+                        selectJugador.clear();
+                        selectJugador.clearOptions();                      
+                    } else {
+                        //Al borrar el equipo se deshabilita equipo y jugadores.
+                        selectJugador.disable();
+                        selectJugador.clear();
+                    }
+                },
+                render: {
+                    no_results: function(data, escape) {
+                        return '<div class="no-results">No se encontraron equipos...</div>';
+                    },
+                    // option: function(item, escape) {
+                    //     return `<div class="py-2 d-flex">
+                    //                 <span style="fontsize: 2rem">${item.nombre}</span>
+                    //             </div>`;
+                    // },
+                    // item: function(item, escape) {
+                    //     return `<div class="py-2 d-flex">
+                    //                 <span style="fontsize: 2rem">${item.nombre}</span>
+                    //             </div>`;
+                    // }
+                },
+            });
+
+            let selectJugador = new TomSelect('#jugador', {
+                //controlClass: 'form-control',
+                valueField: 'idJugador',
+                labelField: 'nombre',
+                searchField: 'nombre',
+                loadThrottle: 400,
+                load: function(query, callback) {
+                    let url = '/Camiseta/ListJugadores?filtro=' + encodeURIComponent(query) + '&idEquipo=' + encodeURIComponent(selectEquipo.getValue());
+
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(json => {
+                            callback(json);
+                        }).catch(()=>{
+                            callback();
+                        });
+                },
+                shouldLoad: function(query) {
+                    //Solo ejecuta si se digitan 3 o más caracteres.
+                    return query.length >= 3;
+                },
+                render: {
+                    no_results: function(data, escape) {
+                        return '<div class="no-results">No se encontraron jugadores para el valor digitado y el equipo seleccionado...</div>';
+                    },                 
+                },
+            });
+
+            //El select de jugador está deshabilitado hasta seleccionar un equipo.
+            selectJugador.disable();
         });
     </script>
 

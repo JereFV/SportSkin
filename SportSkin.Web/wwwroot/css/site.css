@@ -34,6 +34,25 @@ body {
     resize: none
 }
 
+/* Forzar el renderizado en Grid */
+.filepond--list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Crea 2 columnas iguales */
+    grid-gap: 10px;
+    padding: 0;
+}
+
+/* Ajustar el tamaño de los items para que no se vean gigantes */
+.filepond--item {
+    width: 100%;
+    margin: 0 !important; /* Quitar márgenes por defecto */
+}
+
+/* Ajustar la altura de la zona de soltar para que no se vea desproporcionada */
+.filepond--root {
+    max-height: 400px;
+}
+
 @media (min-width: 1400px) {
     .userstable-action-buttons {
         margin-right: 0.5rem;

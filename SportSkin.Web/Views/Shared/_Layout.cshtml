@@ -18,11 +18,15 @@
     <link rel="stylesheet" href="~/lib/bootstrap-multiselect/css/bootstrap-multiselect.css" />
     <!--Tom Select-->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.5.2/dist/css/tom-select.css" rel="stylesheet">
+    <!--File pond y sus plugins-->
+    <link href="https://unpkg.com/filepond@4/dist/filepond.css" rel="stylesheet" />
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet" />
     <!--Estilos propios-->
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> 
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />    
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
+
 <body class="d-flex flex-column min-vh-100 bg-body">
 
     <a class="visually-hidden-focusable position-absolute top-0 start-0 p-2 bg-body border rounded" href="#mainContent">
@@ -70,6 +74,10 @@
     <script src="~/js/i18n/sportskin-i18n.js" asp-append-version="true"></script>
     <!--Tom select-->
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.5.2/dist/js/tom-select.complete.min.js"></script>
+    <!--File Pond y sus plugins-->
+    <script src="https://unpkg.com/filepond@4/dist/filepond.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
 
     <!-- SWEETALERT NOTIFICATION -->
     @if (TempData["Notificacion"] != null || ViewBag.Notificacion != null)
@@ -81,7 +89,7 @@
 
             if (payload) {
                 Swal.fire(payload);
-            }
+            }          
         </script>
     }
 

@@ -1,19 +1,40 @@
 ﻿@model SportSkin.Web.ViewModels.CreacionCamisetaViewModel
 
 <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">
+                <h3 class="modal-title">
                     <i class="fa-solid fa-circle-plus text-primary"></i>
                      &nbspNueva Camiseta
-                </h4>
+                </h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-7">
+                <div class="row">                   
+                    <div class="col-md-6">
+                        <div style="margin-bottom: 0.5rem;">
+                            <h4 style="margin-bottom: 0">
+                                <i class="fa-solid fa-file text-primary"></i>
+                                &nbsp;<span>Datos de la Camiseta</span>
+                            </h4>
+
+                            <div style="display:flex; margin-top:0" class="gap-2">
+                                <h5>
+                                    <span class="badge text-bg-success">
+                                        <i class="fa-regular fa-circle-check"></i>&nbsp;Activa
+                                    </span>
+                                </h5>
+
+                                <h5>
+                                    <span class="badge text-bg-primary">
+                                        <i class="fa-solid fa-user"></i>&nbsp;@Model.NombreCompletoVendedor
+                                    </span>
+                                </h5>
+                            </div>                           
+                        </div>                     
+
                         <div class="mb-3">
                             <label for="nombre" class="form-label fw-semibold">Nombre</label>
                             <input type="text" class="form-control" id="nombre">
@@ -24,7 +45,7 @@
                             <textarea class="form-control no-resize" id="descripcion" rows="2"></textarea>
                         </div>
 
-                        <div class="mb-3">
+                        @* <div class="mb-3">
                             <label for="estado" class="form-label fw-semibold">Estado</label>
                             <input type="text" class="form-control" id="estado" value="Activo" disabled>
                         </div>
@@ -32,7 +53,7 @@
                         <div class="mb-3">
                             <label for="vendedor" class="form-label fw-semibold">Vendedor</label>
                             <input type="text" class="form-control" id="vendedor" value="@Model.NombreCompletoVendedor" disabled>
-                        </div>
+                        </div> *@
 
                         <div class="mb-3" style="display: flex; flex-direction: column">
                             <label for="categorias" class="form-label fw-semibold">Categorias</label>
@@ -60,7 +81,7 @@
                                 }
                             </select>
                         </div>
-                        
+
                         <div class="mb-3" style="display: flex; flex-direction: column">
                             <label for="equipo" class="form-label fw-semibold">Equipo</label>
                             <select class="form-select" id="equipo" placeholder="Digite el nombre del equipo"></select>
@@ -70,8 +91,27 @@
                             <label for="jugador" class="form-label fw-semibold">Jugador</label>
                             <select class="form-select" id="jugador" placeholder="Digite el nombre del jugador"></select>
                         </div>
+
+                        <div class="mb-3" style="display: flex; flex-direction: column">
+                            <label for="temporada" class="form-label fw-semibold">Temporada</label>
+                            <select class="form-select" id="temporada" placeholder="Seleccione la temporada"></select>
+                        </div>
                     </div>
 
+                    <div class="col-md-6">
+                        <h4 style=margin-bottom: 1.5rem">
+                            <i class="fa-solid fa-image text-primary"></i>
+                            &nbsp;<span>Imágenes Adjuntas</span>
+                        </h4>
+
+                        <input type="file"
+                               class="filepond"
+                               name="filepond"
+                               multiple
+                               data-allow-reorder="true"
+                               data-max-file-size="3MB"
+                               data-max-files="3">
+                    </div>
                 </div>
             </div>
 

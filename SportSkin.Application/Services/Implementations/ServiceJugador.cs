@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SportSkin.Application.Services.Implementations
@@ -19,7 +20,7 @@ namespace SportSkin.Application.Services.Implementations
             _configuration = configuration;
         }
 
-        public async Task<ICollection<JugadorDTO>> ListJugadoresFromAPIAsync(string filtro, int idEquipo)
+        public async Task<ICollection<JugadorAPIFootballDTO>> ListJugadoresFromAPIAsync(string filtro, int idEquipo)
         {
             //Variables definidas en configuración.
             var apiKey = _configuration["APIFootballSettings:APIKey"];
@@ -29,28 +30,13 @@ namespace SportSkin.Application.Services.Implementations
             client.DefaultRequestHeaders.Add("x-apisports-key", apiKey);
             var respuestaAPI = await client.GetAsync(url);
 
-            JObject jugadores = JObject.Parse(await respuestaAPI.Content.ReadAsStringAsync());
-            ICollection<JugadorDTO> equiposDTO = [];
+            //Deserealizado de respuesta.
+            ResponseJugadoresAPIFootball? responseJugadores = JsonSerializer.Deserialize<ResponseJugadoresAPIFootball>(await respuestaAPI.Content.ReadAsStringAsync());
 
-            //Iteración de la estructura dinámica JObject.
-            foreach (var jugador in jugadores["response"] ?? Enumerable.Empty<JToken>())
-            {
-                JToken? detalleJugador = jugador["player"];
+            //Se accede a las propiedades de la respuesta para obtener los equipos coincidentes con el filtro.
+            ICollection<JugadorAPIFootballDTO> jugadores = responseJugadores?.Jugadores?.Select(x => x.DatosJugador)?.ToList() ?? [];
 
-                if (detalleJugador != null)
-                {
-                    //Creación de entidades DTO para retorno a la interfaz.
-                    JugadorDTO jugadorDTO = new()
-                    {
-                        IdJugador = (short)(detalleJugador["id"] ?? 0),
-                        Nombre = detalleJugador["name"]?.ToString() ?? string.Empty,
-                    };
-
-                    equiposDTO.Add(jugadorDTO);
-                }
-            }
-
-            return equiposDTO;
+            return jugadores;
         }
     }
 }

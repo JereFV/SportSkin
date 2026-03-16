@@ -324,6 +324,54 @@ namespace SportSkin.Web.Controllers
             return RedirectToAction(nameof(UsuarioIndex));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CambiarContrasenna(CambiarContrasennaViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "Validación",
+                    text = "Revise los campos del formulario.",
+                    icon = "warning"
+                });
+                return RedirectToAction(nameof(UsuarioIndex));
+            }
+
+            try
+            {
+                await _service.ChangePasswordAsync(vm.IdUsuario, vm.NuevaContrasenna);
+
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "Contraseña actualizada",
+                    text = "La contraseña fue cambiada correctamente.",
+                    icon = "success"
+                });
+            }
+            catch (KeyNotFoundException)
+            {
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "Error",
+                    text = "El usuario no fue encontrado.",
+                    icon = "error"
+                });
+            }
+            catch (Exception ex)
+            {
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "Error inesperado",
+                    text = ex.Message,
+                    icon = "error"
+                });
+            }
+
+            return RedirectToAction(nameof(UsuarioIndex));
+        }
+
         // GET: UsuarioController/Delete/5
         public ActionResult Delete(int id)
         {

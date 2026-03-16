@@ -90,6 +90,14 @@ namespace SportSkin.Application.Services.Implementations
             await _repository.ChangeStateAsync(id);
         }
 
+        public async Task ChangePasswordAsync(int id, string nuevaContrasenna)
+        {
+            _ = await _repository.FindByIdAsync(id)
+                ?? throw new KeyNotFoundException($"No existe el usuario con id={id}");
+
+            await _repository.ChangePasswordAsync(id, nuevaContrasenna);
+        }
+
         //Se obtiene el catálogo de roles
         public async Task<ICollection<RolUsuarioDTO>> GetRolesAsync()
         {

@@ -15,6 +15,7 @@ namespace SportSkin.Infrastructure.Repository.Interfaces
         Task UpdateAsync(Usuario entity);
         Task ChangeStateAsync(int id);
         Task<ICollection<RolUsuario>> GetRolesAsync();
+        Task ChangePasswordAsync(int id, string nuevaContrasenna);
 
         // Validaciones de unicidad (correo y username únicos)
         Task<bool> ExisteCorreoAsync(string correo, int? excluirId = null);

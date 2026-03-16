@@ -54,8 +54,10 @@
                             onclick="abrirModalEditar(@item.IdUsuario)">
                         <i class="fa-regular fa-pen-to-square"></i>&nbsp;<span data-i18n="actions.edit"></span>
                     </button>
-                    <button type="button" class="btn btn-outline-dark userstable-action-buttons">
-                        <i class="fa-solid fa-key"></i>&nbsp;<span data-i18n="nav.changePassword"></span>
+                    <button type="button"
+                            class="btn btn-outline-dark userstable-action-buttons"
+                            onclick="abrirModalCambiarContrasena(@item.IdUsuario, '@item.NombreCompleto')">
+                        <i class="fa-solid fa-key"></i>&nbsp;<span data-i18n="nav.changePassword"> </span>
                     </button>
                     @if (item.Estado == "Activo")
                     {
@@ -332,6 +334,82 @@
     </div>
 </div>
 
+@*
+    MODAL: CAMBIAR CONTRASEÑA
+*@
+<div class="modal fade" id="modalCambiarContrasena" tabindex="-1"
+     aria-labelledby="modalCambiarContrasenaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content shadow">
+
+            <form asp-controller="Usuario" asp-action="CambiarContrasenna"
+                  method="post" id="formCambiarContrasena" novalidate>
+
+                <input type="hidden" id="passIdUsuario" name="IdUsuario" />
+
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="modalCambiarContrasenaLabel">
+                        <i class="fa-solid fa-key me-2"></i>
+                        <span data-i18n="nav.changePassword">Change Password</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white"
+                            data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <p class="small text-muted mb-3" id="passNombreUsuario"></p>
+
+                    <div class="mb-3">
+                        <label for="passNueva" class="form-label">
+                            <span data-i18n="users:fields.password">Password</span>
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <input type="password" id="passNueva" name="NuevaContrasenna"
+                                   class="form-control" minlength="6" maxlength="100" required />
+                            <button class="btn btn-outline-secondary" type="button"
+                                    onclick="togglePassword('passNueva', 'iconPassNueva')">
+                                <i id="iconPassNueva" class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span class="text-danger small" id="errPassNueva"></span>
+                    </div>
+
+                    <div class="mb-1">
+                        <label for="passConfirmar" class="form-label">
+                            <span data-i18n="users:fields.confirmPassword">Confirm Password</span>
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <input type="password" id="passConfirmar" name="ConfirmarContrasenna"
+                                   class="form-control" minlength="6" required />
+                            <button class="btn btn-outline-secondary" type="button"
+                                    onclick="togglePassword('passConfirmar', 'iconPassConfirmar')">
+                                <i id="iconPassConfirmar" class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span class="text-danger small" id="errPassConfirmar"></span>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>
+                        <span data-i18n="actions.cancel">Cancel</span>
+                    </button>
+                    <button type="submit" class="btn btn-dark">
+                        <i class="fa-solid fa-key me-1"></i>
+                        <span data-i18n="actions.save">Save</span>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
                 $(document).ready(function () {
@@ -450,6 +528,36 @@
                         }
                     });
                 }
+
+                function abrirModalCambiarContrasena(id, nombre) {
+                    document.getElementById('passIdUsuario').value    = id;
+                    document.getElementById('passNombreUsuario').textContent = nombre;
+                    document.getElementById('passNueva').value        = '';
+                    document.getElementById('passConfirmar').value    = '';
+                    document.getElementById('errPassNueva').textContent    = '';
+                    document.getElementById('errPassConfirmar').textContent = '';
+                    new bootstrap.Modal(document.getElementById('modalCambiarContrasena')).show();
+                }
+
+                document.getElementById('formCambiarContrasena').addEventListener('submit', function (e) {
+                    let valido = true;
+
+                    const pass    = document.getElementById('passNueva').value;
+                    const confirm = document.getElementById('passConfirmar').value;
+
+                    if (pass.length < 6) {
+                        document.getElementById('errPassNueva').textContent = 'La contraseña debe tener al menos 6 caracteres.';
+                        valido = false;
+                    } else { document.getElementById('errPassNueva').textContent = ''; }
+
+                    if (pass !== confirm) {
+                        document.getElementById('errPassConfirmar').textContent = 'Las contraseñas no coinciden.';
+                        valido = false;
+                    } else { document.getElementById('errPassConfirmar').textContent = ''; }
+
+                    if (!valido) e.preventDefault();
+                });
+
         @if (reabrirCrear)
         {
             <text>

@@ -73,11 +73,21 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             await _context.SaveChangesAsync();
         }
 
+        public async Task ChangePasswordAsync(int id, string nuevaContrasenna)
+        {
+            var entity = await _context.Usuario.FindAsync(id)
+                ?? throw new KeyNotFoundException($"No existe el usuario con id={id}");
+
+            entity.Contrasenna = nuevaContrasenna;
+            entity.FechaModificacion = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+        }
 
         /*
             Cambia el estado lógico del usuario (activo o inactivo).
             No elimina físicamente el registro.
-        */ 
+        */
         public async Task ChangeStateAsync(int id)
         {
             var entity = await _context.Usuario.FindAsync(id)

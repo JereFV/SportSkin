@@ -33,12 +33,12 @@
                    class="form-control form-control-sm" />
         </div>
         <button type="submit" id="btnFiltrar" class="btn btn-secondary btn-sm">
-            <i class="bi bi-search me-1"></i> <span data-i18n="actions.filter"></span>
+            <i class="bi bi-search me-1"></i><span data-i18n="actions.filter"></span>
         </button>
         @if (ViewBag.Desde != null || ViewBag.Hasta != null)
         {
             <a asp-action="Activas" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-x-circle me-1"></i> <span data-i18n="actions.clear"></span>
+                <i class="bi bi-x-circle me-1"></i><span data-i18n="actions.clear"></span>
             </a>
         }
     </form>
@@ -140,7 +140,7 @@ else
                                         <span class="fw-semibold text-@estadoColor">@estadoTexto</span>
                                     </span>
                                     <span class="small text-muted">
-                                        <span data-i18n="auctions:fields.basePrice"></span> <span class="fw-semibold">@precioFinal</span>
+                                        <span data-i18n="auctions:fields.basePrice"></span><span class="fw-semibold">@precioFinal</span>
                                     </span>
                                 </div>
 

@@ -23,7 +23,20 @@
     "buyNowPrice": "Precio Compra Inmediata",
     "purchaseDate": "Fecha de Compra",
     "commissionPercent": "Porcentaje Comisión",
-    "commissionAmount": "Monto Comisión"
+    "commissionAmount": "Monto Comisión",
+    "shirt": "Camiseta",
+    "selectShirt": "Seleccione una camiseta",
+    "seller": "Vendedor",
+    "autoAssigned": "Asignada automática"
+  },
+  "modal": {
+    "createTitle": "Nueva Subasta",
+    "editTitle": "Editar Subasta"
+  },
+  "actions": {
+    "publish": "Publicar",
+    "cancelAuction": "Cancelar",
+    "saveDraft": "Guardar como borrador"
   },
   "bids": {
     "title": "Listado de Pujas",

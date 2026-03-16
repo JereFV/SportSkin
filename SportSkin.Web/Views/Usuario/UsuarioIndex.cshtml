@@ -1,104 +1,476 @@
 ﻿@model IEnumerable<SportSkin.Web.ViewModels.ListadoUsuariosViewModel>
-
+@using SportSkin.Web.ViewModels
 @{
     ViewData["Title"] = "Usuarios";
+    var crearVM = ViewBag.CrearUsuarioVM as CrearUsuarioViewModel ?? new CrearUsuarioViewModel();
+    var editVM = ViewBag.EditarUsuarioVM as EditarUsuarioViewModel ?? new EditarUsuarioViewModel();
+    bool reabrirCrear = ViewBag.AbrirModalCrear == true;
+    bool reabrirEditar = ViewBag.AbrirModalEditar == true;
+
+    // Pre-calcular los valores para el modal editar
+    string editIdUsuario = editVM.IdUsuario.ToString();
+    string editNombreVal = editVM.Nombre ?? string.Empty;
+    string editApellido1Val = editVM.Apellido1 ?? string.Empty;
+    string editApellido2Val = editVM.Apellido2 ?? string.Empty;
+    string editCorreoVal = editVM.Correo ?? string.Empty;
+    string editTelefonoVal = editVM.Telefono ?? string.Empty;
 }
 
-<h3>
-    <i class="fa-solid fa-users text-primary"></i>
-    &nbsp;<span data-i18n="users:listTitle">  </span>
-</h3>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">
+        <i class="fa-solid fa-users text-primary"></i>
+        &nbsp;<span data-i18n="users:listTitle"> </span>
+    </h3>
+    <button type="button" class="btn btn-primary"
+            data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
+        <i class="bi bi-person-plus me-1"></i>
+        <span data-i18n="actions.addUser"> </span>
+    </button>
+</div>
 
-<br />
-
-@* <p>
-    <a asp-action="Create">Create New</a>
-</p> *@
 <table class="table" id="usersList">
     <thead>
         <tr>
-            <th>
-                <span data-i18n="users:fields.fullName"> </span>:
-            </th>
-            <th>
-                <span data-i18n="users:fields.role"> </span>:
-            </th>
-            <th>
-                <span data-i18n="users:fields.status"> </span>:
-            </th>
-            <th>
-                <span data-i18n="users:actions">Acciones</span>
-            </th>
+            <th><span data-i18n="users:fields.fullName"></span>:</th>
+            <th><span data-i18n="users:fields.role"></span>:</th>
+            <th><span data-i18n="users:fields.status"></span>:</th>
+            <th><span data-i18n="users:actions"></span></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model ?? Enumerable.Empty<SportSkin.Web.ViewModels.ListadoUsuariosViewModel>())
         {
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NombreCompleto)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Rol)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Estado)
-                </td>
+                <td>@Html.DisplayFor(m => item.NombreCompleto)</td>
+                <td>@Html.DisplayFor(m => item.Rol)</td>
+                <td>@Html.DisplayFor(m => item.Estado)</td>
                 <td class="col-md-6">
-                    <div>
-                        <a asp-controller="Usuario"
-                           asp-action="UsuarioDetails"
-                           asp-route-id="@item.IdUsuario"
-                           class="btn btn-outline-info userstable-action-buttons">
-                            <i class="fa-solid fa-circle-info"></i>&nbsp;<span data-i18n="actions.details"> </span>
-                        </a>
-
-                        <button type="button" class="btn btn-outline-primary userstable-action-buttons">
-                            <i class="fa-regular fa-pen-to-square"></i>&nbsp;<span data-i18n="actions.edit"></span>
-                        </button>
-
-                        <button type="button" class="btn btn-outline-dark userstable-action-buttons">
-                            <i class="fa-solid fa-key"></i>&nbsp;<span data-i18n="nav.changePassword"> </span>
-                        </button>
-
-                        @if (item.Estado == "Activo")
-                        {
-                            <button type="button" class="btn btn-outline-danger userstable-status-actions">
+                    <a asp-controller="Usuario" asp-action="UsuarioDetails"
+                       asp-route-id="@item.IdUsuario"
+                       class="btn btn-outline-info userstable-action-buttons">
+                        <i class="fa-solid fa-circle-info"></i>&nbsp;<span data-i18n="actions.details"></span>
+                    </a>
+                    <button type="button" class="btn btn-outline-primary userstable-action-buttons"
+                            onclick="abrirModalEditar(@item.IdUsuario)">
+                        <i class="fa-regular fa-pen-to-square"></i>&nbsp;<span data-i18n="actions.edit"></span>
+                    </button>
+                    <button type="button" class="btn btn-outline-dark userstable-action-buttons">
+                        <i class="fa-solid fa-key"></i>&nbsp;<span data-i18n="nav.changePassword"></span>
+                    </button>
+                    @if (item.Estado == "Activo")
+                    {
+                        <form asp-controller="Usuario" asp-action="ChangeState"
+                              asp-route-id="@item.IdUsuario" method="post" style="display:inline">
+                            <button type="submit" class="btn btn-outline-danger userstable-status-actions"
+                                    onclick="return ChangeState(event,'deshabilitar','@item.NombreCompleto',this)">
                                 <i class="fa-solid fa-ban"></i>&nbsp;<span data-i18n="actions.disable"></span>
                             </button>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn btn-outline-success userstable-status-actions">
-                                <i class="fa-solid fa-circle-check"></i>&nbsp;<span data-i18n="actions.enable"></span>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-controller="Usuario" asp-action="ChangeState"
+                              asp-route-id="@item.IdUsuario" method="post" style="display:inline">
+                            <button type="submit" class="btn btn-outline-success userstable-status-actions"
+                                    onclick="return ChangeState(event,'habilitar','@item.NombreCompleto',this)">
+                                <i class="fa-solid fa-circle-check"></i>&nbsp;<span data-i18n="actions.enable"> </span>
                             </button>
-                        }
-
-                        <div class="userstable-status-btngroup">
-                        </div>
-
-                    </div>
+                        </form>
+                    }
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
+@* ===== MODAL CREAR ===== *@
+<div class="modal fade" id="modalCrearUsuario" tabindex="-1"
+     aria-labelledby="modalCrearUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content shadow">
+            <form asp-controller="Usuario" asp-action="Crear"
+                  method="post" id="formCrearUsuario" novalidate>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalCrearUsuarioLabel">
+                        <i class="bi bi-person-plus me-2"></i>
+                        <span data-i18n="users:modal.createTitle"> </span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white"
+                            data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small fw-semibold text-muted mb-2">
+                        <i class="bi bi-person me-1"></i>
+                        <span data-i18n="users:sections.personalData"> </span>
+                    </p>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label for="crearNombre" class="form-label">
+                                <span data-i18n="users:fields.firstName"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="crearNombre" name="Nombre"
+                                   class="form-control" value="@crearVM.Nombre"
+                                   minlength="2" maxlength="100" required />
+                            <span class="text-danger small" id="errCrearNombre"> </span>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="crearApellido1" class="form-label">
+                                <span data-i18n="users:fields.lastName1"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="crearApellido1" name="Apellido1"
+                                   class="form-control" value="@crearVM.Apellido1"
+                                   minlength="2" maxlength="100" required />
+                            <span class="text-danger small" id="errCrearApellido1"> </span>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="crearApellido2" class="form-label">
+                                <span data-i18n="users:fields.lastName2"> </span>
+                            </label>
+                            <input type="text" id="crearApellido2" name="Apellido2"
+                                   class="form-control" value="@crearVM.Apellido2"
+                                   maxlength="100" />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="crearTelefono" class="form-label">
+                                <span data-i18n="users:fields.phone"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="tel" id="crearTelefono" name="Telefono"
+                                   class="form-control" value="@crearVM.Telefono" required />
+                            <span class="text-danger small" id="errCrearTelefono"> </span>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="crearCorreo" class="form-label">
+                                <span data-i18n="users:fields.email"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" id="crearCorreo" name="Correo"
+                                   class="form-control" value="@crearVM.Correo" required />
+                            <span class="text-danger small" id="errCrearCorreo"> </span>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="crearRol" class="form-label">
+                                <span data-i18n="users:fields.role"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select id="crearRol" name="IdRolUsuario" class="form-select" required>
+                                <option value=""> </option>
+                                @foreach (var rol in crearVM.Roles)
+                                {
+                                    <option value="@rol.Value">@rol.Text</option>
+                                }
+                            </select>
+                            <span class="text-danger small" id="errCrearRol"> </span>
+                        </div>
+                    </div>
+                    <hr />
+                    <p class="small fw-semibold text-muted mb-2">
+                        <i class="bi bi-key me-1"></i>
+                        <span data-i18n="users:sections.credentials"> </span>
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="crearUsuario1" class="form-label">
+                                <span data-i18n="users:fields.username"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="crearUsuario1" name="Usuario1"
+                                   class="form-control" value="@crearVM.Usuario1"
+                                   minlength="4" maxlength="50" required />
+                            <span class="text-danger small" id="errCrearUsuario1"> </span>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="crearContrasenna" class="form-label">
+                                <span data-i18n="users:fields.password"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="password" id="crearContrasenna" name="Contrasenna"
+                                       class="form-control" minlength="6" maxlength="100" required />
+                                <button class="btn btn-outline-secondary" type="button"
+                                        onclick="togglePassword('crearContrasenna','iconPass1')">
+                                    <i id="iconPass1" class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <span class="text-danger small" id="errCrearContrasenna"> </span>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="crearConfirmar" class="form-label">
+                                <span data-i18n="users:fields.confirmPassword"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="password" id="crearConfirmar" name="ConfirmarContrasenna"
+                                       class="form-control" minlength="6" required />
+                                <button class="btn btn-outline-secondary" type="button"
+                                        onclick="togglePassword('crearConfirmar','iconPass2')">
+                                    <i id="iconPass2" class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <span class="text-danger small" id="errCrearConfirmar"> </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>
+                        <span data-i18n="actions.cancel"> </span>
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-person-check me-1"></i>
+                        <span data-i18n="actions.save"> </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* ===== MODAL EDITAR ===== *@
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1"
+     aria-labelledby="modalEditarUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content shadow">
+            <form asp-controller="Usuario" asp-action="Editar"
+                  method="post" id="formEditarUsuario" novalidate>
+                <input type="hidden" id="editIdUsuario" name="IdUsuario" />
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalEditarUsuarioLabel">
+                        <i class="fa-regular fa-pen-to-square me-2"></i>
+                        <span data-i18n="users:modal.editTitle"> </span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white"
+                            data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="p-3 rounded bg-body-tertiary border mb-3">
+                        <p class="small text-muted fw-semibold mb-2">
+                            <i class="bi bi-lock me-1"></i>
+                            <span data-i18n="users:sections.nonEditable"> </span>
+                        </p>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label small text-muted mb-1">
+                                    <span data-i18n="users:fields.role"> </span>
+                                </label>
+                                <input type="text" id="editRol"
+                                       class="form-control form-control-sm" readonly disabled />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small text-muted mb-1">
+                                    <span data-i18n="users:fields.registrationDate"> </span>
+                                </label>
+                                <input type="text" id="editFechaCreacion"
+                                       class="form-control form-control-sm" readonly disabled />
+                            </div>
+                        </div>
+                    </div>
+                    <p class="small text-muted fw-semibold mb-2">
+                        <i class="bi bi-pencil me-1"></i>
+                        <span data-i18n="users:sections.editableData"> </span>
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="editNombre" class="form-label">
+                                <span data-i18n="users:fields.firstName"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="editNombre" name="Nombre"
+                                   class="form-control" minlength="2" maxlength="100" required />
+                            <span class="text-danger small" id="errEditNombre"> </span>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editApellido1" class="form-label">
+                                <span data-i18n="users:fields.lastName1"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="editApellido1" name="Apellido1"
+                                   class="form-control" minlength="2" maxlength="100" required />
+                            <span class="text-danger small" id="errEditApellido1"> </span>
+                        </div>
+                        <div class="col-12">
+                            <label for="editApellido2" class="form-label">
+                                <span data-i18n="users:fields.lastName2"> </span>
+                            </label>
+                            <input type="text" id="editApellido2" name="Apellido2"
+                                   class="form-control" maxlength="100" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editTelefono" class="form-label">
+                                <span data-i18n="users:fields.phone"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="tel" id="editTelefono" name="Telefono"
+                                   class="form-control" required />
+                            <span class="text-danger small" id="errEditTelefono"> </span>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editCorreo" class="form-label">
+                                <span data-i18n="users:fields.email"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" id="editCorreo" name="Correo"
+                                   class="form-control" required />
+                            <span class="text-danger small" id="errEditCorreo"> </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>
+                        <span data-i18n="actions.cancel"> </span>
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-floppy me-1"></i>
+                        <span data-i18n="actions.save"> </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+                $(document).ready(function () {
+                    $('#usersList').DataTable({
+                        "columnDefs": [{ "className": "dt-center", "targets": [0, 1, 2, 3] }],
+                        "language": { "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json" }
+                    });
+                });
 
-        $(document).ready(function () {
-            //Inicialización del listado utilizando datatables.
-            $('#usersList').DataTable({
-                "columnDefs": [
-                    { "className": "dt-center", "targets": [0, 1, 2, 3] }
-                ],
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+                function togglePassword(inputId, iconId) {
+                    var input = document.getElementById(inputId);
+                    var icon  = document.getElementById(iconId);
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.replace('bi-eye', 'bi-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.replace('bi-eye-slash', 'bi-eye');
+                    }
                 }
-            });
-        });
+
+                document.getElementById('formCrearUsuario').addEventListener('submit', function (e) {
+                    var valido = true;
+                    var nombre = document.getElementById('crearNombre').value.trim();
+                    if (nombre.length < 2) { document.getElementById('errCrearNombre').textContent = 'El nombre debe tener al menos 2 caracteres.'; valido = false; }
+                    else { document.getElementById('errCrearNombre').textContent = ''; }
+                    var ap1 = document.getElementById('crearApellido1').value.trim();
+                    if (ap1.length < 2) { document.getElementById('errCrearApellido1').textContent = 'El primer apellido debe tener al menos 2 caracteres.'; valido = false; }
+                    else { document.getElementById('errCrearApellido1').textContent = ''; }
+                    var tel = document.getElementById('crearTelefono').value.trim();
+                    if (tel.length < 8) { document.getElementById('errCrearTelefono').textContent = 'Ingrese un teléfono válido.'; valido = false; }
+                    else { document.getElementById('errCrearTelefono').textContent = ''; }
+                    var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                    var correo = document.getElementById('crearCorreo').value.trim();
+                    if (!emailRegex.test(correo)) { document.getElementById('errCrearCorreo').textContent = 'Ingrese un correo electrónico válido.'; valido = false; }
+                    else { document.getElementById('errCrearCorreo').textContent = ''; }
+                    var rol = document.getElementById('crearRol').value;
+                    if (!rol) { document.getElementById('errCrearRol').textContent = 'Debe seleccionar un rol.'; valido = false; }
+                    else { document.getElementById('errCrearRol').textContent = ''; }
+                    var usuario1 = document.getElementById('crearUsuario1').value.trim();
+                    if (usuario1.length < 4) { document.getElementById('errCrearUsuario1').textContent = 'El nombre de usuario debe tener al menos 4 caracteres.'; valido = false; }
+                    else { document.getElementById('errCrearUsuario1').textContent = ''; }
+                    var pass    = document.getElementById('crearContrasenna').value;
+                    var confirm = document.getElementById('crearConfirmar').value;
+                    if (pass.length < 6) { document.getElementById('errCrearContrasenna').textContent = 'La contraseña debe tener al menos 6 caracteres.'; valido = false; }
+                    else { document.getElementById('errCrearContrasenna').textContent = ''; }
+                    if (pass !== confirm) { document.getElementById('errCrearConfirmar').textContent = 'Las contraseñas no coinciden.'; valido = false; }
+                    else { document.getElementById('errCrearConfirmar').textContent = ''; }
+                    if (!valido) e.preventDefault();
+                });
+
+                function abrirModalEditar(id) {
+                    fetch('/Usuario/GetDatosEditar?id=' + id)
+                        .then(function (r) {
+                            if (!r.ok) throw new Error('No se pudo cargar el usuario.');
+                            return r.json();
+                        })
+                        .then(function (data) {
+                            document.getElementById('editIdUsuario').value     = data.idUsuario;
+                            document.getElementById('editNombre').value        = data.nombre;
+                            document.getElementById('editApellido1').value     = data.apellido1;
+                            document.getElementById('editApellido2').value     = data.apellido2 || '';
+                            document.getElementById('editCorreo').value        = data.correo;
+                            document.getElementById('editTelefono').value      = data.telefono;
+                            document.getElementById('editRol').value           = data.rol;
+                            document.getElementById('editFechaCreacion').value = data.fechaCreacion;
+                            document.getElementById('errEditNombre').textContent    = '';
+                            document.getElementById('errEditApellido1').textContent = '';
+                            document.getElementById('errEditTelefono').textContent  = '';
+                            document.getElementById('errEditCorreo').textContent    = '';
+                            new bootstrap.Modal(document.getElementById('modalEditarUsuario')).show();
+                        })
+                        .catch(function (err) {
+                            Swal.fire({ title: 'Error', text: err.message, icon: 'error' });
+                        });
+                }
+
+                document.getElementById('formEditarUsuario').addEventListener('submit', function (e) {
+                    var valido = true;
+                    var nombre = document.getElementById('editNombre').value.trim();
+                    if (nombre.length < 2) { document.getElementById('errEditNombre').textContent = 'El nombre debe tener al menos 2 caracteres.'; valido = false; }
+                    else { document.getElementById('errEditNombre').textContent = ''; }
+                    var ap1 = document.getElementById('editApellido1').value.trim();
+                    if (ap1.length < 2) { document.getElementById('errEditApellido1').textContent = 'El apellido debe tener al menos 2 caracteres.'; valido = false; }
+                    else { document.getElementById('errEditApellido1').textContent = ''; }
+                    var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                    var correo = document.getElementById('editCorreo').value.trim();
+                    if (!emailRegex.test(correo)) { document.getElementById('errEditCorreo').textContent = 'Ingrese un correo electrónico válido.'; valido = false; }
+                    else { document.getElementById('errEditCorreo').textContent = ''; }
+                    var tel = document.getElementById('editTelefono').value.trim();
+                    if (tel.length < 8) { document.getElementById('errEditTelefono').textContent = 'Ingrese un teléfono válido.'; valido = false; }
+                    else { document.getElementById('errEditTelefono').textContent = ''; }
+                    if (!valido) e.preventDefault();
+                });
+
+                function ChangeState(event, accion, nombre, btn) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: accion.charAt(0).toUpperCase() + accion.slice(1) + ' usuario?',
+                        text: 'Se va a ' + accion + ' a: ' + nombre,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, continuar',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: accion === 'deshabilitar' ? '#dc3545' : '#198754'
+                    }).then(function (result) {
+                        if (result.isConfirmed) {
+                            // Buscamos el formulario de manera más segura
+                            var form = btn.parentElement;
+                            if (form && form.tagName === 'FORM') {
+                                form.submit();
+                            } else {
+                                // Si el parent no es el form, lo buscamos hacia arriba
+                                btn.closest('form').submit();
+                            }
+                        }
+                    });
+                }
+        @if (reabrirCrear)
+        {
+            <text>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        new bootstrap.Modal(document.getElementById('modalCrearUsuario')).show();
+                    });
+            </text>
+        }
+        @if (reabrirEditar)
+        {
+            <text>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        document.getElementById('editIdUsuario').value  = '@editIdUsuario';
+                        document.getElementById('editNombre').value     = '@editNombreVal';
+                        document.getElementById('editApellido1').value  = '@editApellido1Val';
+                        document.getElementById('editApellido2').value  = '@editApellido2Val';
+                        document.getElementById('editCorreo').value     = '@editCorreoVal';
+                        document.getElementById('editTelefono').value   = '@editTelefonoVal';
+                        new bootstrap.Modal(document.getElementById('modalEditarUsuario')).show();
+                    });
+            </text>
+        }
     </script>
 }
-
-

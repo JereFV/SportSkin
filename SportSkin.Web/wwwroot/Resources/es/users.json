@@ -11,11 +11,23 @@
     "phone": "Teléfono",
     "username": "Usuario",
     "password": "Contraseña",
+    "confirmPassword": "Confirmar Contraseña",
     "firstName": "Nombre",
     "lastName1": "Primer Apellido",
-    "lastName2": "Segundo Apellido"
+    "lastName2": "Segundo Apellido",
+    "selectRole": "Seleccione un rol"
   },
   "actions": "Acciones",
+  "modal": {
+    "createTitle": "Agregar Usuario",
+    "editTitle": "Editar Usuario"
+  },
+  "sections": {
+    "personalData": "Información Personal",
+    "credentials": "Credenciales de Acceso",
+    "nonEditable": "Información no editable",
+    "editableData": "Información editable"
+  },
   "sellerStats": {
     "createdAuctions": "Subastas Creadas:",
     "soldBadge_one": "vendida",

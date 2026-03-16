@@ -11,6 +11,15 @@ namespace SportSkin.Infrastructure.Repository.Interfaces
     {
         Task<ICollection<Usuario>> ListAsync();
         Task<Usuario?> FindByIdAsync(int id);
+        Task<int> AddAsync(Usuario entity);
+        Task UpdateAsync(Usuario entity);
+        Task ChangeStateAsync(int id);
+        Task<ICollection<RolUsuario>> GetRolesAsync();
+
+        // Validaciones de unicidad (correo y username únicos)
+        Task<bool> ExisteCorreoAsync(string correo, int? excluirId = null);
+        Task<bool> ExisteUsuarioAsync(string usuario1, int? excluirId = null);
+
         Task<int> CountSubastasByVendedorAsync(int idUsuario);
         Task<int> CountSubastasActivasByVendedorAsync(int idUsuario);
         Task<int> CountSubastasVendidasByVendedorAsync(int idUsuario);

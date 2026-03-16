@@ -11,11 +11,23 @@
     "phone": "Phone",
     "username": "Username",
     "password": "Password",
+    "confirmPassword": "Confirm Password",
     "firstName": "First Name",
     "lastName1": "First Surname",
-    "lastName2": "Second Surname"
+    "lastName2": "Second Surname",
+    "selectRole": "Select a role"
   },
   "actions": "Actions",
+  "modal": {
+    "createTitle": "Add User",
+    "editTitle": "Edit User"
+  },
+  "sections": {
+    "personalData": "Personal Data",
+    "credentials": "Access Credentials",
+    "nonEditable": "Non-editable information",
+    "editableData": "Editable data"
+  },
   "sellerStats": {
     "createdAuctions": "Created Auctions:",
     "soldBadge_one": "sold",

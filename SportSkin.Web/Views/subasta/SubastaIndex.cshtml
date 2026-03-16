@@ -15,10 +15,10 @@
                 <span data-i18n="auctions:allAuctions"></span>
             </h1>
             <p class="text-muted mb-0">
-                <span data-i18n="auctions:totalLabel"></span> <strong>@total</strong> <span data-i18n="auctions:totalRegistered"></span>
+                <span data-i18n="auctions:totalLabel"></span> <strong>@total</strong><span data-i18n="auctions:totalRegistered"></span>
             </p>
             <button type="button" class="btn btn-outline-success btn-sm" style="border-radius:12px">
-                <i class="bi bi-plus-circle"></i> <span data-i18n="actions.addAuction"></span>
+                <i class="bi bi-plus-circle"></i><span data-i18n="actions.addAuction"></span>
             </button>
         </div>
 
@@ -43,28 +43,28 @@
                         <a class="dropdown-item d-flex align-items-center gap-2
                            @(ViewBag.FiltroActual == "activas" ? "active" : "")"
                            href="#" onclick="aplicarFiltro('activas')">
-                            <i class="fa-solid fa-gavel text-primary"></i> <span data-i18n="filters.active"></span>
+                            <i class="fa-solid fa-gavel text-primary"></i><span data-i18n="filters.active"></span>
                         </a>
                     </li>
                     <li>
                         <a class="dropdown-item d-flex align-items-center gap-2
                            @(ViewBag.FiltroActual == "finalizadas" ? "active" : "")"
                            href="#" onclick="aplicarFiltro('finalizadas')">
-                            <i class="bi bi-x-circle text-secondary"></i> <span data-i18n="filters.finished"></span>
+                            <i class="bi bi-x-circle text-secondary"></i><span data-i18n="filters.finished"></span>
                         </a>
                     </li>
                     <li>
                         <a class="dropdown-item d-flex align-items-center gap-2
                            @(ViewBag.FiltroActual == "vendidas" ? "active" : "")"
                            href="#" onclick="aplicarFiltro('vendidas')">
-                            <i class="bi bi-check-circle text-success"></i> <span data-i18n="filters.sold"></span>
+                            <i class="bi bi-check-circle text-success"></i><span data-i18n="filters.sold"></span>
                         </a>
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item d-flex align-items-center gap-2"
                            href="#" onclick="aplicarFiltro('')">
-                            <i class="bi bi-x-circle text-danger"></i> <span data-i18n="filters.clearStatus"></span>
+                            <i class="bi bi-x-circle text-danger"></i><span data-i18n="filters.clearStatus"></span>
                         </a>
                     </li>
                 </ul>
@@ -83,13 +83,13 @@
             </div>
 
             <button type="submit" id="btnFiltrar" class="btn btn-primary btn-sm align-self-end">
-                <i class="bi bi-search me-1"></i> <span data-i18n="actions.filter"></span>
+                <i class="bi bi-search me-1"></i><span data-i18n="actions.filter"></span>
             </button>
 
             @if (ViewBag.Desde != null || ViewBag.Hasta != null || ViewBag.FiltroActual != null)
             {
                 <a asp-action="SubastaIndex" class="btn btn-outline-secondary btn-sm align-self-end">
-                    <i class="bi bi-x-circle me-1"></i> <span data-i18n="actions.clearAll"></span>
+                    <i class="bi bi-x-circle me-1"></i><span data-i18n="actions.clearAll"></span>
                 </a>
             }
         </div>
@@ -196,7 +196,7 @@ else
                                         <i class="bi bi-people me-1"></i>@item.Puja.Count <span data-i18n="auctions:bids.count" data-i18n-options='{"count":@item.Puja.Count}'></span>
                                     </span>
                                     <span class="small text-muted">
-                                        <span data-i18n="auctions:fields.basePrice">Precio:</span> <span class="fw-semibold">@precioFinal</span>
+                                        <span data-i18n="auctions:fields.basePrice">Precio:</span><span class="fw-semibold">@precioFinal</span>
                                     </span>
                                 </div>
                                 

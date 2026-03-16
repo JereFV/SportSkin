@@ -74,7 +74,7 @@
                 @if (Model.IdRolUsuario == 2)
                 {
                     <div class="d-flex align-items-center justify-content-between p-2 rounded bg-body-tertiary mb-2">
-                        <span class="text-muted small" data-i18n="users:sellerStats.createdAuctions"> </span>
+                        <span class="text-muted small" data-i18n="users:sellerStats.createdAuctions"></span>
                         <div class="d-flex align-items-center gap-2">
                             <span class="fw-bold text-primary fs-5">@ViewBag.TotalSubastas</span>
                             <span class="badge bg-primary small" data-i18n="badges.seller"></span>
@@ -89,7 +89,7 @@
                 else if (Model.IdRolUsuario == 3) // Comprador
                 {
                     <div class="d-flex align-items-center justify-content-between p-2 rounded bg-body-tertiary">
-                        <span class="text-muted small" data-i18n="users:buyerStats.bidsCount"> </span>
+                        <span class="text-muted small" data-i18n="users:buyerStats.bidsCount"></span>
                         <div class="d-flex align-items-center gap-2">
                             <span class="fw-bold text-primary fs-5">@Model.Puja.Count</span>
                             <span class="badge bg-success small" data-i18n="badges.buyer"></span>
@@ -108,7 +108,7 @@
             <!-- Footer con botón volver -->
             <div class="card-footer bg-body border-0 pb-3 px-3">
                 <a asp-action="UsuarioIndex" class="btn btn-outline-secondary w-100">
-                    <i class="bi bi-arrow-left me-1"></i> <span data-i18n="actions.back"> </span>
+                    <i class="bi bi-arrow-left me-1"></i> <span data-i18n="actions.back"></span>
                 </a>
             </div>
 

@@ -23,7 +23,20 @@
     "buyNowPrice": "Buy Now Price",
     "purchaseDate": "Purchase Date",
     "commissionPercent": "Commission Percentage",
-    "commissionAmount": "Commission Amount"
+    "commissionAmount": "Commission Amount",
+    "shirt": "Shirt",
+    "selectShirt": "Select a shirt",
+    "seller": "Seller",
+    "autoAssigned": "automatically assigned"
+  },
+  "modal": {
+    "createTitle": "New Auction",
+    "editTitle": "Edit Auction"
+  },
+  "actions": {
+    "publish": "Publish",
+    "cancelAuction": "Cancel",
+    "saveDraft": "Save as Draft"
   },
   "bids": {
     "title": "Bid History",

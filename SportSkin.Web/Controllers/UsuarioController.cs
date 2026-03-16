@@ -1,8 +1,12 @@
 ﻿using Libreria.Web.Util;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json.Linq;
+using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
 using SportSkin.Web.ViewModels;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SportSkin.Web.Controllers
@@ -14,6 +18,14 @@ namespace SportSkin.Web.Controllers
         public UsuarioController(IServiceUsuario service)
         {
             _service = service;
+        }
+
+        //Obtiene usuario en sesión
+        private int GetUsuarioSesionId()
+        {
+            var json = HttpContext.Session.GetString("UsuarioSesion") ?? "{}";
+            var obj = JObject.Parse(json);
+            return obj["IdUsuario"]?.Value<int>() ?? 0;
         }
 
         // GET: UsuarioController
@@ -40,7 +52,16 @@ namespace SportSkin.Web.Controllers
                         usuariosView.Add(usuarioView);
                     }
                 }
-               
+                var roles = await _service.GetRolesAsync();
+                ViewBag.CrearUsuarioVM = new CrearUsuarioViewModel
+                {
+                    Roles = roles.Select(r => new SelectListItem
+                    {
+                        Value = r.IdRolUsuario.ToString(),
+                        Text = r.Nombre
+                    }).ToList()
+                };
+
                 return View(usuariosView);
             }
             catch (Exception)
@@ -50,7 +71,7 @@ namespace SportSkin.Web.Controllers
             }        
         }
 
-        // GET: UsuarioController/Details/5
+        // GET: UsuarioController/Details/
         public async Task<IActionResult> UsuarioDetails(int id)
         {
             var usuario = await _service.FindByIdAsync(id);
@@ -75,19 +96,141 @@ namespace SportSkin.Web.Controllers
             return View();
         }
 
-        // POST: UsuarioController/Create
+        // ─────────────────────────────────────────────────────────────
+        // POST: /Usuario/Crear
+        // ─────────────────────────────────────────────────────────────
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Crear(CrearUsuarioViewModel vm)
         {
+            if (!ModelState.IsValid)
+            {
+                // Reconstruir vista con errores y modal abierto
+                return await ReconstruirVistaCrear(vm);
+            }
+
             try
             {
-                return RedirectToAction(nameof(Index));
+                var dto = new UsuarioDTO
+                {
+                    Nombre = vm.Nombre,
+                    Apellido1 = vm.Apellido1,
+                    Apellido2 = vm.Apellido2,
+                    IdRolUsuario = vm.IdRolUsuario,
+                    Telefono = vm.Telefono,
+                    Correo = vm.Correo,
+                    Usuario1 = vm.Usuario1,
+                    Contrasenna = vm.Contrasenna,
+                    Estado = true
+                };
+
+                await _service.AddAsync(dto);
+
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "Usuario creado",
+                    text = $"El usuario '{vm.Nombre} {vm.Apellido1}' fue registrado correctamente.",
+                    icon = "success"
+                });
             }
-            catch
+            catch (InvalidOperationException ex)
             {
-                return View();
+                // Error de negocio (correo/usuario duplicado)
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "No se pudo crear",
+                    text = ex.Message,
+                    icon = "warning"
+                });
+
+                //Se reconstruye el model
+                return await ReconstruirVistaCrear(vm);
             }
+            catch (Exception ex)
+            {
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "Error inesperado",
+                    text = ex.Message,
+                    icon = "error"
+                });
+            }
+
+            return RedirectToAction(nameof(UsuarioIndex));
+        }
+        //Re construye la vista sobre todo se utiliza en casos donde una validación no se cumple
+        private async Task<IActionResult> ReconstruirVistaCrear(CrearUsuarioViewModel vm)
+        {
+            var usuarios = await _service.ListAsync();
+            var listView = usuarios.Select(u => new ListadoUsuariosViewModel
+            {
+                IdUsuario = u.IdUsuario,
+                NombreCompleto = $"{u.Nombre} {u.Apellido1} {u.Apellido2}".Trim(),
+                Rol = u.RolUsuarioNavigation?.Nombre ?? "-",
+                Estado = u.Estado ? "Activo" : "Inactivo"
+            }).ToList();
+
+            var roles = await _service.GetRolesAsync();
+            vm.Roles = roles.Select(r => new SelectListItem
+            {
+                Value = r.IdRolUsuario.ToString(),
+                Text = r.Nombre,
+                Selected = r.IdRolUsuario == vm.IdRolUsuario
+            }).ToList();
+
+            ViewBag.CrearUsuarioVM = vm;
+            ViewBag.AbrirModalCrear = true;
+            return View("UsuarioIndex", listView);
+        }
+
+        private async Task<IActionResult> ReconstruirVistaEditar(EditarUsuarioViewModel vm)
+        {
+            // Cargamos la lista de la tabla para que el fondo no se vea vacío
+            var usuarios = await _service.ListAsync();
+            var listView = usuarios.Select(u => new ListadoUsuariosViewModel
+            {
+                IdUsuario = u.IdUsuario,
+                NombreCompleto = $"{u.Nombre} {u.Apellido1} {u.Apellido2}".Trim(),
+                Rol = u.RolUsuarioNavigation?.Nombre ?? "-",
+                Estado = u.Estado ? "Activo" : "Inactivo"
+            }).ToList();
+
+            // Necesitamos recargar también el ViewModel de "Crear" porque el Index lo espera
+            var roles = await _service.GetRolesAsync();
+            ViewBag.CrearUsuarioVM = new CrearUsuarioViewModel
+            {
+                Roles = roles.Select(r => new SelectListItem
+                {
+                    Value = r.IdRolUsuario.ToString(),
+                    Text = r.Nombre
+                }).ToList()
+            };
+
+            // Pasamos los datos del usuario que estamos editando
+            ViewBag.EditarUsuarioVM = vm;
+            ViewBag.AbrirModalEditar = true; // Esta bandera activa el JS en la vista
+
+            return View("UsuarioIndex", listView);
+        }
+        // GET: /Usuario/GetDatosEditar/5  (AJAX — llena el modal editar)
+        [HttpGet]
+        public async Task<IActionResult> GetDatosEditar(int id)
+        {
+            var usuario = await _service.FindByIdAsync(id);
+            if (usuario == null)
+                return NotFound();
+
+            return Json(new
+            {
+                idUsuario = usuario.IdUsuario,
+                nombre = usuario.Nombre,
+                apellido1 = usuario.Apellido1,
+                apellido2 = usuario.Apellido2 ?? string.Empty,
+                correo = usuario.Correo,
+                telefono = usuario.Telefono,
+                rol = usuario.RolUsuarioNavigation?.Nombre ?? "-",
+                fechaCreacion = usuario.FechaCreacion.ToString("dd/MM/yyyy")
+            });
         }
 
         // GET: UsuarioController/Edit/5
@@ -96,19 +239,89 @@ namespace SportSkin.Web.Controllers
             return View();
         }
 
-        // POST: UsuarioController/Edit/5
+         
+        // POST: /Usuario/Editar         
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Editar(EditarUsuarioViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return await ReconstruirVistaEditar(vm);
+            }
+
+            try
+            {
+                var dto = new UsuarioDTO
+                {
+                    IdUsuario = vm.IdUsuario,
+                    Nombre = vm.Nombre,
+                    Apellido1 = vm.Apellido1,
+                    Apellido2 = vm.Apellido2,
+                    Correo = vm.Correo,
+                    Telefono = vm.Telefono
+                };
+
+                await _service.UpdateAsync(vm.IdUsuario, dto);
+
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "Perfil actualizado",
+                    text = "Los datos del usuario fueron modificados correctamente.",
+                    icon = "success"
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "No se pudo actualizar",
+                    text = ex.Message,
+                    icon = "warning"
+                });
+                return await ReconstruirVistaEditar(vm);
+            }
+            catch (Exception ex)
+            {
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "Error inesperado",
+                    text = ex.Message,
+                    icon = "error"
+                });
+            }
+
+            return RedirectToAction(nameof(UsuarioIndex));
+        }
+
+
+        // POST: /Usuario/ChangeStateAsync/        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeState(int id)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                await _service.ChangeStateAsync(id);
+
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "Estado actualizado",
+                    text = "El estado del usuario fue cambiado correctamente.",
+                    icon = "success"
+                });
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "Error inesperado",
+                    text = ex.Message,
+                    icon = "error"
+                });
             }
+
+            return RedirectToAction(nameof(UsuarioIndex));
         }
 
         // GET: UsuarioController/Delete/5

@@ -29,7 +29,7 @@ namespace SportSkin.Web.Controllers
             _logger.LogInformation("Entrando al método Index del HomeController");
 
             //Estable el usuario como una variable de sesión estática.
-            var usuarioSesion = new { IdUsuario = 2, Nombre = "Rodrigo", Apellido1 = "Herrera", Apellido2 = "Castillo"};
+            var usuarioSesion = new { IdUsuario = 1, Nombre = "Rodrigo", Apellido1 = "Herrera", Apellido2 = "Castillo"};
             HttpContext.Session.SetString("UsuarioSesion", JsonSerializer.Serialize(usuarioSesion));
 
             var populares = await _serviceSubasta.GetSubastasMasPopularesAsync(3);

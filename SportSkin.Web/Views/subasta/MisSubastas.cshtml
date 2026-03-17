@@ -1,164 +1,660 @@
-﻿@model IEnumerable<SportSkin.Application.DTOs.SubastaDTO>
+﻿@model SportSkin.Web.ViewModels.MisSubastasViewModel
 @{
     ViewData["Title"] = "Mis Subastas";
-    var total = Model?.Count() ?? 0;
-    var activas = Model?.Count(s => s.FechaCompra == null && s.FechaCierre > DateTime.Now) ?? 0;
-    var vendidas = Model?.Count(s => s.FechaCompra != null) ?? 0;
-    var finalizadas = total - activas - vendidas;
+    var subastas = Model.Subastas;
+    var total = subastas.Count();
+    var activas = subastas.Count(s => s.IdEstadoSubasta == 3);
+    var borradores = subastas.Count(s => s.IdEstadoSubasta == 5);
+    var publicadas = subastas.Count(s => s.IdEstadoSubasta == 2);
+    var canceladas = subastas.Count(s => s.IdEstadoSubasta == 4);
 }
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+@* ─── Encabezado ─── *@
+<div class="d-flex justify-content-between align-items-start mb-4">
     <div>
         <h1 class="h3 mb-1">
-            <i class="bi bi-person-circle text-primary me-2"></i>
-            <span data-i18n="auctions:myAuctions">Mis Subastas</span>
+            <i class="bi bi-hammer text-primary me-2"></i>Mis Subastas
         </h1>
-        <p class="text-muted mb-0" data-i18n="auctions:sellerSummary">Resumen de tus subastas como vendedor.</p>
+        <p class="text-muted mb-0 small">
+            Gestión de subastas de <strong>@Model.NombreVendedor</strong>
+        </p>
     </div>
+    <button type="button" class="btn btn-primary"
+            data-bs-toggle="modal" data-bs-target="#modalCrear">
+        <i class="bi bi-plus-circle me-1"></i> Añadir Subasta
+    </button>
 </div>
 
-<!-- Resumen rápido -->
+@* ─── Resumen rápido ─── *@
 <div class="row g-3 mb-4">
-    <div class="col-6 col-md-4">
+    <div class="col-6 col-sm-3">
         <div class="card border-0 bg-primary bg-opacity-10 text-center py-3">
             <div class="fs-4 fw-bold text-primary">@activas</div>
-            <div class="small text-muted" data-i18n="auctions:stats.active">Activas</div>
+            <div class="small text-muted">Activas</div>
         </div>
     </div>
-    <div class="col-6 col-md-4">
-        <div class="card border-0 bg-success bg-opacity-10 text-center py-3">
-            <div class="fs-4 fw-bold text-success">@vendidas</div>
-            <div class="small text-muted" data-i18n="auctions:stats.sold">Vendidas</div>
+    <div class="col-6 col-sm-3">
+        <div class="card border-0 bg-info bg-opacity-10 text-center py-3">
+            <div class="fs-4 fw-bold text-info">@publicadas</div>
+            <div class="small text-muted">Publicadas</div>
         </div>
     </div>
-    <div class="col-6 col-md-4">
-        <div class="card border-0 bg-secondary bg-opacity-10 text-center py-3">
-            <div class="fs-4 fw-bold text-secondary">@finalizadas</div>
-            <div class="small text-muted" data-i18n="auctions:stats.finished">Finalizadas</div>
+    <div class="col-6 col-sm-3">
+        <div class="card border-0 bg-warning bg-opacity-10 text-center py-3">
+            <div class="fs-4 fw-bold text-warning">@borradores</div>
+            <div class="small text-muted">Borradores</div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-3">
+        <div class="card border-0 bg-danger bg-opacity-10 text-center py-3">
+            <div class="fs-4 fw-bold text-danger">@canceladas</div>
+            <div class="small text-muted">Canceladas</div>
         </div>
     </div>
 </div>
 
-@if (Model == null || !Model.Any())
+@* ─── Listado de cards ─── *@
+@if (!subastas.Any())
 {
-    <div class="alert alert-info d-flex align-items-center" role="alert">
-        <i class="bi bi-info-circle me-2"></i>
-        <div data-i18n="auctions:noMine">No tienes subastas registradas.</div>
+    <div class="alert alert-info d-flex align-items-center">
+        <i class="bi bi-info-circle me-2 fs-5"></i>
+        <div>No tenés subastas registradas. Usá el botón <strong>Añadir Subasta</strong> para comenzar.</div>
     </div>
 }
 else
 {
-    <section aria-label="Mis subastas">
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
-            @foreach (var item in Model)
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+        @foreach (var item in subastas)
+        {
+            var primeraImagen = item.IdCamisetaNavigation?.ImagenesCamiseta?.FirstOrDefault();
+            var estadoId = item.IdEstadoSubasta;
+            var estadoNombre = item.IdEstadoSubastaNavigation?.Nombre ?? "—";
+
+            var (badgeColor, iconoEstado) = estadoId switch
             {
-                var primeraImagen = item.IdCamisetaNavigation?.ImagenesCamiseta?.FirstOrDefault();
-                var esActiva = item.FechaCompra == null && item.FechaCierre > DateTime.Now;
-                var fueVendida = item.FechaCompra != null;
-                var estadoBadge = esActiva ? "primary" : fueVendida ? "success" : "secondary";
-                var estadoTexto = esActiva ? "Activa" : fueVendida ? "Vendida" : "Finalizada";
-                var estadoIcono = esActiva ? "bi-hammer" : fueVendida ? "bi-check-circle" : "bi-x-circle";
-                var tiempoRestante = item.FechaCierre - DateTime.Now;
-                var urgencia = tiempoRestante.TotalHours < 2 ? "danger"
-                : tiempoRestante.TotalHours < 24 ? "warning"
-                : "success";
+                2 => ("info", "bi-megaphone"),
+                3 => ("primary", "bi-hammer"),
+                4 => ("danger", "bi-x-circle"),
+                5 => ("warning", "bi-pencil-square"),
+                _ => ("secondary", "bi-question-circle")
+            };
 
-                <div class="col">
-                    <article class="card h-100 shadow-sm border-0">
+            bool puedeEditar = estadoId == 5;
+            bool puedePublicar = estadoId == 5;
+            bool puedeCancelar = estadoId == 5 || estadoId == 2;
 
-                        <!-- Imagen con badge -->
-                        <div class="rounded-top overflow-hidden bg-body-tertiary position-relative" style="height: 240px;">
-                            @if (primeraImagen != null)
-                            {
-                                <img class="w-100 h-100 object-fit-cover rounded-top"
-                                     src="@primeraImagen.RutaImagen"
-                                     alt="Imagen de @item.IdCamisetaNavigation.Nombre"
-                                     loading="lazy" />
-                            }
-                            else
-                            {
-                                <div class="d-flex flex-column justify-content-center align-items-center text-muted h-100">
-                                    <i class="bi bi-image fs-1"></i>
-                                    <span class="small">Sin imagen</span>
-                                </div>
-                            }
+            <div class="col">
+                <article class="card h-100 shadow-sm border-0">
+                    <div class="rounded-top overflow-hidden bg-body-tertiary position-relative" style="height:200px;">
+                        @if (primeraImagen != null)
+                        {
+                            <img class="w-100 h-100 object-fit-cover"
+                                 src="@primeraImagen.RutaImagen"
+                                 alt="@item.IdCamisetaNavigation?.Nombre" loading="lazy" />
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-column justify-content-center align-items-center text-muted h-100">
+                                <i class="bi bi-image fs-1"></i>
+                                <span class="small">Sin imagen</span>
+                            </div>
+                        }
                         <div class="position-absolute top-0 end-0 m-2">
-                            <span class="badge bg-@estadoBadge">
-                                <i class="bi @estadoIcono me-1"></i>@estadoTexto
+                            <span class="badge bg-@badgeColor">
+                                <i class="bi @iconoEstado me-1"></i>@estadoNombre
                             </span>
                         </div>
                     </div>
 
-                    <!-- Contenido -->
-                    <div class="card-body">
-                        <h2 class="h6 fw-semibold mb-2 text-truncate"
+                    <div class="card-body pb-0">
+                        <h2 class="h6 fw-semibold text-truncate mb-1"
                             title="@item.IdCamisetaNavigation?.Nombre">
                             @item.IdCamisetaNavigation?.Nombre
                         </h2>
-
-                        <!-- Precio y pujas -->
-                        <div class="d-flex gap-2 mb-2">
-                            <span class="badge rounded-pill bg-primary px-3 py-2">
-                                <i class="bi bi-cash me-1"></i>
-                                @(item.Puja.Any()
-                                                            ? item.Puja.Max(p => p.Monto).ToString("C")
-                                                            : item.PrecioBase.ToString("C"))
-                        </span>
-                        <span class="badge rounded-pill bg-secondary px-3 py-2">
-                                    <i class="bi bi-people me-1"></i>@item.Puja.Count <span data-i18n="auctions:bids.count" data-i18n-options='{"count":@item.Puja.Count}'></span>
-                        </span>
+                        <p class="small text-muted mb-2">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            @item.FechaInicio.ToString("dd/MM/yy") — @item.FechaCierre.ToString("dd/MM/yy HH:mm")
+                        </p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis px-2 py-1">
+                                Base: @item.PrecioBase.ToString("C0")
+                            </span>
+                            <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis px-2 py-1">
+                                @item.Puja.Count puja(s)
+                            </span>
+                        </div>
                     </div>
 
-                            <!-- Tiempo restante si está activa -->
-                    @if (esActiva)
-                            {
-                                <div class="d-flex align-items-center gap-2 small">
-                                    <i class="bi bi-clock text-@urgencia"></i>
-                                    <span class="text-@urgencia fw-semibold">
-                                        @if (tiempoRestante.TotalHours < 1)
-                                        {
-                                            <span data-i18n="auctions:time.closesIn">Cierra en</span> @((int)tiempoRestante.TotalMinutes) <span data-i18n="auctions:time.min" data-i18n-options='{"count":@((int)tiempoRestante.TotalMinutes)}'>@((int)tiempoRestante.TotalMinutes != 1 ? "minutos" : "minuto")</span>
-                                        }
-                                        else if (tiempoRestante.TotalHours < 24)
-                                        {
-                                            <span data-i18n="auctions:time.closesIn">Cierra en</span> @((int)tiempoRestante.TotalHours) <span data-i18n="auctions:time.hours" data-i18n-options='{"count":@((int)tiempoRestante.TotalHours)}'>@((int)tiempoRestante.TotalHours != 1 ? "horas" : "hora")</span>
-                                        }
-                                        else
-                                        {
-                                            @($"Cierra el {item.FechaCierre:d/M/yy HH:mm}")
-                                        }
-                                    </span>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="d-flex align-items-center gap-2 text-muted small">
-                                    <i class="bi bi-calendar-x"></i>
-                                    <span><span data-i18n="auctions:time.closedOn">Cerró:</span> @item.FechaCierre.ToString("d/M/yy HH:mm")</span>
-                                </div>
-                            }
-                        </div>
+                    <div class="card-footer bg-body border-0 pb-3 pt-2 d-flex gap-2">
+                        <a asp-controller="Subasta" asp-action="Detalle"
+                           asp-route-id="@item.IdSubasta"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye me-1"></i> Detalle
+                        </a>
 
-                        <!-- Acciones -->
-                        <div class="card-footer bg-body border-0 pt-0 pb-3 px-3">
-                            <a asp-controller="Subasta"
-                               asp-action="Detalle"
-                               asp-route-id="@item.IdSubasta"
-                               class="btn btn-outline-primary w-100">
-                                <i class="bi bi-eye me-1"></i> <span data-i18n="actions.details">Ver detalle</span>
-                            </a>
+                        <div class="dropdown ms-auto">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                    type="button" data-bs-toggle="dropdown">
+                                Acciones
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                @if (puedeEditar)
+                                {
+                                    <li>
+                                        <button class="dropdown-item"
+                                                onclick="abrirModalEditar(@item.IdSubasta)">
+                                            <i class="bi bi-pencil me-2 text-warning"></i>Editar
+                                        </button>
+                                    </li>
+                                }
+                                @if (puedePublicar)
+                                {
+                                    <li>
+                                        @* POST form con SweetAlert de confirmación *@
+                                        <form asp-controller="Subasta" asp-action="Publicar"
+                                              method="post" id="formPublicar_@item.IdSubasta">
+                                            <input type="hidden" name="id" value="@item.IdSubasta" />
+                                            <button type="button" class="dropdown-item"
+                                                    onclick="confirmarAccion('formPublicar_@item.IdSubasta','¿Publicar subasta?','La subasta será visible para los compradores.','info')">
+                                                <i class="bi bi-megaphone me-2 text-info"></i>Publicar
+                                            </button>
+                                        </form>
+                                    </li>
+                                }
+                                @if (puedeCancelar)
+                                {
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <form asp-controller="Subasta" asp-action="Cancelar"
+                                              method="post" id="formCancelar_@item.IdSubasta">
+                                            <input type="hidden" name="id" value="@item.IdSubasta" />
+                                            <button type="button" class="dropdown-item text-danger"
+                                                    onclick="confirmarAccion('formCancelar_@item.IdSubasta','¿Cancelar subasta?','Esta acción no se puede deshacer.','warning')">
+                                                <i class="bi bi-x-circle me-2"></i>Cancelar
+                                            </button>
+                                        </form>
+                                    </li>
+                                }
+                                @if (!puedeEditar && !puedePublicar && !puedeCancelar)
+                                {
+                                    <li>
+                                        <span class="dropdown-item text-muted small">Sin acciones disponibles</span>
+                                    </li>
+                                }
+                            </ul>
                         </div>
-
-                    </article>
-                </div>
-            }
-        </div>
-    </section>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
 }
 
+@* ═══════════════════════════════════════════
+   MODAL CREAR SUBASTA — form AJAX
+   El token está DENTRO del form → serialize() lo incluye automáticamente.
+   El controller devuelve SIEMPRE JSON → no hay riesgo de recibir HTML.
+════════════════════════════════════════════ *@
+<div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-plus-circle me-2"></i>Nueva Subasta
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            @* El @Html.AntiForgeryToken() está DENTRO del form.
+               Así $.serialize() lo captura solo y no hay que buscarlo aparte. *@
+            <form id="formCrearSubasta" novalidate>
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row g-3">
+
+                        @* Vendedor — solo lectura *@
+                        <div class="col-12">
+                            <h6 class="text-muted fw-semibold border-bottom pb-1">
+                                <i class="bi bi-person me-1"></i> Vendedor Asignado
+                            </h6>
+                        </div>
+                        <div class="col-12">
+                            <div class="alert alert-secondary py-2 d-flex align-items-center gap-2 mb-0">
+                                <i class="bi bi-person-badge fs-5"></i>
+                                <span class="fw-semibold">@Model.FormCrear.NombreVendedor</span>
+                                <span class="text-muted small">(asignado automáticamente)</span>
+                            </div>
+                        </div>
+
+                        @* Camiseta *@
+                        <div class="col-12 mt-2">
+                            <h6 class="text-muted fw-semibold border-bottom pb-1">
+                                <i class="bi bi-tshirt me-1"></i> Camiseta a Subastar
+                            </h6>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold" for="c_IdCamiseta">
+                                Camiseta <span class="text-danger">*</span>
+                            </label>
+                            <select id="c_IdCamiseta" name="IdCamiseta" class="form-select">
+                                <option value="">— Seleccione una camiseta disponible —</option>
+                                @foreach (var cam in Model.FormCrear.CamisetasDisponibles)
+                                {
+                                    <option value="@cam.IdCamiseta">
+                                        @cam.Nombre — @cam.CondicionCamisetaNavigation?.Nombre
+                                        @(cam.Autografiada ? "★ Autografiada" : "")
+                                        (@cam.EquipoNavigation?.Nombre — @cam.Temporada)
+                                    </option>
+                                }
+                            </select>
+                            <span class="text-danger small" id="errCamiseta"></span>
+                            @if (!Model.FormCrear.CamisetasDisponibles.Any())
+                            {
+                                <div class="form-text text-warning">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    No hay camisetas disponibles para subastar.
+                                </div>
+                            }
+                        </div>
+
+                        @* Fechas *@
+                        <div class="col-12 mt-2">
+                            <h6 class="text-muted fw-semibold border-bottom pb-1">
+                                <i class="bi bi-calendar-range me-1"></i> Período
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="c_FechaInicio">
+                                Fecha y Hora de Inicio <span class="text-danger">*</span>
+                            </label>
+                            <input id="c_FechaInicio" name="FechaInicio"
+                                   type="datetime-local" class="form-control" />
+                            <span class="text-danger small" id="errFechaInicio"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="c_FechaCierre">
+                                Fecha y Hora de Cierre <span class="text-danger">*</span>
+                            </label>
+                            <input id="c_FechaCierre" name="FechaCierre"
+                                   type="datetime-local" class="form-control" />
+                            <span class="text-danger small" id="errFechaCierre"></span>
+                        </div>
+
+                        @* Precios *@
+                        <div class="col-12 mt-2">
+                            <h6 class="text-muted fw-semibold border-bottom pb-1">
+                                <i class="bi bi-cash-coin me-1"></i> Precios y Comisión
+                            </h6>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="c_PrecioBase">
+                                Precio Base (₡) <span class="text-danger">*</span>
+                            </label>
+                            <input id="c_PrecioBase" name="PrecioBase"
+                                   type="number" min="1" class="form-control" />
+                            <span class="text-danger small" id="errPrecioBase"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="c_IncrementoMinimo">
+                                Incremento Mínimo (₡) <span class="text-danger">*</span>
+                            </label>
+                            <input id="c_IncrementoMinimo" name="IncrementoMinimo"
+                                   type="number" min="1" class="form-control" />
+                            <span class="text-danger small" id="errIncrementoMinimo"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="c_PrecioCompraInmediata">
+                                Compra Inmediata (₡) <span class="text-danger">*</span>
+                            </label>
+                            <input id="c_PrecioCompraInmediata" name="PrecioCompraInmediata"
+                                   type="number" min="1" class="form-control" />
+                            <span class="text-danger small" id="errPrecioCompraInmediata"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="c_PorcentajeComision">
+                                % Comisión <span class="text-danger">*</span>
+                            </label>
+                            <input id="c_PorcentajeComision" name="PorcentajeComision"
+                                   type="number" min="0" max="100" step="0.01" class="form-control" />
+                            <span class="text-danger small" id="errPorcentajeComision"></span>
+                        </div>
+                    </div>
+
+                    @* Área de errores generales del servidor *@
+                    <div id="erroresCrear" class="alert alert-danger d-none mt-3"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="btnGuardarSubasta">
+                        <i class="bi bi-floppy me-1"></i> Guardar Borrador
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* ═══════════════════════════════════════════
+   MODAL EDITAR SUBASTA — carga por AJAX GET, submit POST tradicional
+════════════════════════════════════════════ *@
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil-square me-2"></i>Editar Subasta
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Subasta" asp-action="Editar" method="post" id="formEditarSubasta" novalidate>
+                <input type="hidden" id="e_IdSubasta" name="IdSubasta" />
+                <input type="hidden" id="e_IdCamiseta" name="IdCamiseta" />
+                <div class="modal-body">
+                    <div class="row g-3">
+                        @* Solo lectura *@
+                        <div class="col-12">
+                            <h6 class="text-muted fw-semibold border-bottom pb-1">
+                                <i class="bi bi-info-circle me-1"></i> Información (no editable)
+                            </h6>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label text-muted small">Camiseta</label>
+                            <input id="e_NombreCamiseta" type="text" class="form-control bg-light" readonly />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">Estado actual</label>
+                            <input id="e_EstadoActual" type="text" class="form-control bg-light" readonly />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-muted small">Vendedor</label>
+                            <input id="e_NombreVendedor" type="text" class="form-control bg-light" readonly />
+                        </div>
+
+                        @* Editables *@
+                        <div class="col-12 mt-2">
+                            <h6 class="text-muted fw-semibold border-bottom pb-1">
+                                <i class="bi bi-calendar-range me-1"></i> Período
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="e_FechaInicio">
+                                Fecha y Hora de Inicio <span class="text-danger">*</span>
+                            </label>
+                            <input id="e_FechaInicio" name="FechaInicio"
+                                   type="datetime-local" class="form-control" />
+                            <span class="text-danger small" id="errEditFechaInicio"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="e_FechaCierre">
+                                Fecha y Hora de Cierre <span class="text-danger">*</span>
+                            </label>
+                            <input id="e_FechaCierre" name="FechaCierre"
+                                   type="datetime-local" class="form-control" />
+                            <span class="text-danger small" id="errEditFechaCierre"></span>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <h6 class="text-muted fw-semibold border-bottom pb-1">
+                                <i class="bi bi-cash-coin me-1"></i> Precios y Comisión
+                            </h6>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Precio Base (₡) <span class="text-danger">*</span></label>
+                            <input id="e_PrecioBase" name="PrecioBase" type="number" min="1" class="form-control" />
+                            <span class="text-danger small" id="errEditPrecioBase"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Incremento Mínimo (₡) <span class="text-danger">*</span></label>
+                            <input id="e_IncrementoMinimo" name="IncrementoMinimo" type="number" min="1" class="form-control" />
+                            <span class="text-danger small" id="errEditIncrementoMinimo"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Compra Inmediata (₡) <span class="text-danger">*</span></label>
+                            <input id="e_PrecioCompraInmediata" name="PrecioCompraInmediata" type="number" min="1" class="form-control" />
+                            <span class="text-danger small" id="errEditCompraInmediata"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">% Comisión <span class="text-danger">*</span></label>
+                            <input id="e_PorcentajeComision" name="PorcentajeComision"
+                                   type="number" min="0" max="100" step="0.01" class="form-control" />
+                            <span class="text-danger small" id="errEditComision"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning text-dark">
+                        <i class="bi bi-floppy me-1"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-    <style>
-        .card:hover { transform: translateY(-3px); transition: transform .18s ease; }
-        .badge.rounded-pill { font-size: 0.8rem; }
-    </style>
+    <script>
+        $(function () {
+
+            // ── CREAR — AJAX ─────────────────────────────────────────────────
+            // El token está DENTRO del form como input hidden generado por
+            // @Html.AntiForgeryToken(). $.serialize() lo captura automáticamente.
+            // NO hay que buscarlo por separado ni concatenarlo manualmente.
+            // ────────────────────────────────────────────────────────────────
+            $('#formCrearSubasta').on('submit', function (e) {
+                e.preventDefault();
+
+                // Limpiar errores previos
+                limpiarErroresCrear();
+
+                // Validación del lado cliente antes de enviar al servidor
+                if (!validarFormCrear()) return;
+
+                const btn = $('#btnGuardarSubasta');
+                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Guardando...');
+
+                $.ajax({
+                    url: '@Url.Action("Crear", "Subasta")',
+                    type: 'POST',
+                    // serialize() incluye TODOS los inputs del form, incluyendo el __RequestVerificationToken
+                    data: $(this).serialize(),
+                    success: function (res) {
+                        if (res.success) {
+                            // Mostrar notificación y recargar
+                            Swal.fire({
+                                title: 'Subasta creada',
+                                text:  res.message,
+                                icon:  'success',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(function () {
+                                location.reload();
+                            });
+                        } else {
+                            // Mostrar errores del servidor en el área de errores del modal
+                            mostrarErroresCrear(res.errors);
+                            btn.prop('disabled', false).html('<i class="bi bi-floppy me-1"></i> Guardar Borrador');
+                        }
+                    },
+                    error: function (xhr) {
+                        // Error HTTP (500, 400, etc.) — mostrar mensaje genérico
+                        mostrarErroresCrear(['Error de comunicación (' + xhr.status + '). Intente de nuevo.']);
+                        btn.prop('disabled', false).html('<i class="bi bi-floppy me-1"></i> Guardar Borrador');
+                    }
+                });
+            });
+
+            // Limpiar el form al cerrar el modal
+            $('#modalCrear').on('hidden.bs.modal', function () {
+                $('#formCrearSubasta')[0].reset();
+                limpiarErroresCrear();
+                $('#btnGuardarSubasta').prop('disabled', false)
+                    .html('<i class="bi bi-floppy me-1"></i> Guardar Borrador');
+            });
+
+            // ── EDITAR — GET AJAX para cargar datos ──────────────────────────
+            // ────────────────────────────────────────────────────────────────
+        });
+
+        function abrirModalEditar(id) {
+            fetch('/Subasta/GetDatosEditar?id=' + id)
+                .then(function (r) {
+                    if (r.status === 400) {
+                        return r.text().then(function (msg) {
+                            Swal.fire('No se puede editar', msg, 'warning');
+                            throw new Error(msg);
+                        });
+                    }
+                    if (!r.ok) throw new Error('Error al cargar la subasta.');
+                    return r.json();
+                })
+                .then(function (data) {
+                    document.getElementById('e_IdSubasta').value              = data.idSubasta;
+                    document.getElementById('e_IdCamiseta').value             = data.idCamiseta;
+                    document.getElementById('e_NombreCamiseta').value         = data.nombreCamiseta;
+                    document.getElementById('e_EstadoActual').value           = data.estadoActual;
+                    document.getElementById('e_NombreVendedor').value         = data.nombreVendedor;
+                    document.getElementById('e_FechaInicio').value            = data.fechaInicio;
+                    document.getElementById('e_FechaCierre').value            = data.fechaCierre;
+                    document.getElementById('e_PrecioBase').value             = data.precioBase;
+                    document.getElementById('e_IncrementoMinimo').value       = data.incrementoMinimo;
+                    document.getElementById('e_PrecioCompraInmediata').value  = data.precioCompraInmediata;
+                    document.getElementById('e_PorcentajeComision').value     = data.porcentajeComision;
+                    new bootstrap.Modal(document.getElementById('modalEditar')).show();
+                })
+                .catch(function (err) { console.error(err); });
+        }
+
+        // Validación cliente del form de editar
+        document.getElementById('formEditarSubasta').addEventListener('submit', function (e) {
+            let valido = true;
+
+            const inicio = document.getElementById('e_FechaInicio').value;
+            const cierre = document.getElementById('e_FechaCierre').value;
+
+            if (!inicio) {
+                document.getElementById('errEditFechaInicio').textContent = 'La fecha de inicio es requerida.';
+                valido = false;
+            } else { document.getElementById('errEditFechaInicio').textContent = ''; }
+
+            if (!cierre) {
+                document.getElementById('errEditFechaCierre').textContent = 'La fecha de cierre es requerida.';
+                valido = false;
+            } else if (cierre <= inicio) {
+                document.getElementById('errEditFechaCierre').textContent = 'La fecha de cierre debe ser posterior al inicio.';
+                valido = false;
+            } else { document.getElementById('errEditFechaCierre').textContent = ''; }
+
+            const precioBase = parseInt(document.getElementById('e_PrecioBase').value);
+            if (!precioBase || precioBase < 1) {
+                document.getElementById('errEditPrecioBase').textContent = 'El precio base debe ser mayor a 0.';
+                valido = false;
+            } else { document.getElementById('errEditPrecioBase').textContent = ''; }
+
+            const incremento = parseInt(document.getElementById('e_IncrementoMinimo').value);
+            if (!incremento || incremento < 1) {
+                document.getElementById('errEditIncrementoMinimo').textContent = 'El incremento mínimo debe ser mayor a 0.';
+                valido = false;
+            } else { document.getElementById('errEditIncrementoMinimo').textContent = ''; }
+
+            const compraInmediata = parseInt(document.getElementById('e_PrecioCompraInmediata').value);
+            if (!compraInmediata || compraInmediata < 1) {
+                document.getElementById('errEditCompraInmediata').textContent = 'El precio de compra inmediata debe ser mayor a 0.';
+                valido = false;
+            } else { document.getElementById('errEditCompraInmediata').textContent = ''; }
+
+            if (!valido) e.preventDefault();
+        });
+
+        // ── Publicar / Cancelar — SweetAlert + form.submit() ─────────────
+        function confirmarAccion(formId, titulo, texto, icono) {
+            Swal.fire({
+                title: titulo,
+                text:  texto,
+                icon:  icono,
+                showCancelButton:  true,
+                confirmButtonText: 'Sí, continuar',
+                cancelButtonText:  'No'
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    document.getElementById(formId).submit();
+                }
+            });
+        }
+
+        // ── Helpers de errores para el modal crear ───────────────────────
+        function validarFormCrear() {
+            let valido = true;
+
+            const camiseta = document.getElementById('c_IdCamiseta').value;
+            if (!camiseta) {
+                document.getElementById('errCamiseta').textContent = 'Debe seleccionar una camiseta.';
+                valido = false;
+            } else { document.getElementById('errCamiseta').textContent = ''; }
+
+            const inicio = document.getElementById('c_FechaInicio').value;
+            const cierre = document.getElementById('c_FechaCierre').value;
+
+            if (!inicio) {
+                document.getElementById('errFechaInicio').textContent = 'La fecha de inicio es requerida.';
+                valido = false;
+            } else { document.getElementById('errFechaInicio').textContent = ''; }
+
+            if (!cierre) {
+                document.getElementById('errFechaCierre').textContent = 'La fecha de cierre es requerida.';
+                valido = false;
+            } else if (cierre <= inicio) {
+                document.getElementById('errFechaCierre').textContent = 'La fecha de cierre debe ser posterior al inicio.';
+                valido = false;
+            } else { document.getElementById('errFechaCierre').textContent = ''; }
+
+            const precioBase = parseInt(document.getElementById('c_PrecioBase').value);
+            if (!precioBase || precioBase < 1) {
+                document.getElementById('errPrecioBase').textContent = 'El precio base debe ser mayor a 0.';
+                valido = false;
+            } else { document.getElementById('errPrecioBase').textContent = ''; }
+
+            const incremento = parseInt(document.getElementById('c_IncrementoMinimo').value);
+            if (!incremento || incremento < 1) {
+                document.getElementById('errIncrementoMinimo').textContent = 'El incremento mínimo debe ser mayor a 0.';
+                valido = false;
+            } else { document.getElementById('errIncrementoMinimo').textContent = ''; }
+
+            const compraInmediata = parseInt(document.getElementById('c_PrecioCompraInmediata').value);
+            if (!compraInmediata || compraInmediata < 1) {
+                document.getElementById('errPrecioCompraInmediata').textContent = 'El precio de compra inmediata debe ser mayor a 0.';
+                valido = false;
+            } else { document.getElementById('errPrecioCompraInmediata').textContent = ''; }
+
+            const comision = parseFloat(document.getElementById('c_PorcentajeComision').value);
+            if (isNaN(comision) || comision < 0 || comision > 100) {
+                document.getElementById('errPorcentajeComision').textContent = 'El porcentaje debe estar entre 0 y 100.';
+                valido = false;
+            } else { document.getElementById('errPorcentajeComision').textContent = ''; }
+
+            return valido;
+        }
+
+        function limpiarErroresCrear() {
+            ['errCamiseta','errFechaInicio','errFechaCierre','errPrecioBase',
+             'errIncrementoMinimo','errPrecioCompraInmediata','errPorcentajeComision']
+                .forEach(function(id) {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = '';
+                });
+            document.getElementById('erroresCrear').classList.add('d-none');
+            document.getElementById('erroresCrear').innerHTML = '';
+        }
+
+        function mostrarErroresCrear(errores) {
+            if (!errores || errores.length === 0) return;
+            const div = document.getElementById('erroresCrear');
+            div.classList.remove('d-none');
+            div.innerHTML = errores.map(function(e) {
+                return '<div><i class="bi bi-exclamation-circle me-1"></i>' + e + '</div>';
+            }).join('');
+        }
+    </script>
 }

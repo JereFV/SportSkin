@@ -160,6 +160,7 @@ builder.Services.AddSession(options => {
     options.Cookie.IsEssential = true;
 });
 
+//builder.Services.AddHostedService<SportSkin.Web.BackgroundServices.SubastaBackgroundService>();
 var app = builder.Build();
 
 // Warm-up: despierta la conexión antes del primer request

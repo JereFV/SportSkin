@@ -71,8 +71,9 @@ namespace SportSkin.Application.Services.Implementations
         {
             var existing = await _repository.FindByIdAsync(id)
                 ?? throw new KeyNotFoundException($"No existe el usuario con id={id}");
-
-            /* Mapeamos manualmente solo los campos editables para evitar
+            bool correEnUso = await _repository.ExisteCorreoAsync(dto.Correo, id);
+            if (correEnUso) throw new InvalidOperationException("Correo ya registrado");
+            /* Se mapea manualmente solo los campos editables para evitar
             que AutoMapper sobreescriba datos sensibles (rol, contraseña, fecha)*/
             existing.Nombre = dto.Nombre;
             existing.Apellido1 = dto.Apellido1;

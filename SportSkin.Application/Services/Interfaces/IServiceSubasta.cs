@@ -15,6 +15,25 @@ namespace SportSkin.Application.Services.Interfaces
         Task UpdateAsync(int id, SubastaDTO dto);
         Task DeleteAsync(int id);
 
+
+        // --- Transiciones manuales (botones en la UI) ---
+        
+        Task PublicarAsync(int id);
+        Task CancelarAsync(int id);
+
+
+        // --- Transiciones automáticas (Background Service) ---
+        /*
+        Task<int> ActivarSubastasPendientesAsync();
+        Task<int> CerrarSubastasVencidasAsync();
+        */
+
+
+        Task<bool> PuedeEditarAsync(int id);
+        Task<bool> PuedeCancelarAsync(int id);
+        Task<bool> CamisetaTieneSubastaActivaAsync(int idCamiseta, int? excludeIdSubasta = null);
+
+
         // Filtros
         Task<ICollection<SubastaDTO>> GetSubastasActivasAsync(DateTime? desde, DateTime? hasta);
         Task<ICollection<SubastaDTO>> GetSubastasFinalizadasAsync(DateTime? desde, DateTime? hasta);

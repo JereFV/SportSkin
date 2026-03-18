@@ -48,7 +48,6 @@ const sportSkinI18n = (() => {
 
         // Interpolación: mantener el formato {{variable}} de i18next
         interpolation: {
-            // Razor ya escapa HTML, no necesitamos doble escape
             escapeValue: false,
             prefix: '{{',
             suffix: '}}',
@@ -57,8 +56,10 @@ const sportSkinI18n = (() => {
         // ── HttpBackend: ruta de los archivos JSON ────────────────────────────
         backend: {
             loadPath: '/Resources/{{lng}}/{{ns}}.json',
-            // Cache busting para desarrollo: agregar timestamp
-            queryStringParams: {},
+            // Cache busting para desarrollo: cada día consulta
+            //queryStringParams: { v: new Date().toISOString().slice(0, 10).replace(/-/g, '') },
+            //en producción cada vez ejecuta
+            queryStringParams: { v: Date.now() },
             // Reintentar si falla la carga
             allowMultiLoading: false,
             // Parse manual si se necesita preprocesamiento

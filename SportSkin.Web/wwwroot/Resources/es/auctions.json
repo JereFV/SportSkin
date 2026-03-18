@@ -1,6 +1,7 @@
 {
   "title": "Subastas",
   "allAuctions": "Todas las Subastas",
+  "auctionManagement": "Gestión de Subastas:",
   "activeAuctions": "Subastas Activas",
   "finishedAuctions": "Subastas Finalizadas",
   "myAuctions": "Mis Subastas",
@@ -11,6 +12,12 @@
   "noFinished": "No hay subastas finalizadas.",
   "noMine": "No tienes subastas registradas.",
   "detail": "Detalle Subasta",
+  "published": "Publicadas",
+  "live": "Activas",
+  "sold": "Vendidas",
+  "ended": "Finalizadas",
+  "drafts": "Borradores",
+  "cancelled": "Canceladas",
   "closedLabel": "Cerradas. Total:",
   "fields": {
     "startDate": "Fecha de Inicio",

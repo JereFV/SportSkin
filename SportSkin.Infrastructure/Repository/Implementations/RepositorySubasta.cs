@@ -275,8 +275,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             //var fechaActual = DateTime.ParseExact(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.fff", CultureInfo.InvariantCulture), ("yyyy/MM/dd HH:mm:ss.fff"), CultureInfo.InvariantCulture);
             var fechaPrueba = DateTime.Now;
             var query = QueryBase()
-                .Where(s => s.FechaCompra == null
-                         && s.FechaCierre > fechaPrueba);
+                .Where(s => s.IdEstadoSubasta == 1 || s.IdEstadoSubasta == 6);
 
             // Aplica filtro de fecha solo si se proporcionó
             if (desde.HasValue)
@@ -297,7 +296,9 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         {
             var fechaActual = DateTime.Now;
             var query = QueryBase()
-                .Where(s => s.FechaCierre <= fechaActual);
+                .Where(s => s.IdEstadoSubasta == 2   // Vendida
+                 || s.IdEstadoSubasta == 3   // Finalizada
+                 || s.IdEstadoSubasta == 5); // Cancelada
 
             if (desde.HasValue)
                 query = query.Where(s => s.FechaCierre >= desde.Value);

@@ -17,9 +17,6 @@
             <p class="text-muted mb-0">
                 <span data-i18n="auctions:totalLabel"></span> <strong>@total</strong><span data-i18n="auctions:totalRegistered"></span>
             </p>
-            <button type="button" class="btn btn-outline-success btn-sm" style="border-radius:12px">
-                <i class="bi bi-plus-circle"></i><span data-i18n="actions.addAuction"></span>
-            </button>
         </div>
 
         <div class="d-flex flex-wrap align-items-end gap-2">
@@ -110,24 +107,32 @@ else
             @foreach (var item in Model)
             {
                 var primeraImagen = item.IdCamisetaNavigation?.ImagenesCamiseta?.FirstOrDefault();
-                var esActiva = item.FechaCompra == null && item.FechaCierre > DateTime.Now;
-                var fueVendida = item.FechaCompra != null;
-                if ( item.FechaCierre < DateTime.Now && item.Puja.Count>0)
+                var estadoId = item.IdEstadoSubasta;
+                var estadoNombre = item.IdEstadoSubastaNavigation?.Nombre ?? "—";
+
+                var (estadoColor, estadoIcono) = estadoId switch
                 {
-                    fueVendida = true;
-                }
+                    1 => ("success",   "bi bi-lightning-charge"), // Activa
+                    2 => ("info",      "bi bi-megaphone"),         // Vendida
+                    3 => ("danger",    "bi bi-cart-check"),         // Finalizada
+                    4 => ("warning",   "bi bi-pencil-square"),      // Borrador
+                    5 => ("secondary", "bi bi-x-circle"),           // Cancelada
+                    6 => ("primary",   "bi bi-broadcast"),          // Publicada
+                    _ => ("dark",      "bi bi-question-circle")
+                };
+
+                var esActiva = estadoId == 1 || estadoId == 6;
+
                 var tiempoRestante = item.FechaCierre - DateTime.Now;
-                var urgencia = tiempoRestante.TotalHours < 2 ? "danger"
-                : tiempoRestante.TotalHours < 24 ? "warning"
-                : "success";
-                var precioFinal = fueVendida
-                ? (item.MontoCompra?.ToString("C") ?? item.PrecioBase.ToString("C"))
-                : item.Puja.Any()
-                ? item.Puja.Max(p => p.Monto).ToString("C")
-                : item.PrecioBase.ToString("C");
-                var estadoTexto = esActiva ? "Activa" : fueVendida ? "Vendida" : "Sin compra";
-                var estadoColor = esActiva ? "success" : fueVendida ? "info" : "danger";
-                var estadoIcono = esActiva ? "fa-solid fa-gavel" : fueVendida ? "bi bi-check-circle" : "bi bi-x-circle";
+                var urgencia = tiempoRestante.TotalHours < 2  ? "danger"
+                             : tiempoRestante.TotalHours < 24 ? "warning"
+                             : "success";
+
+                var precioFinal = item.MontoCompra.HasValue
+                    ? item.MontoCompra.Value.ToString("C")
+                    : item.Puja.Any()
+                        ? item.Puja.Max(p => p.Monto).ToString("C")
+                        : item.PrecioBase.ToString("C");
 
                 <div class="col">
                     <article class="card h-100 shadow-sm border-0">
@@ -151,7 +156,7 @@ else
                             <!-- Badge estado -->
                             <div class="position-absolute top-0 end-0 m-2">
                                 <span class="badge bg-@estadoColor">
-                                    <i class="@estadoIcono me-1"></i>@estadoTexto
+                                    <i class="@estadoIcono me-1"></i>@estadoNombre
                                 </span>
                             </div>
                         </div>

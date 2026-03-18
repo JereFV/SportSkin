@@ -164,18 +164,17 @@ builder.Services.AddSession(options => {
 var app = builder.Build();
 
 // Warm-up: despierta la conexión antes del primer request
-try
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<SportSkinContext>();
-    await db.Database.ExecuteSqlRawAsync("SELECT 1");
-    Log.Information("Conexión a la base de datos establecida correctamente.");
-}
-catch (Exception ex)
-{
-    Log.Warning(ex, "Warm-up de base de datos falló, se reintentará en el primer request.");
-}
-
+//try
+//{
+//    using var scope = app.Services.CreateScope();
+//    var db = scope.ServiceProvider.GetRequiredService<SportSkinContext>();
+//    await db.Database.ExecuteSqlRawAsync("SELECT 1");
+//    Log.Information("Conexión a la base de datos establecida correctamente.");
+//}
+//catch (Exception ex)
+//{
+//    Log.Warning(ex, "Warm-up de base de datos falló, se reintentará en el primer request.");
+//}
 
 if (!app.Environment.IsDevelopment())
 {

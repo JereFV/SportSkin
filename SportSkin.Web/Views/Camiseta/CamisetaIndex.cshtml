@@ -149,7 +149,7 @@ else
     <script>
         $(document).ready(function() {
             $('#categorias').multiselect({
-                nonSelectedText: 'Seleccione alguna categoría',
+                nonSelectedText: 'Seleccione una o más categorías',
                 buttonWidth: '100%',
                 buttonTextAlignment: 'left',
                 allSelectedText: false,
@@ -269,8 +269,10 @@ else
 
             //Registro de plugins de filepond.
             FilePond.registerPlugin(
-                 FilePondPluginImagePreview,
-                 FilePondPluginFileValidateType
+                 FilePondPluginImagePreview, //Renderizado de preview de imagenes.
+                 FilePondPluginFileValidateType, //Validación de tipos de archivos.
+                 // FilePondPluginImageCrop, //Recorte de imagen.
+                 // FilePondPluginImageResize
             //     FilePondPluginImageExifOrientation,
             //     FilePondPluginFileValidateSize,
             //     FilePondPluginImageEdit
@@ -280,12 +282,15 @@ else
                 credits: false,
                 labelIdle: 'Arrastra tus imágenes o adjuntalas aquí: <span class="filepond--label-action link-primary">Seleccionar imagen</span>',
                 acceptedFileTypes: ['image/png', 'image/jpeg'],
-                // imagePreviewHeight: 140, // Altura fija para que todas las miniaturas midan lo mismo
-                // imageCropAspectRatio: '1:1', // Fuerza a que sean cuadradas (muy moderno)
-                // imageResizeTargetWidth: 200,
-                // imageResizeTargetHeight: 200,
-                // stylePanelLayout: 'compact', // Ayuda a que el panel no ocupe espacio innecesario
-                // styleItemPanelAspectRatio: '1:1',
+                itemInsertLocation: 'after',
+                //stylePanelAspectRatio: '1:1',
+                imagePreviewHeight: 245, // Altura fija para que todas las miniaturas midan lo mismo
+                //imageCropAspectRatio: '1:1', // Fuerza a que sean cuadradas (muy moderno)
+                //imageResizeTargetWidth: 200,
+                //imageResizeTargetHeight: 200,
+                //stylePanelLayout: 'compact', // Ayuda a que el panel no ocupe espacio innecesario
+                //styleItemPanelAspectRatio: '1:1'
+                //imagePreviewTransparencyIndicator: 'grid',
             });
         });
     </script>

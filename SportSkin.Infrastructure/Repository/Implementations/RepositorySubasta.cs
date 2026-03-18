@@ -113,7 +113,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         // --- Transiciones manuales ---
 
         /* 
-            Publica manualmente: Borrador(5) → En proceso(1).
+            Publica manualmente: Borrador(4) → En proceso(1).
             Solo si la fecha de inicio aún no ha pasado.
         */
 
@@ -137,7 +137,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         
 
         /*
-            Cancela manualmente: estado activo → Cerrada(2).
+            Cancela manualmente: estado activo → cancelada(5).
             Permitido si no ha iniciado O si no tiene pujas.
         */
         
@@ -155,7 +155,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 throw new InvalidOperationException(
                     "No se puede cancelar: la subasta ya inició y tiene pujas registradas.");
 
-            entity.IdEstadoSubasta = ESTADO_FINALIZADA;
+            entity.IdEstadoSubasta = ESTADO_CANCELADA;
             await _context.SaveChangesAsync();
         }
 

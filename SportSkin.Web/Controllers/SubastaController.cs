@@ -170,7 +170,7 @@ namespace SportSkin.Web.Controllers
                     IncrementoMinimo = vm.IncrementoMinimo,
                     PrecioCompraInmediata = vm.PrecioCompraInmediata,
                     PorcentajeComision = vm.PorcentajeComision,
-                    IdEstadoSubasta = 5  // Borrador
+                    IdEstadoSubasta = 4  // Borrador
                 };
 
                 await _serviceSubasta.AddAsync(dto);

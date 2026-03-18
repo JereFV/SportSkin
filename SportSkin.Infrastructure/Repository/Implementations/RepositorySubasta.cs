@@ -17,11 +17,11 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         // IDs de EstadoSubasta según BD 
         // 1=En proceso | 2=Cerrada | 3=Vendida | 4=Finalizada | 5=Borrador
         private const byte ESTADO_EN_PROCESO = 1;
-        private const byte ESTADO_CERRADA = 2;
-        private const byte ESTADO_VENDIDA = 3;
-        private const byte ESTADO_FINALIZADA = 4;
-        private const byte ESTADO_BORRADOR = 5;
-
+        private const byte ESTADO_VENDIDA = 2;
+        private const byte ESTADO_FINALIZADA = 3;        
+        private const byte ESTADO_BORRADOR = 4;
+        private const byte ESTADO_CANCELADA = 5;
+        private const byte ESTADO_PUBLICADA = 6;
 
         public RepositorySubasta(SportSkinContext context)
         {
@@ -155,11 +155,11 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 throw new InvalidOperationException(
                     "No se puede cancelar: la subasta ya inició y tiene pujas registradas.");
 
-            entity.IdEstadoSubasta = ESTADO_CERRADA;
+            entity.IdEstadoSubasta = ESTADO_FINALIZADA;
             await _context.SaveChangesAsync();
         }
 
-       
+
 
         // --- Transiciones automáticas (Background Service) ---
 
@@ -206,7 +206,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             {
                 subasta.IdEstadoSubasta = subasta.Puja.Any()
                     ? ESTADO_FINALIZADA   // Tuvo pujas → espera determinación de ganador
-                    : ESTADO_CERRADA;     // Sin pujas → cerrada sin actividad
+                    : ESTADO_FINALIZADA;     // Sin pujas → cerrada sin actividad
             }
 
             await _context.SaveChangesAsync();
@@ -254,10 +254,15 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         //Se verifica si una camiseta tiene una subasta activa
         public async Task<bool> CamisetaTieneSubastaActivaAsync(int idCamiseta, int? excluirIdSubasta = null)
         {
+            var ahora = DateTime.Now;
             return await _context.Subasta
                 .Where(s => s.IdCamiseta == idCamiseta
-                         && (s.IdEstadoSubasta == ESTADO_EN_PROCESO || s.IdEstadoSubasta ==ESTADO_VENDIDA)
-                         && (!excluirIdSubasta.HasValue || s.IdSubasta != excluirIdSubasta.Value))
+                         && (!excluirIdSubasta.HasValue || s.IdSubasta != excluirIdSubasta.Value)
+                         && (
+                             s.IdEstadoSubasta == ESTADO_VENDIDA  // vendida = bloqueada para siempre
+                             ||
+                             (s.IdEstadoSubasta == ESTADO_EN_PROCESO && s.FechaCierre > ahora) // activa y no vencida
+                         ))
                 .AnyAsync();
         }
 

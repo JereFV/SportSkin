@@ -8,7 +8,7 @@
     var finalizadas = subastas.Count(s => s.IdEstadoSubasta == 3);
     var borradores = subastas.Count(s => s.IdEstadoSubasta == 4);
     var canceladas = subastas.Count(s => s.IdEstadoSubasta == 5);
-
+    var publicadas = subastas.Count(s => s.IdEstadoSubasta == 6);
 }
 
 @* ─── Encabezado ─── *@
@@ -31,7 +31,13 @@
 <div class="row g-3 mb-4 justify-content-cente">
     <div class="col-6 col-sm-4 col-md-2">
         <div class="card border-0 bg-primary bg-opacity-10 text-center py-3">
-            <div class="fs-4 fw-bold text-primary">@activas</div>
+            <div class="fs-4 fw-bold text-primary">@publicadas</div>
+            <div class="small text-muted">Publicadas</div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-4 col-md-2">
+        <div class="card border-0 bg-success bg-opacity-10 text-center py-3">
+            <div class="fs-4 fw-bold text-success">@activas</div>
             <div class="small text-muted">Activas</div>
         </div>
     </div>
@@ -42,8 +48,8 @@
         </div>
     </div>
     <div class="col-6 col-sm-4 col-md-2">
-        <div class="card border-0 bg-info bg-opacity-10 text-center py-3">
-            <div class="fs-4 fw-bold text-info">@finalizadas</div>
+        <div class="card border-0 bg-danger bg-opacity-10 text-center py-3">
+            <div class="fs-4 fw-bold text-danger">@finalizadas</div>
             <div class="small text-muted">Finalizadas</div>
         </div>
     </div>
@@ -54,8 +60,8 @@
         </div>
     </div>
     <div class="col-6 col-sm-4 col-md-2">
-        <div class="card border-0 bg-danger bg-opacity-10 text-center py-3">
-            <div class="fs-4 fw-bold text-danger">@canceladas</div>
+        <div class="card border-0 bg-secondary bg-opacity-10 text-center py-3">
+            <div class="fs-4 fw-bold text-secondary">@canceladas</div>
             <div class="small text-muted">Canceladas</div>
         </div>
     </div>
@@ -80,11 +86,13 @@ else
 
             var (badgeColor, iconoEstado) = estadoId switch
             {
-                2 => ("info", "bi-megaphone"),
-                3 => ("primary", "bi bi-cart-check"),
-                4 => ("danger", "bi-x-circle"),
-                5 => ("warning", "bi-pencil-square"),
-                _ => ("secondary", "bi-question-circle")
+                1 => ("success", "bi-lightning-charge"), // Activa
+                2 => ("info", "bi-megaphone"),        // Vendida
+                3 => ("danger", "bi-cart-check"),       // Finalizada
+                4 => ("warning", "bi-pencil-square"),    // Borrador
+                5 => ("secondary", "bi-x-circle"),        // Cancelada
+                6 => ("primary", "bi-broadcast"),       // Publicada
+                _ => ("dark", "bi-question-circle")
             };
           
             bool puedeEditar = estadoId == 4;

@@ -56,7 +56,7 @@ else
                 var fueVendida = item.IdEstadoSubasta==2;
                 var esActiva = item.FechaCompra == null && item.FechaCierre > DateTime.Now;
                 var estadoTexto = fueVendida ? "Vendida" : item.Puja.Count<=0 ? "Sin compra" : "Cancelada";
-                var estadoColor = fueVendida ? "success" : "danger";
+                var estadoColor = fueVendida ? "info" : "danger";
                 var estadoIcono = esActiva ? "fa-solid fa-gavel" : fueVendida ? "bi bi-check-circle" : "bi bi-x-circle";
                 var precioFinal = fueVendida
                 ? (item.MontoCompra?.ToString("C") ?? item.PrecioBase.ToString("C"))

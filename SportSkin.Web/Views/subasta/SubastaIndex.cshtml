@@ -126,7 +126,7 @@ else
                 ? item.Puja.Max(p => p.Monto).ToString("C")
                 : item.PrecioBase.ToString("C");
                 var estadoTexto = esActiva ? "Activa" : fueVendida ? "Vendida" : "Sin compra";
-                var estadoColor = esActiva ? "primary" : fueVendida ? "success" : "danger";
+                var estadoColor = esActiva ? "success" : fueVendida ? "info" : "danger";
                 var estadoIcono = esActiva ? "fa-solid fa-gavel" : fueVendida ? "bi bi-check-circle" : "bi bi-x-circle";
 
                 <div class="col">

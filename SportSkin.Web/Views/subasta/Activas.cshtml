@@ -59,20 +59,21 @@ else
             @foreach (var item in Model)
             {
                 var primeraImagen = item.IdCamisetaNavigation?.ImagenesCamiseta?.FirstOrDefault();
-                var esActiva = item.FechaCompra == null && item.FechaCierre > DateTime.Now;
-                var fueVendida = item.FechaCompra != null;
+                var estadoId = item.IdEstadoSubasta;
+                var estadoNombre = item.IdEstadoSubastaNavigation?.Nombre ?? "—";
+                var (estadoColor, estadoIcono) = estadoId switch
+                {
+                    1 => ("success",   "bi bi-lightning-charge"), // Activa
+                    6 => ("primary",   "bi bi-broadcast"),        // Publicada
+                    _ => ("dark",      "bi bi-question-circle")
+                };
                 var tiempoRestante = item.FechaCierre - DateTime.Now;
-                var urgencia = tiempoRestante.TotalHours < 2 ? "danger"
-                : tiempoRestante.TotalHours < 24 ? "warning"
-                : "success";
-                var precioFinal = fueVendida
-                ? (item.MontoCompra?.ToString("C") ?? item.PrecioBase.ToString("C"))
-                : item.Puja.Any()
-                ? item.Puja.Max(p => p.Monto).ToString("C")
-                : item.PrecioBase.ToString("C");
-                var estadoTexto = esActiva ? "Activa" : fueVendida ? "Vendida" : "Sin compra";
-                var estadoColor = esActiva ? "success" : fueVendida ? "info" : "danger";
-                var estadoIcono = esActiva ? "fa-solid fa-gavel" : fueVendida ? "bi bi-check-circle" : "bi bi-x-circle";
+                var urgencia = tiempoRestante.TotalHours < 2  ? "danger"
+                             : tiempoRestante.TotalHours < 24 ? "warning"
+                             : "success";
+                var precioFinal = item.Puja.Any()
+                    ? item.Puja.Max(p => p.Monto).ToString("C")
+                    : item.PrecioBase.ToString("C");
 
                 <div class="col">
                     <article class="card h-100 shadow-sm border-0">
@@ -102,8 +103,6 @@ else
                                 @item.IdCamisetaNavigation?.Nombre
                             </h2>
 
-                            @if (esActiva)
-                            {
                                 <!-- Card activa: precio actual + pujas + tiempo restante -->
                                 <div class="d-flex gap-2 mb-2">
                                     <span class="badge rounded-pill bg-primary px-3 py-2">
@@ -130,25 +129,7 @@ else
                                         }
                                     </span>
                                 </div>
-                            }
-                            else
-                            {
-                                <!-- Card finalizada: estado final + precio + fecha cierre -->
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="small text-muted">
-                                        <span data-i18n="auctions:fields.auctionStatus"></span>
-                                        <span class="fw-semibold text-@estadoColor">@estadoTexto</span>
-                                    </span>
-                                    <span class="small text-muted">
-                                        <span data-i18n="auctions:fields.basePrice"></span><span class="fw-semibold">@precioFinal</span>
-                                    </span>
-                                </div>
 
-                                <div class="d-flex align-items-center gap-2 text-muted small">
-                                    <i class="bi bi-clock"></i>
-                                    <span><span data-i18n="auctions:time.closeDate"></span> @item.FechaCierre.ToString("d/M/yy HH:mm")</span>
-                                </div>
-                            }
                         </div>
 
                         <!-- Acciones -->
@@ -156,9 +137,9 @@ else
                             <a asp-controller="Subasta"
                                asp-action="Detalle"
                                asp-route-id="@item.IdSubasta"
-                               class="btn btn-@(esActiva ? "primary" : "outline-secondary") w-100">
+                               class="btn btn-primary w-100">
                                 <i class="bi bi-eye me-1"></i>
-                                <span data-i18n="@(esActiva ? "actions.viewAuction" : "actions.details")">@(esActiva ? "Ver subasta" : "Ver detalle")</span>
+                                <span data-i18n="actions.viewAuction">Ver subasta</span>
                             </a>
                         </div>
 

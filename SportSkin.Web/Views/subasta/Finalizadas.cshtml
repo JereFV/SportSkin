@@ -53,12 +53,16 @@ else
             @foreach (var item in Model)
             {
                 var primeraImagen = item.IdCamisetaNavigation?.ImagenesCamiseta?.FirstOrDefault();
-                var fueVendida = item.IdEstadoSubasta==2;
-                var esActiva = item.FechaCompra == null && item.FechaCierre > DateTime.Now;
-                var estadoTexto = fueVendida ? "Vendida" : item.Puja.Count<=0 ? "Sin compra" : "Cancelada";
-                var estadoColor = fueVendida ? "info" : "danger";
-                var estadoIcono = esActiva ? "fa-solid fa-gavel" : fueVendida ? "bi bi-check-circle" : "bi bi-x-circle";
-                var precioFinal = fueVendida
+                var estadoId = item.IdEstadoSubasta;
+                var estadoNombre = item.IdEstadoSubastaNavigation?.Nombre ?? "—";
+                var (estadoColor, estadoIcono) = estadoId switch
+                {
+                    2 => ("info", "bi bi-megaphone"),         // Vendida
+                    3 => ("danger", "bi bi-cart-check"),         // Finalizada
+                    5 => ("secondary", "bi bi-x-circle"),           // Cancelada
+                    _ => ("dark", "bi bi-question-circle")
+                };
+                var precioFinal = estadoId == 2
                 ? (item.MontoCompra?.ToString("C") ?? item.PrecioBase.ToString("C"))
                 : item.Puja.Any()
                 ? item.Puja.Max(p => p.Monto).ToString("C")
@@ -87,7 +91,7 @@ else
                             <!-- Badge estado -->
                             <div class="position-absolute top-0 end-0 m-2">
                                 <span class="badge bg-@estadoColor">
-                                    <i class="@estadoIcono me-1"></i>@estadoTexto
+                                    <i class="@estadoIcono me-1"></i>@estadoNombre
                                 </span>
                             </div>
                         </div>
@@ -125,7 +129,7 @@ else
                                asp-action="Detalle"
                                asp-route-id="@item.IdSubasta"
                                class="btn btn-outline-secondary w-100">
-                                <i class="bi bi-eye me-1"></i> <span data-i18n="actions.details">Ver detalle</span>
+                                <i class="bi bi-eye me-1"></i> <span data-i18n="actions.details"></span>
                             </a>
                         </div>
 

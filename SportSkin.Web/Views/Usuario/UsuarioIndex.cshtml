@@ -161,7 +161,10 @@
                                 <option value=""> </option>
                                 @foreach (var rol in crearVM.Roles)
                                 {
-                                    <option value="@rol.Value">@rol.Text</option>
+                                    if(rol.Value == "1")
+                                    {
+                                        <option value="@rol.Value">@rol.Text</option>
+                                    }                                    
                                 }
                             </select>
                             <span class="text-danger small" id="errCrearRol"> </span>

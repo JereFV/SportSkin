@@ -112,6 +112,10 @@ else
                 var primeraImagen = item.IdCamisetaNavigation?.ImagenesCamiseta?.FirstOrDefault();
                 var esActiva = item.FechaCompra == null && item.FechaCierre > DateTime.Now;
                 var fueVendida = item.FechaCompra != null;
+                if ( item.FechaCierre < DateTime.Now && item.Puja.Count>0)
+                {
+                    fueVendida = true;
+                }
                 var tiempoRestante = item.FechaCierre - DateTime.Now;
                 var urgencia = tiempoRestante.TotalHours < 2 ? "danger"
                 : tiempoRestante.TotalHours < 24 ? "warning"

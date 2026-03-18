@@ -53,9 +53,9 @@ else
             @foreach (var item in Model)
             {
                 var primeraImagen = item.IdCamisetaNavigation?.ImagenesCamiseta?.FirstOrDefault();
-                var fueVendida = item.FechaCompra != null;
+                var fueVendida = item.IdEstadoSubasta==2;
                 var esActiva = item.FechaCompra == null && item.FechaCierre > DateTime.Now;
-                var estadoTexto = fueVendida ? "Vendida" : item.Puja.Any() ? "Sin compra" : "Cancelada";
+                var estadoTexto = fueVendida ? "Vendida" : item.Puja.Count<=0 ? "Sin compra" : "Cancelada";
                 var estadoColor = fueVendida ? "success" : "danger";
                 var estadoIcono = esActiva ? "fa-solid fa-gavel" : fueVendida ? "bi bi-check-circle" : "bi bi-x-circle";
                 var precioFinal = fueVendida

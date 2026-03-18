@@ -3,17 +3,19 @@
     ViewData["Title"] = "Mis Subastas";
     var subastas = Model.Subastas;
     var total = subastas.Count();
-    var activas = subastas.Count(s => s.IdEstadoSubasta == 3);
-    var borradores = subastas.Count(s => s.IdEstadoSubasta == 5);
-    var publicadas = subastas.Count(s => s.IdEstadoSubasta == 2);
-    var canceladas = subastas.Count(s => s.IdEstadoSubasta == 4);
+    var activas = subastas.Count(s => s.IdEstadoSubasta == 1);
+    var vendidas = subastas.Count(s => s.IdEstadoSubasta == 2);
+    var finalizadas = subastas.Count(s => s.IdEstadoSubasta == 3);
+    var borradores = subastas.Count(s => s.IdEstadoSubasta == 4);
+    var canceladas = subastas.Count(s => s.IdEstadoSubasta == 5);
+
 }
 
 @* ─── Encabezado ─── *@
 <div class="d-flex justify-content-between align-items-start mb-4">
     <div>
         <h1 class="h3 mb-1">
-            <i class="bi bi-hammer text-primary me-2"></i>Mis Subastas
+            <i class="fa-solid fa-gavel text-primary me-2"></i>Mis Subastas
         </h1>
         <p class="text-muted mb-0 small">
             Gestión de subastas de <strong>@Model.NombreVendedor</strong>
@@ -26,26 +28,32 @@
 </div>
 
 @* ─── Resumen rápido ─── *@
-<div class="row g-3 mb-4">
-    <div class="col-6 col-sm-3">
+<div class="row g-3 mb-4 justify-content-cente">
+    <div class="col-6 col-sm-4 col-md-2">
         <div class="card border-0 bg-primary bg-opacity-10 text-center py-3">
             <div class="fs-4 fw-bold text-primary">@activas</div>
             <div class="small text-muted">Activas</div>
         </div>
     </div>
-    <div class="col-6 col-sm-3">
+    <div class="col-6 col-sm-4 col-md-2">
         <div class="card border-0 bg-info bg-opacity-10 text-center py-3">
-            <div class="fs-4 fw-bold text-info">@publicadas</div>
-            <div class="small text-muted">Publicadas</div>
+            <div class="fs-4 fw-bold text-info">@vendidas</div>
+            <div class="small text-muted">Vendidas</div>
         </div>
     </div>
-    <div class="col-6 col-sm-3">
+    <div class="col-6 col-sm-4 col-md-2">
+        <div class="card border-0 bg-info bg-opacity-10 text-center py-3">
+            <div class="fs-4 fw-bold text-info">@finalizadas</div>
+            <div class="small text-muted">Finalizadas</div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-4 col-md-2">
         <div class="card border-0 bg-warning bg-opacity-10 text-center py-3">
             <div class="fs-4 fw-bold text-warning">@borradores</div>
             <div class="small text-muted">Borradores</div>
         </div>
     </div>
-    <div class="col-6 col-sm-3">
+    <div class="col-6 col-sm-4 col-md-2">
         <div class="card border-0 bg-danger bg-opacity-10 text-center py-3">
             <div class="fs-4 fw-bold text-danger">@canceladas</div>
             <div class="small text-muted">Canceladas</div>
@@ -63,7 +71,7 @@
 }
 else
 {
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
         @foreach (var item in subastas)
         {
             var primeraImagen = item.IdCamisetaNavigation?.ImagenesCamiseta?.FirstOrDefault();
@@ -73,19 +81,21 @@ else
             var (badgeColor, iconoEstado) = estadoId switch
             {
                 2 => ("info", "bi-megaphone"),
-                3 => ("primary", "bi-hammer"),
+                3 => ("primary", "bi bi-cart-check"),
                 4 => ("danger", "bi-x-circle"),
                 5 => ("warning", "bi-pencil-square"),
                 _ => ("secondary", "bi-question-circle")
             };
-
-            bool puedeEditar = estadoId == 5;
-            bool puedePublicar = estadoId == 5;
-            bool puedeCancelar = estadoId == 5 || estadoId == 2;
+          
+            bool puedeEditar = estadoId == 4;
+            bool puedePublicar = estadoId == 4;
+            bool puedeCancelar=false;
+            if ((estadoId == 1 || estadoId == 5) && item.Puja.Count <= 0)
+                puedeCancelar = true;
 
             <div class="col">
                 <article class="card h-100 shadow-sm border-0">
-                    <div class="rounded-top overflow-hidden bg-body-tertiary position-relative" style="height:200px;">
+                    <div class="rounded-top overflow-hidden bg-body-tertiary position-relative" style="height:300px;">
                         @if (primeraImagen != null)
                         {
                             <img class="w-100 h-100 object-fit-cover"
@@ -192,8 +202,6 @@ else
 
 @* ═══════════════════════════════════════════
    MODAL CREAR SUBASTA — form AJAX
-   El token está DENTRO del form → serialize() lo incluye automáticamente.
-   El controller devuelve SIEMPRE JSON → no hay riesgo de recibir HTML.
 ════════════════════════════════════════════ *@
 <div class="modal fade" id="modalCrear" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">

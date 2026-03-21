@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -63,7 +64,7 @@ namespace SportSkin.Application.DTOs
         [DisplayName("Estado Actual")]
         public EstadoCamisetaDTO EstadoCamisetaNavigation { get; set; } = new();
 
-        public List<ImagenCamisetaDTO> ImagenesCamiseta { get; set; } = new();
+        public List<IFormFile> ImagenesCamiseta { get; set; } = new();
 
         public List<SubastaDTO> Subastas { get; set; } = new();
 

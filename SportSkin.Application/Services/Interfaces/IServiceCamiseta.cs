@@ -12,7 +12,7 @@ namespace SportSkin.Application.Services.Interfaces
     {
         Task<ICollection<CamisetaDTO>> ListAsync();
         Task<CamisetaDTO> FindByIdAsync(int id);
-        Task<int> AddAsync(CamisetaDTO dto);
+        Task AddAsync(CamisetaDTO dto);
         Task UpdateAsync(int id, CamisetaDTO dto);
         Task DeleteAsync(int id);
         Task<ICollection<CamisetaDTO>> GetCamisetaByCategoria(int idCategoria);

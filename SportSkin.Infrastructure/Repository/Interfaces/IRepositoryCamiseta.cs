@@ -12,7 +12,7 @@ namespace SportSkin.Infrastructure.Repository.Interfaces
         Task<ICollection<Camiseta>> ListAsync();
 
         Task<Camiseta?> FindByIdAsync(int id);
-        Task<int>AddAsync(Camiseta entity);
+        Task AddAsync(Camiseta entity);
         Task UpdateAsync(Camiseta entity);
         Task DeleteAsync(int id);
 

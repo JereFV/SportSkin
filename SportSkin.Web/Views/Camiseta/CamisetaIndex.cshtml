@@ -273,24 +273,14 @@ else
                  FilePondPluginFileValidateType, //Validación de tipos de archivos.
                  // FilePondPluginImageCrop, //Recorte de imagen.
                  // FilePondPluginImageResize
-            //     FilePondPluginImageExifOrientation,
-            //     FilePondPluginFileValidateSize,
-            //     FilePondPluginImageEdit
             );
 
             FilePond.create(document.querySelector('input[type="file"]'),{
                 credits: false,
                 labelIdle: 'Arrastra tus imágenes o adjuntalas aquí: <span class="filepond--label-action link-primary">Seleccionar imagen</span>',
                 acceptedFileTypes: ['image/png', 'image/jpeg'],
-                itemInsertLocation: 'after',
-                //stylePanelAspectRatio: '1:1',
-                imagePreviewHeight: 245, // Altura fija para que todas las miniaturas midan lo mismo
-                //imageCropAspectRatio: '1:1', // Fuerza a que sean cuadradas (muy moderno)
-                //imageResizeTargetWidth: 200,
-                //imageResizeTargetHeight: 200,
-                //stylePanelLayout: 'compact', // Ayuda a que el panel no ocupe espacio innecesario
-                //styleItemPanelAspectRatio: '1:1'
-                //imagePreviewTransparencyIndicator: 'grid',
+                itemInsertLocation: 'after',              
+                imagePreviewHeight: 245, // Altura fija para que todas las miniaturas midan lo mismo               
             });
         });
     </script>

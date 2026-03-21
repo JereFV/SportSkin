@@ -18,12 +18,12 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         public RepositoryCamiseta(SportSkinContext context)
         {
             _context = context;
-
         }
 
-        public Task<int> AddAsync(Camiseta entity)
+        public async Task AddAsync(Camiseta entity)
         {
-            throw new NotImplementedException();
+            //El SaveChanges se ejecuta en una transacción usando un Unit Of Work
+            await _context.Set<Camiseta>().AddAsync(entity);
         }
 
         public Task DeleteAsync(int id)

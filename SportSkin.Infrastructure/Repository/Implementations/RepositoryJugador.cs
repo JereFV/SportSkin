@@ -31,6 +31,8 @@ namespace SportSkin.Infrastructure.Repository.Implementations
 
                 jugador = entity;
             }
+            else
+                _context.Attach(jugador);
 
             return jugador;
         }

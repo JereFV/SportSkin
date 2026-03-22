@@ -14,7 +14,7 @@ namespace SportSkin.Application.Services.Interfaces
         Task<ICollection<CamisetaDTO>> ListAsync();
         Task<CamisetaDTO> FindByIdAsync(int id);
         Task AddAsync(CamisetaDTO dto, ICollection<IFormFile> imagenes);
-        Task UpdateAsync(int id, CamisetaDTO dto);
+        Task UpdateAsync(CamisetaDTO dto, ICollection<IFormFile> imagenes, List<int> idsImagenesEliminadas);
         Task DeleteAsync(int id);
         Task<ICollection<CamisetaDTO>> GetCamisetaByCategoria(int idCategoria);
         Task<ICollection<CamisetaDTO>> GetCamisetaByEquipo(short idEquipo);
@@ -26,5 +26,6 @@ namespace SportSkin.Application.Services.Interfaces
         Task<ICollection<CamisetaDTO>> GetCamisetasVendidas();
         Task<ICollection<CamisetaDTO>> GetCamisetasEnSubasta();
         Task<ICollection<CamisetaDTO>> GetCamisetasSinSubasta();
+        Task ChangeStateAsync(int id);
     }
 }

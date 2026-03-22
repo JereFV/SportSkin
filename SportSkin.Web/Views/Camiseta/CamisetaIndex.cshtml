@@ -5,6 +5,10 @@
     var total = Model?.Camisetas?.Count() ?? 0;
 }
 
+<!--Contenedor auxiliar, usado para renderizar el modal de edición.-->
+<div id="contenedorModalEditar">
+</div>
+
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
     <div>
         <h1 class="h3 mb-0">
@@ -124,17 +128,60 @@ else
                         <div class="d-flex gap-2 px-2">
                             <a asp-controller="Subasta" asp-action="Create"
                                asp-route-id="@item.IdCamiseta"
-                               class="btn btn-primary flex-fill">
+                               class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-cart-check me-1"></i>
                                 <span data-i18n="actions.auction"></span>
                             </a>
-                            <a asp-controller="Camiseta" asp-action="CamisetaDetails"
-                               asp-route-id="@item.IdCamiseta"
-                               class="btn btn-info flex-fill">
-                                <i class="bi bi-info-circle me-1"></i>
-                                <span data-i18n="actions.details"></span>
-                            </a>
-                        </div>
+                            <div class="dropdown ms-auto">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                        type="button" data-bs-toggle="dropdown">
+                                    <span data-i18n="actions.actionsS"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                    <li>
+                                        <a asp-controller="Camiseta" asp-action="CamisetaDetails"
+                                                asp-route-id="@item.IdCamiseta" class="dropdown-item">
+                                            <i class="bi bi-info-circle me-2 text-info"></i>
+                                            <span data-i18n="actions.details"></span>
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <input type="hidden" name="id" />
+                                        <button type="button"
+                                                class="dropdown-item"
+                                                onclick="cargarModalEditar(@item.IdCamiseta, '@item.EstadoCamisetaNavigation?.Nombre')">
+                                            <i class="bi bi-pencil me-2 text-warning"></i>
+                                            <span data-i18n="actions.edit"></span>
+                                        </button>                                      
+                                    </li>
+                                    
+                                    <li>
+                                        <input type="hidden" name="id" />
+                                            @if (item.EstadoRegistro)
+                                            {
+                                                <form asp-controller="Camiseta" asp-action="ChangeState" asp-route-id="@item.IdCamiseta">
+                                                    <button type="submit" class="dropdown-item" onclick="return ChangeState(event, 'deshabilitar','@item.Nombre',this, '@item.EstadoCamisetaNavigation?.Nombre')">
+                                                        <i class="bi me-2 @(item.EstadoRegistro ? "bi-x-circle text-danger" : "bi-check-circle text-sucess")"></i>
+                                                        <span data-i18n="actions.@(item.EstadoRegistro ? "disable" : "enable")"></span>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <form asp-controller="Camiseta" asp-action="ChangeState" asp-route-id="@item.IdCamiseta">
+                                                    <button type="submit" class="dropdown-item" onclick="return ChangeState(event, 'habilitar','@item.Nombre',this, '@item.EstadoCamisetaNavigation?.Nombre')">
+                                                        <i class="bi me-2 @(item.EstadoRegistro ? "bi-x-circle text-danger" : "bi-check-circle text-sucess")"></i>
+                                                        <span data-i18n="actions.@(item.EstadoRegistro ? "disable" : "enable")"></span>
+                                                    </button>
+                                                </form>
+                                            }
+
+                                                                            
+                                    </li>                                                                    
+                                </ul>
+                            </div>
+                        </div>                                             
                     </div>
                 </article>
             </div>
@@ -147,8 +194,25 @@ else
     <partial name="_CamisetaCreate" model="Model?.CreacionCamiseta" />
 
     <script>
-        $(document).ready(function() {           
-            $('#categorias').multiselect({
+        // Variable global para controlar las imagenes borradas.
+        let idsImagenesEliminadas = [];
+
+        $(document).ready(function() {
+            //Registro de plugins de filepond.
+            FilePond.registerPlugin(
+                 FilePondPluginImagePreview, //Renderizado de preview de imagenes.
+                 FilePondPluginFileValidateType, //Validación de tipos de archivos.
+            );
+
+            //Inicializa controles del modal de agregar camisetas.
+            inicializarControles('nuevaCamisetaForm');
+        });
+
+        //Inicialización dinámica de controles del formulario según el contenedor indicado.
+        function inicializarControles (containerId, datosPrevios = {}) {
+            const scope = document.querySelector(`#${containerId}`);
+
+            $(scope.querySelector('#categorias')).multiselect({
                 nonSelectedText: 'Seleccione una o más categorías',
                 buttonWidth: '100%',
                 buttonTextAlignment: 'left',
@@ -156,13 +220,12 @@ else
                 numberDisplayed: 0
             });
 
-            let selectEquipo = new TomSelect('#equipo', {
-                //controlClass: 'form-control',
+            let selectEquipo = new TomSelect(scope.querySelector('#equipo'), {               
                 valueField: 'id',
                 labelField: 'name',
                 searchField: 'name',
                 loadThrottle: 400,
-                load: function(query, callback) {                    
+                load: function(query, callback) {
                     let url = '/Camiseta/ListEquipos?filtro=' + encodeURIComponent(query);
 
                     fetch(url)
@@ -185,25 +248,24 @@ else
                         selectJugador.clearOptions();
 
                         //Almacena la información del equipo seleccionado en un campo hidden.
-                        document.getElementById('equipoJSON').value = JSON.stringify(this.options[value]);
+                        scope.querySelector('#equipoJSON').value = JSON.stringify(this.options[value]);
                     } else {
                         //Al borrar el equipo se deshabilita el campo de jugador.
                         selectJugador.disable();
                         selectJugador.clear();
 
                         //Limpieza del contenedor de la información del equipo.
-                        document.getElementById('equipoJSON').value = "";
+                        scope.querySelector('#equipoJSON').value = "";
                     }
                 },
                 render: {
                     no_results: function(data, escape) {
                         return '<div class="no-results">No se encontraron equipos...</div>';
-                    }                 
+                    }
                 },
             });
 
-            let selectJugador = new TomSelect('#jugador', {
-                //controlClass: 'form-control',
+            let selectJugador = new TomSelect(scope.querySelector('#jugador'), {                
                 valueField: 'id',
                 labelField: 'name',
                 searchField: 'name',
@@ -226,7 +288,7 @@ else
                 render: {
                     no_results: function(data, escape) {
                         return '<div class="no-results">No se encontraron jugadores para el valor digitado y el equipo seleccionado...</div>';
-                    },                 
+                    },
                 },
                 onChange: function(value) {
                     if (value) {
@@ -251,23 +313,22 @@ else
                             });
 
                         //Almacena la información del jugador seleccionado en un campo hidden.
-                        document.getElementById('jugadorJSON').value = JSON.stringify(this.options[value]);
+                        scope.querySelector('#jugadorJSON').value = JSON.stringify(this.options[value]);
                     } else {
                         //Al borrar el jugador se borra y deshabilita el campo de temporada.
                         selectTemporada.disable();
                         selectTemporada.clear();
 
                         //Limpieza del contenedor de la información del jugador.
-                        document.getElementById('jugadorJSON').value = '';
+                        scope.querySelector('#jugadorJSON').value = '';
                     }
                 },
             });
 
-            let selectTemporada = new TomSelect('#temporada', {
-                //controlClass: 'form-control',
+            let selectTemporada = new TomSelect(scope.querySelector('#temporada'), {               
                 valueField: 'anio',
                 labelField: 'anio',
-                searchField: [],                              
+                searchField: [],
                 render: {
                     no_results: function(data, escape) {
                         return '<div class="no-results">No se encontraron temporadas para el jugador y equipo seleccionado..</div>';
@@ -275,30 +336,61 @@ else
                 },
             });
 
-            //Se deshabilitan campos dependientes.
-            selectJugador.disable();
-            selectTemporada.disable();
+            //Precargado de campos para el formulario de edición.
+            if (datosPrevios.equipo) {
+                selectEquipo.addOption(datosPrevios.equipo);
+                selectEquipo.addItem(datosPrevios.equipo.id);
+            }
 
-            //Registro de plugins de filepond.
-            FilePond.registerPlugin(
-                 FilePondPluginImagePreview, //Renderizado de preview de imagenes.
-                 FilePondPluginFileValidateType, //Validación de tipos de archivos.
-                 // FilePondPluginImageCrop, //Recorte de imagen.
-                 // FilePondPluginImageResize
-            );
+            if (datosPrevios.jugador) {
+                selectJugador.addOption(datosPrevios.jugador);
+                selectJugador.addItem(datosPrevios.jugador.id);
+            }
+            else
+                selectJugador.disable();
 
-            FilePond.create(document.querySelector('input[type="file"]'),{
+            if (datosPrevios.temporada) {
+                selectTemporada.addOption({ anio: datosPrevios.temporada });
+                selectTemporada.addItem(datosPrevios.temporada);
+                selectTemporada.enable();
+            }
+            else
+                selectTemporada.disable();
+
+            const pond = FilePond.create(scope.querySelector('.filepond'),{
                 credits: false,
                 labelIdle: 'Arrastra tus imágenes o adjuntalas aquí: <span class="filepond--label-action link-primary">Seleccionar imagen</span>',
                 acceptedFileTypes: ['image/png', 'image/jpeg'],
-                itemInsertLocation: 'after',              
+                itemInsertLocation: 'after',
                 imagePreviewHeight: 245, // Altura fija para que todas las miniaturas midan lo mismo
-                storeAsFile: true
+                storeAsFile: true,
+                files: datosPrevios.imagenes || [],
+                server: {           
+                    load: (source, load, error, progress, abort, headers) => {
+                        fetch(source).then(res => res.blob()).then(load).catch(error);
+                    }
+                }
             });
-        });
+
+            if (datosPrevios) {
+                // Evento que se dispara al quitar un archivo.
+                pond.on('removefile', (error, file) => {
+                    // Si el archivo tiene metadatos, ya existia previamente.
+                    const id = file.getMetadata('id');
+
+                    if (id) {
+                        idsImagenesEliminadas.push(id);                        
+
+                        // Actualizamos un input hidden en el formulario para que viaje al controlador
+                        document.querySelector(`#${containerId} #IdsImagenesEliminadas`).value = JSON.stringify(idsImagenesEliminadas);
+                    }
+                });
+            }
+
+        }
 
         //Evento submit del formulario de creación de camisetas.
-        document.getElementById("nuevaCamisetaForm").addEventListener("submit", async function (e) {                       
+        document.getElementById("nuevaCamisetaForm").addEventListener("submit", async function (e) {
             try {
                 e.preventDefault();
 
@@ -310,7 +402,7 @@ else
                 const formData = new FormData(form);
 
                 const response = await fetch(form.action, {
-                    method: "POST",                   
+                    method: "POST",
                     body: formData
                 });
 
@@ -322,7 +414,7 @@ else
                         Swal.fire({
                             icon: 'success',
                             title: 'Camiseta creada',
-                            text: responseJson.message,                  
+                            text: responseJson.message,
                         }).then(() => {
                             //Recarga el listado al finalizar la ejecucción.
                             location.reload();
@@ -342,13 +434,13 @@ else
                         Swal.fire({
                             icon: 'error',
                             title: 'Error en creación de camiseta',
-                            text: responseJson.message,                      
+                            text: responseJson.message,
                         });
 
                         break;
-                }                       
-            } 
-            catch (error) {               
+                }
+            }
+            catch (error) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error en creación de camiseta',
@@ -358,6 +450,140 @@ else
                 console.log(error.message);
             }
         });
+
+        async function cargarModalEditar (idCamiseta, estadoCamiseta) {
+            if (estadoCamiseta != "Disponible") {
+                 Swal.fire({
+                    icon: 'warning',
+                    title: 'Advertencia',
+                    text: `La camiseta se encuentra ${estadoCamiseta}, por lo tanto no es posible realizarle modificaciones.`,
+                 });
+
+                 return;
+            }
+                
+            const response = await fetch(`/Camiseta/CamisetaEdit?id=${idCamiseta}`);
+            const contenedor = document.getElementById('contenedorModalEditar');
+
+            //Renderiza la vista parcial en el contenedor auxiliar.
+            contenedor.innerHTML = await response.text();
+
+            //Formulario del modal, una vez renderizado.
+            const form = contenedor.querySelector('form');
+
+            //Obtención de datos de la camiseta almacenados en estructuras.
+            const datosEdicion = {
+                equipo: JSON.parse(form.querySelector('#equipoJSON').value),
+                jugador: JSON.parse(form.querySelector('#jugadorJSON').value),
+                temporada: form.querySelector('#temporadaAux').value,
+                imagenes: JSON.parse(form.querySelector('#imagenesJSON').value)
+            };
+
+            inicializarControles('editarCamisetaForm', datosEdicion);
+
+            //Abre el modal ya renderizado.
+            const modal = new bootstrap.Modal(document.getElementById('editModal'));
+            modal.show();
+
+            //Evento submit del formulario de edición de camisetas.
+            document.getElementById("editarCamisetaForm").addEventListener("submit", async function (e) {
+                try {
+                    e.preventDefault();
+
+                    //Valida que todos los campos cumplan con las especificaciones necesarias.
+                    if (!$("#editarCamisetaForm").valid())
+                        return;
+
+                    const form = this;
+                    const formData = new FormData(form);
+
+                    const response = await fetch(form.action, {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    const responseJson = await response.json();
+
+                    switch (responseJson.statusCode)
+                    {
+                        case "sucess":
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Camiseta modificada',
+                                text: responseJson.message,
+                            }).then(() => {
+                                //Recarga el listado al finalizar la ejecucción.
+                                location.reload();
+                            });
+
+                            break;
+                        case "warning":
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Advertencia',
+                                html: responseJson.message,
+                            });
+
+                            break;
+
+                        case "error":
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error al editar la camiseta',
+                                text: responseJson.message,
+                            });
+
+                            break;
+                    }
+                }
+                catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al editar la camiseta',
+                        text: 'Ha ocurrido un error al intentar editar la camiseta. Por favor intente nuevamente o contacte a soporte del sistema.'
+                    });
+
+                    console.log(error.message);
+                }
+            });
+        }
+
+        function ChangeState(event, accion, nombre, btn, estadoCamiseta) {
+                    event.preventDefault();
+
+                    if (estadoCamiseta != "Disponible") {
+                         Swal.fire({
+                            icon: 'warning',
+                            title: 'Advertencia',
+                            text: `La camiseta se encuentra ${estadoCamiseta}, por lo tanto no es posible realizarle modificaciones.`,
+                         });
+
+                         return;
+                    }
+
+                    Swal.fire({
+                        title: accion.charAt(0).toUpperCase() + accion.slice(1) + ' usuario?',
+                        text: 'Se va a ' + accion + ' a: ' + nombre,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, continuar',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: accion === 'deshabilitar' ? '#dc3545' : '#198754'
+                    }).then(function (result) {
+                        if (result.isConfirmed) {
+                            // Buscamos el formulario de manera más segura
+                            var form = btn.parentElement;
+                            if (form && form.tagName === 'FORM') {
+                                form.submit();
+                            } else {
+                                // Si el parent no es el form, lo buscamos hacia arriba
+                                btn.closest('form').submit();
+                            }
+                        }
+                    });
+                }
+        
+       
     </script>
 
     <style>

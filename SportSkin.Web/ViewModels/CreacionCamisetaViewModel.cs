@@ -9,7 +9,7 @@ namespace SportSkin.Web.ViewModels
         public CamisetaDTO CamisetaDTO { get; set; } = new();
 
         [Required(ErrorMessage = "Debe seleccionar al menos una categoría.")]
-        public int[] CategoriasSeleccionadas { get; set; } = [];
+        public byte[] CategoriasSeleccionadas { get; set; } = [];
 
         //Estructuras JSON auxiliares para transportar los datos seleccionados en los campos de Equipo y Jugador.        
         public string EquipoAPIFootballJSON { get; set; } = string.Empty;

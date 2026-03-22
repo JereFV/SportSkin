@@ -33,7 +33,9 @@ namespace SportSkin.Application.DTOs
         public bool EsSeleccionNacional { get; set; }
 
         // Colecciones
+        [JsonIgnore]
         public List<CamisetaDTO> Camiseta { get; set; } = new();
+        
         public List<TrayectoriaJugadorEquipoDTO> TrayectoriaJugadorEquipo { get; set; } = new();
     }
 }

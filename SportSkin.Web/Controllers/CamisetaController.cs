@@ -164,38 +164,111 @@ namespace SportSkin.Web.Controllers
             }
         }
 
-        // GET: Camiseta/Edit/5
-        public async Task<IActionResult> Edit(int id)
+        [HttpGet]
+        public async Task<IActionResult> CamisetaEdit(int id)
         {
-            var camiseta = await _serviceCamiseta.FindByIdAsync(id);
+            CamisetaDTO camiseta = await _serviceCamiseta.FindByIdAsync(id);
+            ICollection<CategoriaCamisetaDTO> categoriasCamiseta = await _serviceCategoriaCamiseta.ListAsync();
+            ICollection<CondicionCamisetaDTO> condicionesCamiseta = await _serviceCondicionCamiseta.ListAsync();
+
             if (camiseta == null)
                 return NotFound();
 
-            return View(camiseta);
+            //Lectura del usuario en un objeto dinámico de tipo JObject.
+            var usuarioSesion = JObject.Parse(HttpContext.Session.GetString("UsuarioSesion") ?? "");
+
+            CreacionCamisetaViewModel camisetaViewModel = new()
+            {
+                CamisetaDTO = camiseta,
+                CategoriasSeleccionadas = [.. camiseta.CategoriasCamiseta.Select(x => x.IdCategoriaCamiseta)],
+                EquipoAPIFootballJSON = JsonSerializer.Serialize(camiseta.EquipoNavigation),
+                JugadorAPIFootballJSON = JsonSerializer.Serialize(camiseta.JugadorNavigation),
+                CategoriasCamiseta = categoriasCamiseta,
+                CondicionesCamiseta = condicionesCamiseta,
+                NombreCompletoVendedor = $"{usuarioSesion["Nombre"]} {usuarioSesion["Apellido1"]} {usuarioSesion["Apellido2"]}"
+            };
+
+            //Obtención de imagenes en un Viewbag, con el formato manejado por FilePond.
+            ViewBag.ImagenesCamiseta = camiseta.ImagenesCamiseta
+                                              .Select(img => new
+                                              {
+                                                  source = img.RutaImagen,
+                                                  options = new
+                                                  {
+                                                      type = "local",
+                                                  }
+                                              }).ToList();
+
+            return PartialView("_CamisetaEdit", camisetaViewModel);
         }
 
         // POST: Camiseta/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, CamisetaDTO dto)
+        public async Task<IActionResult> CamisetaEdit(CreacionCamisetaViewModel model, List<int> IdsImagenesEliminadas)
         {
-            if (!ModelState.IsValid)
-                return View(dto);
-
             try
             {
-                await _serviceCamiseta.UpdateAsync(id, dto);
-                TempData["success"] = "Camiseta actualizada correctamente.";
-                return RedirectToAction(nameof(Index));
+                if (string.IsNullOrEmpty(model.EquipoAPIFootballJSON))
+                    ModelState.AddModelError("Equipo", "-Debe seleccionar el equipo de la camiseta.");
+
+                if (string.IsNullOrEmpty(model.JugadorAPIFootballJSON))
+                    ModelState.AddModelError("Jugador", "-Debe seleccionar el jugador de la camiseta.");
+
+                if (model.CamisetaDTO.Temporada == 0)
+                    ModelState.AddModelError("Temporada", "-Debe seleccionar la temporada de la camiseta.");
+
+                //if (model.ImagenesCamiseta.Count == 0)
+                //    ModelState.AddModelError("Imágenes", "-Debe adjuntar al menos una imagen de la camiseta.");
+
+                //Al haber errores de validación, los recopila y los muestra en el mensaje de respuesta.
+
+                //Filtra las validaciones del modelo para obtener los mensajes de campos necesarios, dado que el modelo incluye una gran cantidad de campos que no son releventes en este momento de validar.              
+                var camposAValidar = new[] { "Equipo", "Jugador", "Temporada", "Imágenes" };
+
+                IEnumerable<string> mensajesError = ModelState
+                                    .Where(x => camposAValidar.Contains(x.Key))
+                                    .SelectMany(v => v.Value.Errors)
+                                    .Select(e => e.ErrorMessage);
+
+                //En caso de existir errores de validación, los recopila y devuelve a la interfaz.
+                if (mensajesError.Any())
+                {
+                    string mensaje = "Estimado usuario, existen los siguientes errores de validación en el fomulario:<br/><br/>";
+
+                    return Json(new
+                    {
+                        statusCode = "warning",
+                        message = mensaje += string.Join("<br/>", mensajesError)
+
+                    });
+                }
+               
+                //Asigna las categorias seleccionadas a partir del catálogo, aplicando un filtro.
+                model.CamisetaDTO.CategoriasCamiseta = (await _serviceCategoriaCamiseta.ListAsync())?.Where(x => model.CategoriasSeleccionadas.Contains(x.IdCategoriaCamiseta)).ToList() ?? [];
+
+                //Deserealiza las estructuras JSON de Equipo y Jugador en DTOS.
+                model.CamisetaDTO.EquipoNavigation = JsonSerializer.Deserialize<EquipoDTO>(model.EquipoAPIFootballJSON) ?? model.CamisetaDTO.EquipoNavigation;
+                model.CamisetaDTO.JugadorNavigation = JsonSerializer.Deserialize<JugadorDTO>(model.JugadorAPIFootballJSON) ?? model.CamisetaDTO.JugadorNavigation;
+
+                //Valores por defecto al crear una nueva camiseta.               
+                model.CamisetaDTO.FechaModificacion = DateTime.Now;
+
+                await _serviceCamiseta.UpdateAsync(model.CamisetaDTO, model.ImagenesCamiseta, IdsImagenesEliminadas);
+
+                return Json(new
+                {
+                    statusCode = "sucess",
+                    message = $"La camiseta {model.CamisetaDTO.Nombre} ha sido editada satsifactoriamente."
+                });
             }
-            catch (KeyNotFoundException)
+            catch (Exception)
             {
-                return NotFound();
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return View(dto);
+                return Json(new
+                {
+                    statusCode = "error",
+                    message = $"Ha ocurrido un error al intentar editar la camiseta. Por favor intente nuevamente o contacte a soporte del sistema."
+                });
             }
         }
 
@@ -273,6 +346,34 @@ namespace SportSkin.Web.Controllers
                 ViewBag.Exception = SweetAlertHelper.CrearNotificacion("Crear Camiseta", "Ha ocurrido un error al intentar obtener el listado de temporadas para el jugador y equipo seleccionado.", SweetAlertMessageType.error);
                 return BadRequest();
             }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeState(int id)
+        {
+            try
+            {
+                await _serviceCamiseta.ChangeStateAsync(id);
+
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "Estado actualizado",
+                    text = "El estado de la camiseta fue cambiada exitosamente.",
+                    icon = "success"
+                });
+            }
+            catch (Exception ex)
+            {
+                TempData["Notificacion"] = JsonSerializer.Serialize(new
+                {
+                    title = "Error inesperado",
+                    text = ex.Message,
+                    icon = "error"
+                });
+            }
+
+            return RedirectToAction(nameof(CamisetaIndex));
         }
     }
 }

@@ -1,0 +1,160 @@
+﻿@using System.Text.Json
+@model SportSkin.Web.ViewModels.CreacionCamisetaViewModel
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <div>
+                    <h4 class="modal-title">
+                        <i class="fa-regular fa-pen-to-square text-white"></i>
+                        &nbspEditar Camiseta
+                    </h4>
+
+                    <div class="d-flex mt-1 gap-2">
+                        <h5>
+                            <span class="badge rounded-pill text-bg-success">
+                                <i class="fa-regular fa-circle-check"></i>&nbsp;Activa
+                            </span>
+                        </h5>
+
+                        <h5>
+                            <span class="badge rounded-pill text-bg-info">
+                                <i class="fa-solid fa-user"></i>&nbsp;@Model.NombreCompletoVendedor
+                            </span>
+                        </h5>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="editarCamisetaForm" asp-action="CamisetaEdit" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 border-end">
+                            <h6 class="text-uppercase text-muted fw-bold small mb-3">
+                                <i class="fa-regular fa-file text-primary"></i>
+                                &nbsp;<span>Datos Generales</span>
+                            </h6>
+
+                            <input hidden asp-for="CamisetaDTO.IdCamiseta"/>
+
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label fw-semibold">Nombre</label>
+                                <input asp-for="CamisetaDTO.Nombre" type="text" class="form-control" id="nombre">
+                                <span asp-validation-for="CamisetaDTO.Nombre" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label fw-semibold">Descripción</label>
+                                <textarea asp-for="CamisetaDTO.Descripcion" class="form-control no-resize" id="descripcion" rows="3"></textarea>
+                                <span asp-validation-for="CamisetaDTO.Descripcion" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3" style="display: flex; flex-direction: column">
+                                <label for="categorias" class="form-label fw-semibold">Categorias</label>
+                                <select asp-for="CategoriasSeleccionadas" class="form-select" multiple id="categorias">
+                                    @if (Model.CategoriasCamiseta != null)
+                                    {
+                                        @foreach (SportSkin.Application.DTOs.CategoriaCamisetaDTO categoria in Model.CategoriasCamiseta)
+                                        {
+                                            <option value="@categoria.IdCategoriaCamiseta">@categoria.Nombre</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="CategoriasSeleccionadas" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3" style="display: flex; flex-direction: column">
+                                <label for="condicion" class="form-label fw-semibold">Condición</label>
+                                <select asp-for="CamisetaDTO.IdCondicionCamiseta" class="form-select" id="condicion">
+                                    <option hidden value="">Seleccione la condición</option>
+                                    @if (Model.CondicionesCamiseta != null)
+                                    {
+                                        @foreach (SportSkin.Application.DTOs.CondicionCamisetaDTO condicion in Model.CondicionesCamiseta)
+                                        {
+                                            <option value="@condicion.IdCondicionCamiseta">@condicion.Nombre</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="CamisetaDTO.IdCondicionCamiseta" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6 class="text-uppercase text-muted fw-bold small mb-3">
+                                <i class="fa-regular fa-image text-primary"></i>
+                                &nbsp;<span>Datos Específicos y Galería</span>
+                            </h6>
+
+                            <div class="row">
+                                <!--Hidden auxiliar para almacenar el JSON con los datos del equipo seleccionado.-->
+                                <input asp-for="EquipoAPIFootballJSON" type="hidden" id="equipoJSON" />
+
+                                <div class="mb-3 col-md-6" style="display: flex; flex-direction: column">
+                                    <label for="equipo" class="form-label fw-semibold">Equipo</label>
+                                    <select class="form-select" id="equipo" placeholder="Digite el nombre del equipo"></select>                                   
+                                </div>
+
+                                <!--Hidden auxiliar para almacenar el JSON con los datos del jugador seleccionado.-->
+                                <input asp-for="JugadorAPIFootballJSON" type="hidden" id="jugadorJSON" />
+
+                                <div class="mb-3 col-md-6" style="display: flex; flex-direction: column">
+                                    <label for="jugador" class="form-label fw-semibold">Jugador</label>
+                                    <select class="form-select" id="jugador" placeholder="Digite el nombre del jugador"></select>                                   
+                                </div>
+                            </div>
+
+                            <div class="row d-flex">
+                                <div class="mb-3 col-md-6" style="display: flex; flex-direction: column">
+                                    <input type="hidden" id="temporadaAux" value="@Model.CamisetaDTO.Temporada" />
+
+                                    <label for="temporada" class="form-label fw-semibold">Temporada</label>
+                                    <select asp-for="CamisetaDTO.Temporada" class="form-select" id="temporada" placeholder="Seleccione la temporada"></select>                                                                   
+                                </div>
+
+                                <div class="form-check col-md-6" style="padding-left: 2.5rem">
+                                    <input asp-for="CamisetaDTO.Autografiada" class="form-check-input" type="checkbox" id="autografiada">
+                                    <label class="form-check-label fw-semibold" for="autografiada">
+                                        ¿Está Autografiada?
+                                    </label>
+                                </div>
+                            </div>
+
+                            <label for="imagenes" class="form-label fw-semibold">Imágenes Adjuntas</label>
+
+                            <!--Hidden auxiliar para almacenar la ruta de imágenes de la camiseta.-->
+                            <input type="hidden"
+                                   id="imagenesJSON"
+                                   value='@JsonSerializer.Serialize(Model.CamisetaDTO.ImagenesCamiseta.Select(img => new { 
+                                   source = img.RutaImagen, 
+                                   options = new { type = "local", metadata = new { id = img.IdImagen } }}))' />
+
+                            <!--Hidden auxiliar para almacenamiento de imagenes eliminadas.-->
+                            <input type="hidden" name="idsImagenesEliminadas" id="IdsImagenesEliminadas" value="[]" />
+
+                            <input type="file"
+                                   asp-for="ImagenesCamiseta"
+                                   class="filepond"
+                                   name="ImagenesCamiseta"
+                                   multiple
+                                   data-allow-reorder="true"
+                                   data-max-file-size="3MB"
+                                   data-max-files="5"
+                                   data-val="false">                          
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

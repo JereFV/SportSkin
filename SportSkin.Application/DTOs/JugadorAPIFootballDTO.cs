@@ -13,7 +13,7 @@ namespace SportSkin.Application.DTOs
         public int IdJugador { get; set; }
 
         [JsonPropertyName("name")]
-        public string? NombreResumido { get; set; }
+        public string? NombreCompleto { get; set; }
 
         [JsonPropertyName("firstname")]
         public string? PrimerNombre { get; set; }

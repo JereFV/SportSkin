@@ -37,7 +37,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             throw new NotImplementedException();
         }
 
-        public async Task<Camiseta?> FindByIdAsync(int id)
+        public async Task<Camiseta> FindByIdAsync(int id)
         {
             var camiseta = await _context.Set<Camiseta>()
                                    .Where(x => x.IdCamiseta == id)
@@ -148,9 +148,21 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .ToListAsync();
         }
 
-        public Task UpdateAsync(Camiseta entity)
+        public void Update(Camiseta entity)
         {
-            throw new NotImplementedException();
+            //Establece como modificada la entidad, dado que ya proviene con un tracking previo.
+            _context.Entry(entity).State = EntityState.Modified;
+        }
+
+        public async Task ChangeStateAsync(int id)
+        {
+            var entity = await _context.Camiseta.FindAsync(id)
+                ?? throw new KeyNotFoundException($"No existe el usuario con id={id}");
+
+            entity.EstadoRegistro = !entity.EstadoRegistro;
+            entity.FechaModificacion = DateTime.Now;
+
+            await _context.SaveChangesAsync();
         }
     }
 }

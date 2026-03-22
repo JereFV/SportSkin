@@ -49,5 +49,15 @@ namespace SportSkin.Infrastructure.FilesStorage.Implementations
                 }
             }         
         }
+
+        public void DeleteSpecificImage(string rutaWeb)
+        {            
+            string rutaFisica = Path.Combine("wwwroot", rutaWeb.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+
+            if (File.Exists(rutaFisica))
+            {
+                File.Delete(rutaFisica);
+            }
+        }
     }
 }

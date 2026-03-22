@@ -39,7 +39,12 @@ namespace SportSkin.Application.DTOs
         [Required(ErrorMessage = "{0} es un dato requerido")]
         public DateOnly FechaNacimiento { get; set; }
 
+        //Auxiliar para el serializado del nombre del jugador.
+        [JsonPropertyName("name")]
+        public string? NombreCompleto { get => Nombre; }
+
         // Colecciones
+        [JsonIgnore]
         public List<CamisetaDTO> Camiseta { get; set; } = new();
         public List<TrayectoriaJugadorEquipoDTO> TrayectoriaJugadorEquipo { get; set; } = new();
     }

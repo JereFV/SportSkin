@@ -11,5 +11,6 @@ namespace SportSkin.Infrastructure.FilesStorage.Interfaces
     {
         Task<string> SaveImageAsync(int idCamiseta, IFormFile image);
         void DeleteImages(int idCamiseta);
+        void DeleteSpecificImage(string rutaWeb);
     }
 }

@@ -31,6 +31,8 @@ namespace SportSkin.Infrastructure.Repository.Implementations
 
                 equipo = entity;
             }
+            else
+                _context.Attach(equipo);
 
             return equipo;
         }
@@ -41,7 +43,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                                  .AsNoTracking()
                                  .Where(x => x.IdExternoEquipo == idExterno)
                                  .FirstOrDefaultAsync();
-
+          
             return equipo;
         }
     }

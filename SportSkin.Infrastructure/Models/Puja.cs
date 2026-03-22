@@ -5,7 +5,7 @@ namespace SportSkin.Infrastructure.Models;
 
 public partial class Puja
 {
-    public short IdPuja { get; set; }
+    public int IdPuja { get; set; }
 
     public int IdSubasta { get; set; }
 

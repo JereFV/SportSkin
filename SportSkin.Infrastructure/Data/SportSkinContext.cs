@@ -314,7 +314,7 @@ public partial class SportSkinContext : DbContext
         {
             entity.HasKey(e => e.IdSubasta);
 
-            entity.Property(e => e.IdSubasta).ValueGeneratedNever();
+            entity.Property(e => e.IdSubasta).ValueGeneratedOnAdd();
             entity.Property(e => e.FechaCierre).HasColumnType("datetime");
             entity.Property(e => e.FechaCompra).HasColumnType("datetime");
             entity.Property(e => e.FechaInicio).HasColumnType("datetime");

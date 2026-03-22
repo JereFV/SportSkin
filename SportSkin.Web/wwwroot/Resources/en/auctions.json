@@ -19,6 +19,17 @@
   "drafts": "Drafts",
   "cancelled": "Cancelled",
   "closedLabel": "Closed. Total:",
+  "noMineFull": "You have no registered auctions. Use the <strong>Add Auction</strong> button to get started.",
+  "noActions": "No actions available",
+  "readOnly": "Information — read only",
+  "confirmPublish": {
+    "title": "Publish auction?",
+    "text": "The auction will be visible to buyers."
+  },
+  "confirmCancel": {
+    "title": "Cancel auction?",
+    "text": "This action cannot be undone."
+  },
   "fields": {
     "startDate": "Start Date",
     "closeDate": "Close Date",
@@ -34,7 +45,11 @@
     "shirt": "Shirt",
     "selectShirt": "Select a shirt",
     "seller": "Seller",
-    "autoAssigned": "automatically assigned"
+    "autoAssigned": "automatically assigned",
+    "period": "Period",
+    "prices": "Prices",
+    "commissionLabel": "Platform commission",
+    "commissionValue": "3% — fixed, not editable"
   },
   "modal": {
     "createTitle": "New Auction",

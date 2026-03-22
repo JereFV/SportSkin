@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
@@ -13,15 +14,18 @@ namespace SportSkin.Web.Controllers
         private readonly IServiceSubasta _serviceSubasta;
         private readonly IServiceCamiseta _serviceCamiseta;
         private readonly IServiceUsuario _serviceUsuario;
+        private readonly SubastaSettings _settings;
 
         public SubastaController(
             IServiceSubasta serviceSubasta,
             IServiceCamiseta serviceCamiseta,
-            IServiceUsuario serviceUsuario)
+            IServiceUsuario serviceUsuario,
+            IOptions<SubastaSettings> settings)
         {
             _serviceSubasta = serviceSubasta;
             _serviceCamiseta = serviceCamiseta;
             _serviceUsuario = serviceUsuario;
+            _settings = settings.Value;
         }
 
         private int GetUsuarioSesionId()
@@ -169,7 +173,6 @@ namespace SportSkin.Web.Controllers
                     PrecioBase = vm.PrecioBase,
                     IncrementoMinimo = vm.IncrementoMinimo,
                     PrecioCompraInmediata = vm.PrecioCompraInmediata,
-                    PorcentajeComision = vm.PorcentajeComision,
                     IdEstadoSubasta = 4  // Borrador
                 };
 
@@ -189,7 +192,12 @@ namespace SportSkin.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, errors = new[] { "Error inesperado: " + ex.Message } });
+                // Temporalmente mostrar el error completo para diagnosticar
+                return Json(new
+                {
+                    success = false,
+                    errors = new[] { ex.Message + " | INNER: " + ex.InnerException?.Message + " | " + ex.InnerException?.InnerException?.Message }
+                });
             }
         }
 
@@ -209,16 +217,23 @@ namespace SportSkin.Web.Controllers
             if (subasta.Puja.Any())
                 return BadRequest("La subasta tiene pujas y no puede editarse.");
 
+            var vendedor = subasta.IdCamisetaNavigation?.UsuarioVendedorNavigation;
+            var nombreVendedor = vendedor != null
+                ? $"{vendedor.Nombre} {vendedor.Apellido1} {vendedor.Apellido2}".Trim()
+                : GetUsuarioSesionNombre();
+
             return Json(new
             {
                 idSubasta = subasta.IdSubasta,
                 idCamiseta = subasta.IdCamiseta,
+                nombreCamiseta = subasta.IdCamisetaNavigation?.Nombre ?? "—",
+                estadoActual = subasta.IdEstadoSubastaNavigation?.Nombre ?? "—",
+                nombreVendedor = nombreVendedor,
                 fechaInicio = subasta.FechaInicio.ToString("yyyy-MM-ddTHH:mm"),
                 fechaCierre = subasta.FechaCierre.ToString("yyyy-MM-ddTHH:mm"),
                 precioBase = subasta.PrecioBase,
                 incrementoMinimo = subasta.IncrementoMinimo,
-                precioCompraInmediata = subasta.PrecioCompraInmediata,
-                porcentajeComision = subasta.PorcentajeComision
+                precioCompraInmediata = subasta.PrecioCompraInmediata
             });
         }
 
@@ -254,7 +269,6 @@ namespace SportSkin.Web.Controllers
                     PrecioBase = vm.PrecioBase,
                     IncrementoMinimo = vm.IncrementoMinimo,
                     PrecioCompraInmediata = vm.PrecioCompraInmediata,
-                    PorcentajeComision = vm.PorcentajeComision,
                     IdEstadoSubasta = 5
                 };
 

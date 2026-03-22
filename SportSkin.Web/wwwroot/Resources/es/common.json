@@ -34,7 +34,9 @@
     "addAuction": "Agregar subasta",
     "addUser": "Agregar Usuario",
     "auction": "Subastar",
-    "auctionList": "Listado de Pujas"
+    "auctionList": "Listado de Pujas",
+    "actionsS": "Acciones",
+    "confirm": "Sí, continuar"
   },
   "filters": {
     "title": "Filtrar",

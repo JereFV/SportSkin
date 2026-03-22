@@ -113,8 +113,8 @@ else
                 var (estadoColor, estadoIcono) = estadoId switch
                 {
                     1 => ("success",   "bi bi-lightning-charge"), // Activa
-                    2 => ("info",      "bi bi-megaphone"),         // Vendida
-                    3 => ("danger",    "bi bi-cart-check"),         // Finalizada
+                    2 => ("info",      "bi bi-cart-check"),         // Vendida
+                    3 => ("danger",    "bi bi-megaphone"),         // Finalizada
                     4 => ("warning",   "bi bi-pencil-square"),      // Borrador
                     5 => ("secondary", "bi bi-x-circle"),           // Cancelada
                     6 => ("primary",   "bi bi-broadcast"),          // Publicada
@@ -129,10 +129,10 @@ else
                              : "success";
 
                 var precioFinal = item.MontoCompra.HasValue
-                    ? item.MontoCompra.Value.ToString("C")
+                    ? item.MontoCompra.Value.ToString()
                     : item.Puja.Any()
-                        ? item.Puja.Max(p => p.Monto).ToString("C")
-                        : item.PrecioBase.ToString("C");
+                        ? item.Puja.Max(p => p.Monto).ToString()
+                        : item.PrecioBase.ToString();
 
                 <div class="col">
                     <article class="card h-100 shadow-sm border-0">
@@ -173,7 +173,7 @@ else
                                 <!-- Card activa: precio actual + pujas + tiempo restante -->
                                 <div class="d-flex gap-2 mb-2">
                                     <span class="badge rounded-pill bg-primary px-3 py-2">
-                                        <i class="bi bi-cash me-1"></i>@precioFinal
+                                        <i class="bi bi-cash me-1"></i>$ @precioFinal
                                     </span>
                                     <span class="badge rounded-pill bg-secondary px-3 py-2">
                                         <i class="bi bi-people me-1"></i>@item.Puja.Count <span data-i18n="auctions:bids.count">pujas</span>
@@ -205,7 +205,7 @@ else
                                         <i class="bi bi-people me-1"></i>@item.Puja.Count <span data-i18n="auctions:bids.count" data-i18n-options='{"count":@item.Puja.Count}'></span>
                                     </span>
                                     <span class="small text-muted">
-                                        <span data-i18n="auctions:fields.basePrice">Precio:</span><span class="fw-semibold">@precioFinal</span>
+                                        <span data-i18n="auctions:fields.basePrice"></span><span class="fw-semibold">$ @precioFinal</span>
                                     </span>
                                 </div>
                                 

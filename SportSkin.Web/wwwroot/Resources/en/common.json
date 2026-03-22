@@ -34,7 +34,9 @@
     "addAuction": "Add auction",
     "addUser": "Add User",
     "auction": "Auction",
-    "auctionList": "Bid History"
+    "auctionList": "Bid History",
+    "actionsS": "Actions",
+    "confirm": "Yes, continue"
   },
   "filters": {
     "title": "Filter",

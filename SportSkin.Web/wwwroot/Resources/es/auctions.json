@@ -19,6 +19,17 @@
   "drafts": "Borradores",
   "cancelled": "Canceladas",
   "closedLabel": "Cerradas. Total:",
+  "noMineFull": "No tenés subastas registradas. Usá el botón <strong>Añadir Subasta</strong> para comenzar.",
+  "noActions": "Sin acciones disponibles",
+  "readOnly": "Información — solo lectura",
+  "confirmPublish": {
+    "title": "¿Publicar subasta?",
+    "text": "La subasta será visible para los compradores."
+  },
+  "confirmCancel": {
+    "title": "¿Cancelar subasta?",
+    "text": "Esta acción no se puede deshacer."
+  },
   "fields": {
     "startDate": "Fecha de Inicio",
     "closeDate": "Fecha de Cierre",
@@ -34,7 +45,11 @@
     "shirt": "Camiseta",
     "selectShirt": "Seleccione una camiseta",
     "seller": "Vendedor",
-    "autoAssigned": "Asignada automática"
+    "autoAssigned": "Asignada automática",
+    "period": "Período",
+    "prices": "Precios",
+    "commissionLabel": "Comisión de la plataforma",
+    "commissionValue": "3% — fija, no editable"
   },
   "modal": {
     "createTitle": "Nueva Subasta",

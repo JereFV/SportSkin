@@ -57,8 +57,8 @@ else
                 var estadoNombre = item.IdEstadoSubastaNavigation?.Nombre ?? "—";
                 var (estadoColor, estadoIcono) = estadoId switch
                 {
-                    2 => ("info", "bi bi-megaphone"),         // Vendida
-                    3 => ("danger", "bi bi-cart-check"),         // Finalizada
+                    2 => ("info", "bi bi-cart - check"),         // Vendida
+                    3 => ("danger", "bi bi-megaphone"),         // Finalizada
                     5 => ("secondary", "bi bi-x-circle"),           // Cancelada
                     _ => ("dark", "bi bi-question-circle")
                 };

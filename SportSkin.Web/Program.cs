@@ -112,6 +112,10 @@ builder.Services.AddTransient<IImageStorage, ImageStorage>();
 builder.Services.Configure<ImageSettings>(
     builder.Configuration.GetSection("ImageSettings")
 );
+//Comision de subasta(fija)
+builder.Services.Configure<SubastaSettings>(
+    builder.Configuration.GetSection("SubastaSettings")
+);
 
 // =======================
 // Configurar AutoMapper

@@ -22,7 +22,9 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         private const byte ESTADO_BORRADOR = 4;
         private const byte ESTADO_CANCELADA = 5;
         private const byte ESTADO_PUBLICADA = 6;
-
+        private const byte ESTADO_CAMISETA_DISPONIBLE = 1;
+        private const byte ESTADO_CAMISETA_EN_SUBASTA = 2;
+        private const byte ESTADO_CAMISETA_VENDIDA = 3;
         public RepositorySubasta(SportSkinContext context)
         {
             _context = context;
@@ -37,16 +39,18 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .Include(s => s.IdCamisetaNavigation)
                     .ThenInclude(c => c.IdCondicionCamisetaNavigation)
                 .Include(s => s.IdCamisetaNavigation)
-                    .ThenInclude(c => c.IdEquipoNavigation)             
+                    .ThenInclude(c => c.IdEquipoNavigation)
                 .Include(s => s.IdCamisetaNavigation)
                     .ThenInclude(c => c.IdEstadoCamisetaNavigation)
                 .Include(s => s.IdCamisetaNavigation)
                     .ThenInclude(c => c.IdJugadorNavigation)
                 .Include(s => s.IdCamisetaNavigation)
                     .ThenInclude(c => c.IdCategoriaCamiseta)
+                .Include(s => s.IdCamisetaNavigation)
+                    .ThenInclude(c => c.IdUsuarioVendedorNavigation) // agregar esto
                 .Include(s => s.IdEstadoSubastaNavigation)
                 .Include(s => s.Puja)
-                    .ThenInclude(c => c.IdUsuarioPujaNavigation);
+                    .ThenInclude(p => p.IdUsuarioPujaNavigation);
         }
 
         public async Task<ICollection<Subasta>> ListAsync()
@@ -69,9 +73,12 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             La fecha de inicio viene del formulario (puede ser a futuro días, semanas etc)
          */
         public async Task<int> AddAsync(Subasta entity)
-        {        
-            
+        {
             _context.Subasta.Add(entity);
+            await _context.Camiseta
+                .Where(c => c.IdCamiseta == entity.IdCamiseta)
+                .ExecuteUpdateAsync(s => s.SetProperty(c => c.IdEstadoCamiseta, ESTADO_CAMISETA_EN_SUBASTA));
+
             await _context.SaveChangesAsync();
             return entity.IdSubasta;
         }
@@ -157,6 +164,9 @@ namespace SportSkin.Infrastructure.Repository.Implementations
 
             entity.IdEstadoSubasta = ESTADO_CANCELADA;
             await _context.SaveChangesAsync();
+            await _context.Camiseta
+                .Where(c => c.IdCamiseta == entity.IdCamiseta)
+                .ExecuteUpdateAsync(s => s.SetProperty(c => c.IdEstadoCamiseta, ESTADO_CAMISETA_DISPONIBLE));
         }
 
 
@@ -262,6 +272,8 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                              s.IdEstadoSubasta == ESTADO_VENDIDA  // vendida = bloqueada para siempre
                              ||
                              (s.IdEstadoSubasta == ESTADO_EN_PROCESO && s.FechaCierre > ahora) // activa y no vencida
+                             ||
+                             s.IdEstadoSubasta == ESTADO_BORRADOR //no permite duplicar borradores
                          ))
                 .AnyAsync();
         }
@@ -325,8 +337,6 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         public async Task<ICollection<Subasta>> GetSubastasByVendedorAsync(int idUsuarioVendedor)
         {
             return await QueryBase()
-                .Include(s => s.IdCamisetaNavigation)
-                    .ThenInclude(c => c.IdUsuarioVendedorNavigation)
                 .Where(s => s.IdCamisetaNavigation.IdUsuarioVendedor == idUsuarioVendedor)
                 .OrderByDescending(s => s.FechaInicio)
                 .AsNoTracking()

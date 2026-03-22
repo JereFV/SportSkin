@@ -40,10 +40,9 @@ namespace SportSkin.Web.ViewModels
         [Range(1, int.MaxValue, ErrorMessage = "El {0} debe ser mayor a 0")]
         public int PrecioCompraInmediata { get; set; }
 
-        [Range(0, 100)]
-        public double PorcentajeComision { get; set; } = 5.0;
-
+      
         // Solo para mostrar en el modal — NO editable
+        [DisplayName("Nombre del vendedor")]
         public string? NombreVendedor { get; set; }
 
         // Opciones del dropdown de camisetas disponibles (sin subasta activa)

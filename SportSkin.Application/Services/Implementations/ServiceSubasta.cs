@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Options;
 using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
 using SportSkin.Infrastructure.Models;
@@ -14,20 +15,22 @@ namespace SportSkin.Application.Services.Implementations
     internal static class EstadoSubastaIds
     {
         public const byte EnProceso = 1;
-        public const byte Cerrada = 2;
-        public const byte Vendida = 3;
-        public const byte Finalizada = 4;
-        public const byte Borrador = 5;
+        public const byte Vendida = 2;
+        public const byte Finalizada = 3;
+        public const byte Borrador = 4;
+        public const byte Cancelada = 5;
+        public const byte Publicada = 6;
     }
     public class ServiceSubasta : IServiceSubasta
     {
         private readonly IRepositorySubasta _repositoryCamiseta;
         private readonly IMapper _mapper;
-
-        public ServiceSubasta(IRepositorySubasta repository, IMapper mapper)
+        private readonly SubastaSettings _settings;
+        public ServiceSubasta(IRepositorySubasta repository, IMapper mapper, IOptions<SubastaSettings> settings)
         {
             _repositoryCamiseta = repository;
             _mapper = mapper;
+            _settings = settings.Value;
         }
 
         public async Task<ICollection<SubastaDTO>> ListAsync()
@@ -58,13 +61,16 @@ namespace SportSkin.Application.Services.Implementations
             if (dto.IncrementoMinimo <= 0)
                 throw new InvalidOperationException("El incremento mínimo debe ser mayor a 0.");
 
-            bool tieneActiva = await _repositoryCamiseta.CamisetaTieneSubastaActivaAsync(dto.IdCamiseta);
-            if (tieneActiva)
+            bool bloqueada = await _repositoryCamiseta.CamisetaTieneSubastaActivaAsync(dto.IdCamiseta);
+            if (bloqueada)
                 throw new InvalidOperationException(
-                    "La camiseta seleccionada ya tiene una subasta activa (En proceso).");
+                    "La camiseta ya tiene una subasta activa, vendida o en borrador. " +
+                    "Resolvé el estado actual antes de crear una nueva.");
 
             // Estado inicial: Borrador
-            dto = dto with { IdEstadoSubasta = EstadoSubastaIds.Borrador };
+            dto = dto with { IdEstadoSubasta = EstadoSubastaIds.Borrador,
+                             PorcentajeComision = _settings.PorcentajeComision
+            };
 
             var entity = _mapper.Map<Subasta>(dto);
             return await _repositoryCamiseta.AddAsync(entity);
@@ -91,6 +97,7 @@ namespace SportSkin.Application.Services.Implementations
                 throw new InvalidOperationException("El incremento mínimo debe ser mayor a 0.");
 
             _mapper.Map(dto, entity);
+            entity.PorcentajeComision = _settings.PorcentajeComision;
             await _repositoryCamiseta.UpdateAsync(entity);
         }
 

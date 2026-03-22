@@ -11,7 +11,7 @@ namespace SportSkin.Web.ViewModels
         public string? SituacionFirma { get; set; }
 
         [DisplayName("Puja Actual")]
-        [DisplayFormat(DataFormatString = "{0:C0}")]
+        [DisplayFormat(DataFormatString = "${0:N0}")]
         public int PujaActual { get; set; }
 
         [DisplayName("Cantidad Total de Pujas")]       

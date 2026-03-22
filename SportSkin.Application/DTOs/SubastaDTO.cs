@@ -25,13 +25,13 @@ namespace SportSkin.Application.DTOs
         public DateTime? FechaCompra { get; set; }
 
         [DisplayName("Precio Base")]
-        [DisplayFormat(DataFormatString = "{0:C0}")]
+        [DisplayFormat(DataFormatString = "${0:N0}")]
         [Required(ErrorMessage = "{0} es un dato requerido")]
         [Range(1, int.MaxValue, ErrorMessage = "El {0} debe ser mayor a 0")]
         public int PrecioBase { get; set; }
 
         [DisplayName("Incremento Mínimo")]
-        [DisplayFormat(DataFormatString = "{0:C0}")]
+        [DisplayFormat(DataFormatString = "${0:N0}")]
         [Required(ErrorMessage = "{0} es un dato requerido")]
         [Range(1, int.MaxValue, ErrorMessage = "El {0} debe ser mayor a 0")]
         public int IncrementoMinimo { get; set; }

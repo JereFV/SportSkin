@@ -583,40 +583,43 @@ else
         }
 
         // Validación cliente del form de editar
-        document.getElementById('formEditarSubasta').addEventListener('submit', function (e) {
+                document.getElementById('formEditarSubasta').addEventListener('submit', function (e) {
             let valido = true;
+            const t = (key) => i18next.t(key.split(':')[1] || key, {
+                ns: key.includes(':') ? key.split(':')[0] : 'common'
+            });
 
             const inicio = document.getElementById('e_FechaInicio').value;
             const cierre = document.getElementById('e_FechaCierre').value;
 
             if (!inicio) {
-                document.getElementById('errEditFechaInicio').textContent = 'La fecha de inicio es requerida.';
+                document.getElementById('errEditFechaInicio').textContent = t('auctions:validation.startDateRequired');
                 valido = false;
             } else { document.getElementById('errEditFechaInicio').textContent = ''; }
 
             if (!cierre) {
-                document.getElementById('errEditFechaCierre').textContent = 'La fecha de cierre es requerida.';
+                document.getElementById('errEditFechaCierre').textContent = t('auctions:validation.closeDateRequired');
                 valido = false;
             } else if (cierre <= inicio) {
-                document.getElementById('errEditFechaCierre').textContent = 'La fecha de cierre debe ser posterior al inicio.';
+                document.getElementById('errEditFechaCierre').textContent = t('auctions:validation.closeDateAfterStart');
                 valido = false;
             } else { document.getElementById('errEditFechaCierre').textContent = ''; }
 
             const precioBase = parseInt(document.getElementById('e_PrecioBase').value);
             if (!precioBase || precioBase < 1) {
-                document.getElementById('errEditPrecioBase').textContent = 'El precio base debe ser mayor a 0.';
+                document.getElementById('errEditPrecioBase').textContent = t('auctions:validation.basePriceRequired');
                 valido = false;
             } else { document.getElementById('errEditPrecioBase').textContent = ''; }
 
             const incremento = parseInt(document.getElementById('e_IncrementoMinimo').value);
             if (!incremento || incremento < 1) {
-                document.getElementById('errEditIncrementoMinimo').textContent = 'El incremento mínimo debe ser mayor a 0.';
+                document.getElementById('errEditIncrementoMinimo').textContent = t('auctions:validation.minIncrementRequired');
                 valido = false;
             } else { document.getElementById('errEditIncrementoMinimo').textContent = ''; }
 
             const compraInmediata = parseInt(document.getElementById('e_PrecioCompraInmediata').value);
             if (!compraInmediata || compraInmediata < 1) {
-                document.getElementById('errEditCompraInmediata').textContent = 'El precio de compra inmediata debe ser mayor a 0.';
+                document.getElementById('errEditCompraInmediata').textContent = t('auctions:validation.buyNowPriceRequired');
                 valido = false;
             } else { document.getElementById('errEditCompraInmediata').textContent = ''; }
 
@@ -640,12 +643,15 @@ else
         }
 
         // ── Helpers de errores para el modal crear ───────────────────────
-        function validarFormCrear() {
+                function validarFormCrear() {
             let valido = true;
+            const t = (key) => i18next.t(key.split(':')[1] || key, {
+                ns: key.includes(':') ? key.split(':')[0] : 'common'
+            });
 
             const camiseta = document.getElementById('c_IdCamiseta').value;
             if (!camiseta) {
-                document.getElementById('errCamiseta').textContent = 'Debe seleccionar una camiseta.';
+                document.getElementById('errCamiseta').textContent = t('auctions:validation.selectShirt');
                 valido = false;
             } else { document.getElementById('errCamiseta').textContent = ''; }
 
@@ -653,36 +659,36 @@ else
             const cierre = document.getElementById('c_FechaCierre').value;
 
             if (!inicio) {
-                document.getElementById('errFechaInicio').textContent = 'La fecha de inicio es requerida.';
+                document.getElementById('errFechaInicio').textContent = t('auctions:validation.startDateRequired');
                 valido = false;
             } else { document.getElementById('errFechaInicio').textContent = ''; }
 
             if (!cierre) {
-                document.getElementById('errFechaCierre').textContent = 'La fecha de cierre es requerida.';
+                document.getElementById('errFechaCierre').textContent = t('auctions:validation.closeDateRequired');
                 valido = false;
             } else if (cierre <= inicio) {
-                document.getElementById('errFechaCierre').textContent = 'La fecha de cierre debe ser posterior al inicio.';
+                document.getElementById('errFechaCierre').textContent = t('auctions:validation.closeDateAfterStart');
                 valido = false;
             } else { document.getElementById('errFechaCierre').textContent = ''; }
 
             const precioBase = parseInt(document.getElementById('c_PrecioBase').value);
             if (!precioBase || precioBase < 1) {
-                document.getElementById('errPrecioBase').textContent = 'El precio base debe ser mayor a 0.';
+                document.getElementById('errPrecioBase').textContent = t('auctions:validation.basePriceRequired');
                 valido = false;
             } else { document.getElementById('errPrecioBase').textContent = ''; }
 
             const incremento = parseInt(document.getElementById('c_IncrementoMinimo').value);
             if (!incremento || incremento < 1) {
-                document.getElementById('errIncrementoMinimo').textContent = 'El incremento mínimo debe ser mayor a 0.';
+                document.getElementById('errIncrementoMinimo').textContent = t('auctions:validation.minIncrementRequired');
                 valido = false;
             } else { document.getElementById('errIncrementoMinimo').textContent = ''; }
 
             const compraInmediata = parseInt(document.getElementById('c_PrecioCompraInmediata').value);
             if (!compraInmediata || compraInmediata < 1) {
-                document.getElementById('errPrecioCompraInmediata').textContent = 'El precio de compra inmediata debe ser mayor a 0.';
+                document.getElementById('errPrecioCompraInmediata').textContent = t('auctions:validation.buyNowPriceRequired');
                 valido = false;
             } else { document.getElementById('errPrecioCompraInmediata').textContent = ''; }
-           
+
             return valido;
         }
 
@@ -705,8 +711,7 @@ else
                 return '<div><i class="bi bi-exclamation-circle me-1"></i>' + e + '</div>';
             }).join('');
         }
-                function confirmarAccion(formId, tipo) {
-            // Usar i18next directamente con ns explícito
+        function confirmarAccion(formId, tipo) {
             const t = (key) => i18next.t(key.split(':')[1] || key, {
                 ns: key.includes(':') ? key.split(':')[0] : 'common'
             });

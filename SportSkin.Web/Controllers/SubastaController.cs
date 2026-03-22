@@ -172,8 +172,7 @@ namespace SportSkin.Web.Controllers
                     FechaCierre = vm.FechaCierre,
                     PrecioBase = vm.PrecioBase,
                     IncrementoMinimo = vm.IncrementoMinimo,
-                    PrecioCompraInmediata = vm.PrecioCompraInmediata,
-                    IdEstadoSubasta = 4  // Borrador
+                    PrecioCompraInmediata = vm.PrecioCompraInmediata
                 };
 
                 await _serviceSubasta.AddAsync(dto);
@@ -268,8 +267,7 @@ namespace SportSkin.Web.Controllers
                     FechaCierre = vm.FechaCierre,
                     PrecioBase = vm.PrecioBase,
                     IncrementoMinimo = vm.IncrementoMinimo,
-                    PrecioCompraInmediata = vm.PrecioCompraInmediata,
-                    IdEstadoSubasta = 5
+                    PrecioCompraInmediata = vm.PrecioCompraInmediata
                 };
 
                 await _serviceSubasta.UpdateAsync(vm.IdSubasta, dto);

@@ -95,5 +95,14 @@
     "basePrice": "Base price",
     "buyNow": "Buy now",
     "noPopular": "No active auctions at this time. Check back soon!"
+  },
+  "validation": {
+    "selectShirt": "You must select a shirt.",
+    "startDateRequired": "Start date is required.",
+    "closeDateRequired": "Close date is required.",
+    "closeDateAfterStart": "Close date must be after start date.",
+    "basePriceRequired": "Base price must be greater than 0.",
+    "minIncrementRequired": "Minimum increment must be greater than 0.",
+    "buyNowPriceRequired": "Buy now price must be greater than 0."
   }
 }

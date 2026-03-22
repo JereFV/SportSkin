@@ -95,5 +95,14 @@
     "basePrice": "Precio base",
     "buyNow": "Compra inmediata",
     "noPopular": "No hay subastas activas en este momento. ¡Vuelve pronto!"
+  },
+  "validation": {
+    "selectShirt": "Debe seleccionar una camiseta.",
+    "startDateRequired": "La fecha de inicio es requerida.",
+    "closeDateRequired": "La fecha de cierre es requerida.",
+    "closeDateAfterStart": "La fecha de cierre debe ser posterior al inicio.",
+    "basePriceRequired": "El precio base debe ser mayor a 0.",
+    "minIncrementRequired": "El incremento mínimo debe ser mayor a 0.",
+    "buyNowPriceRequired": "El precio de compra inmediata debe ser mayor a 0."
   }
 }

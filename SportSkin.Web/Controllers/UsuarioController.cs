@@ -66,7 +66,7 @@ namespace SportSkin.Web.Controllers
             }
             catch (Exception)
             {
-                ViewBag.Exception = SweetAlertHelper.CrearNotificacion("Listado de usuarios", "Ha ocurrido un error al intentar obtener el listado de usuarios.", SweetAlertMessageType.error);
+                ViewBag.Notificacion = SweetAlertHelper.CrearNotificacion("Listado de usuarios", "Ha ocurrido un error al intentar obtener el listado de usuarios.", SweetAlertMessageType.error);
                 throw;
             }        
         }

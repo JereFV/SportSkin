@@ -14,18 +14,18 @@ namespace SportSkin.Application.Services.Implementations
 {
     public class ServiceUsuario : IServiceUsuario
     {
-        private readonly IRepositoryUsuario _repository;
+        private readonly IRepositoryUsuario _repositoryCamiseta;
         private readonly IMapper _mapper;
 
         public ServiceUsuario(IRepositoryUsuario repository, IMapper mapper)
         {
-            _repository = repository;
+            _repositoryCamiseta = repository;
             _mapper = mapper;
         }
 
         public async Task<ICollection<UsuarioDTO>> ListAsync()
         {
-            var usuarios = await _repository.ListAsync();
+            var usuarios = await _repositoryCamiseta.ListAsync();
             var usuariosDTO = _mapper.Map<ICollection<UsuarioDTO>>(usuarios);
 
             return usuariosDTO;
@@ -33,7 +33,7 @@ namespace SportSkin.Application.Services.Implementations
 
         public async Task<UsuarioDTO> FindByIdAsync(int id)
         {
-            var entity = await _repository.FindByIdAsync(id);
+            var entity = await _repositoryCamiseta.FindByIdAsync(id);
             return _mapper.Map<UsuarioDTO>(entity);
         }
 
@@ -47,19 +47,19 @@ namespace SportSkin.Application.Services.Implementations
         public async Task<int> AddAsync(UsuarioDTO dto)
         {
             //  Regla: correo único 
-            bool correoUsado = await _repository.ExisteCorreoAsync(dto.Correo);
+            bool correoUsado = await _repositoryCamiseta.ExisteCorreoAsync(dto.Correo);
             if (correoUsado)
                 throw new InvalidOperationException(
                     $"El correo '{dto.Correo}' ya está registrado en el sistema.");
 
             //  Regla: nombre de usuario único 
-            bool usuarioUsado = await _repository.ExisteUsuarioAsync(dto.Usuario1);
+            bool usuarioUsado = await _repositoryCamiseta.ExisteUsuarioAsync(dto.Usuario1);
             if (usuarioUsado)
                 throw new InvalidOperationException(
                     $"El nombre de usuario '{dto.Usuario1}' ya está en uso.");
 
             var entity = _mapper.Map<Usuario>(dto);
-            return await _repository.AddAsync(entity);
+            return await _repositoryCamiseta.AddAsync(entity);
         }
 
 
@@ -69,9 +69,9 @@ namespace SportSkin.Application.Services.Implementations
         */
         public async Task UpdateAsync(int id, UsuarioDTO dto)
         {
-            var existing = await _repository.FindByIdAsync(id)
+            var existing = await _repositoryCamiseta.FindByIdAsync(id)
                 ?? throw new KeyNotFoundException($"No existe el usuario con id={id}");
-            bool correEnUso = await _repository.ExisteCorreoAsync(dto.Correo, id);
+            bool correEnUso = await _repositoryCamiseta.ExisteCorreoAsync(dto.Correo, id);
             if (correEnUso) throw new InvalidOperationException("Correo ya registrado");
             /* Se mapea manualmente solo los campos editables para evitar
             que AutoMapper sobreescriba datos sensibles (rol, contraseña, fecha)*/
@@ -81,36 +81,36 @@ namespace SportSkin.Application.Services.Implementations
             existing.Correo = dto.Correo;
             existing.Telefono = dto.Telefono;
 
-            await _repository.UpdateAsync(existing);
+            await _repositoryCamiseta.UpdateAsync(existing);
         }
 
         
         // Cambia el estado lógico del usuario (activo o inactivo).
         public async Task ChangeStateAsync(int id)
         {
-            await _repository.ChangeStateAsync(id);
+            await _repositoryCamiseta.ChangeStateAsync(id);
         }
 
         public async Task ChangePasswordAsync(int id, string nuevaContrasenna)
         {
-            _ = await _repository.FindByIdAsync(id)
+            _ = await _repositoryCamiseta.FindByIdAsync(id)
                 ?? throw new KeyNotFoundException($"No existe el usuario con id={id}");
 
-            await _repository.ChangePasswordAsync(id, nuevaContrasenna);
+            await _repositoryCamiseta.ChangePasswordAsync(id, nuevaContrasenna);
         }
 
         //Se obtiene el catálogo de roles
         public async Task<ICollection<RolUsuarioDTO>> GetRolesAsync()
         {
-            var roles = await _repository.GetRolesAsync();
+            var roles = await _repositoryCamiseta.GetRolesAsync();
             return _mapper.Map<ICollection<RolUsuarioDTO>>(roles);
         }
 
         public async Task<(int total, int activas, int vendidas, int finalizadas)> GetEstadisticasVendedorAsync(int idUsuario)
         {
-            var total = await _repository.CountSubastasByVendedorAsync(idUsuario);
-            var activas = await _repository.CountSubastasActivasByVendedorAsync(idUsuario);
-            var vendidas = await _repository.CountSubastasVendidasByVendedorAsync(idUsuario);
+            var total = await _repositoryCamiseta.CountSubastasByVendedorAsync(idUsuario);
+            var activas = await _repositoryCamiseta.CountSubastasActivasByVendedorAsync(idUsuario);
+            var vendidas = await _repositoryCamiseta.CountSubastasVendidasByVendedorAsync(idUsuario);
             var finalizadas = total - activas - vendidas;
             return (total, activas, vendidas, finalizadas);
         }

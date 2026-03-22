@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SportSkin.Application.DTOs
@@ -16,18 +17,22 @@ namespace SportSkin.Application.DTOs
         [DisplayName("Nombre")]
         [Required(ErrorMessage = "{0} es un dato requerido")]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "{0} debe tener entre {2} y {1} caracteres")]
+        [JsonPropertyName("firstname")]
         public string Nombre { get; set; } = string.Empty;
 
         [DisplayName("Apellido")]
         [Required(ErrorMessage = "{0} es un dato requerido")]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "{0} debe tener entre {2} y {1} caracteres")]
+        [JsonPropertyName("lastname")]
         public string Apellido { get; set; } = string.Empty;
 
         [DisplayName("ID Externo Jugador")]
+        [JsonPropertyName("id")]
         public int IdExternoJugador { get; set; }
 
         [DisplayName("Nacionalidad")]
         [Required(ErrorMessage = "{0} es un dato requerido")]
+        [JsonPropertyName("nationality")]
         public string Nacionalidad { get; set; } = string.Empty;
 
         [DisplayName("Fecha de Nacimiento")]

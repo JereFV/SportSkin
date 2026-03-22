@@ -12,18 +12,18 @@ namespace SportSkin.Application.Services.Implementations
 {
     public class ServiceCondicionCamiseta : IServiceCondicionCamiseta
     {
-        private readonly IRepositoryCondicionCamiseta _repository;
+        private readonly IRepositoryCondicionCamiseta _repositoryCamiseta;
         private readonly IMapper _mapper;
 
         public ServiceCondicionCamiseta(IRepositoryCondicionCamiseta repository, IMapper mapper)
         {
-            _repository = repository;
+            _repositoryCamiseta = repository;
             _mapper = mapper;
         }
 
         public async Task<ICollection<CondicionCamisetaDTO>> ListAsync()
         {
-            var condicionesCamiseta = await _repository.ListAsync();
+            var condicionesCamiseta = await _repositoryCamiseta.ListAsync();
             var condicionesCamisetDTO = _mapper.Map<ICollection<CondicionCamisetaDTO>>(condicionesCamiseta);
 
             return condicionesCamisetDTO;

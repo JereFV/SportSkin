@@ -6,6 +6,7 @@ using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
 using SportSkin.Web.ViewModels;
 using System.Globalization;
+using System.Text.Json;
 
 namespace SportSkin.Web.Controllers
 {
@@ -83,30 +84,58 @@ namespace SportSkin.Web.Controllers
             return View(detalleCamisetaViewModel);
         }
 
-        // GET: Camiseta/Create
-        public IActionResult CamisetaCreate()
-        {
-            return View();
-        }
-
         // POST: Camiseta/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CamisetaDTO dto)
-        {
-            if (!ModelState.IsValid)
-                return View(dto);
-
+        public async Task<IActionResult> CamisetaCreate(CreacionCamisetaViewModel model)
+        {          
             try
             {
-                await _serviceCamiseta.AddAsync(dto);
-                TempData["success"] = "Camiseta creada correctamente.";
-                return RedirectToAction(nameof(Index));
+                //if (!ModelState.IsValid)
+                //{
+                //    ViewBag.Notificacion = SweetAlertHelper.CrearNotificacion(
+                //        "Advertencia de validación", 
+                //        "El formulario contiene errores en los valores de los campos, por favor realizar las correciones e intentar nuevamente.", 
+                //        SweetAlertMessageType.warning);
+
+                //    return View("_CamisetaCreate", model);
+                //}
+
+                //Asignación del id del usuario en sesión como vendedor.
+                var usuarioSesion = JObject.Parse(HttpContext.Session.GetString("UsuarioSesion") ?? "");
+
+                if (int.TryParse(usuarioSesion["IdUsuario"]?.ToString(), out int idUsuario))
+                    model.CamisetaDTO.IdUsuarioVendedor = idUsuario;
+                else
+                    throw new Exception("Ha ocurrido al intentar el Id del usuario en sesión.");
+
+                //Asigna las categorias seleccionadas a partir del catálogo, aplicando un filtro.
+                model.CamisetaDTO.CategoriasCamiseta = model.CategoriasCamiseta?.Where(x => model.CategoriasSeleccionadas.Contains(x.IdCategoriaCamiseta)).ToList() ?? [];
+
+                //Deserealiza las estructuras JSON de Equipo y Jugador en DTOS.
+                model.CamisetaDTO.EquipoNavigation = JsonSerializer.Deserialize<EquipoDTO>(model.EquipoAPIFootballJSON) ?? model.CamisetaDTO.EquipoNavigation;
+                model.CamisetaDTO.JugadorNavigation = JsonSerializer.Deserialize<JugadorDTO>(model.JugadorAPIFootballJSON) ?? model.CamisetaDTO.JugadorNavigation;
+
+                //Valores por defecto al crear una nueva camiseta.
+                model.CamisetaDTO.IdEstadoCamiseta = 1; //Disponible, estado inicial por defecto.
+                model.CamisetaDTO.EstadoRegistro = true;
+                model.CamisetaDTO.FechaRegistro = DateTime.Now;
+
+                await _serviceCamiseta.AddAsync(model.CamisetaDTO, model.ImagenesCamiseta);
+
+                return Json(new
+                {
+                    sucess = true,
+                    message = $"La camiseta {model.CamisetaDTO.Nombre} ha sido creada satsifactoriamente."
+                });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return View(dto);
+                return Json(new
+                {
+                    sucess = false,
+                    message = $"Ha ocurrido un error al intentar crear la camiseta. Por favor intente nuevamente o contacte a soporte del sistema."
+                });
             }
         }
 

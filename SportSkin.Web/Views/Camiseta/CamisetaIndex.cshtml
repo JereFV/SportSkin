@@ -148,6 +148,9 @@ else
 
     <script>
         $(document).ready(function() {
+            //Configuración del jquery validate para no ignorar ningún tipo de campo.
+            $.validator.setDefaults({ ignore: [] });
+
             $('#categorias').multiselect({
                 nonSelectedText: 'Seleccione una o más categorías',
                 buttonWidth: '100%',
@@ -182,11 +185,17 @@ else
                         //Habilita el campo de jugador y limpia las opciones al cambiar el equipo seleccionado.
                         selectJugador.enable();
                         selectJugador.clear();
-                        selectJugador.clearOptions();                      
+                        selectJugador.clearOptions();
+
+                        //Almacena la información del equipo seleccionado en un campo hidden.
+                        document.getElementById('equipoJSON').value = JSON.stringify(this.options[value]);
                     } else {
                         //Al borrar el equipo se deshabilita el campo de jugador.
                         selectJugador.disable();
                         selectJugador.clear();
+
+                        //Limpieza del contenedor de la información del equipo.
+                        document.getElementById('equipoJSON').value = "";
                     }
                 },
                 render: {
@@ -243,10 +252,16 @@ else
                             }).catch((error)=>{
                                 console.error(error)
                             });
+
+                        //Almacena la información del jugador seleccionado en un campo hidden.
+                        document.getElementById('jugadorJSON').value = JSON.stringify(this.options[value]);
                     } else {
                         //Al borrar el jugador se borra y deshabilita el campo de temporada.
                         selectTemporada.disable();
                         selectTemporada.clear();
+
+                        //Limpieza del contenedor de la información del jugador.
+                        document.getElementById('jugadorJSON').value = '';
                     }
                 },
             });
@@ -282,6 +297,56 @@ else
                 itemInsertLocation: 'after',              
                 imagePreviewHeight: 245, // Altura fija para que todas las miniaturas midan lo mismo               
             });
+        });
+
+        //Evento submit del formulario de creación de camisetas.
+        document.getElementById("nuevaCamisetaForm").addEventListener("submit", async function (e) {                       
+            try {
+                e.preventDefault();
+
+                //Valida que todos los campos cumplan con las especificaciones necesarias.
+                if (!$("#nuevaCamisetaForm").valid())
+                    return;
+
+                const form = this;
+                const formData = new FormData(form);
+
+                const response = await fetch(form.action, {
+                    method: "POST",                   
+                    body: formData
+                });
+
+                const responseJson = await response.json();
+
+                if (responseJson.sucess) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Camiseta creada',
+                        text: responseJson.message,
+                        //timer: 1200,                      
+                    }).then(() => {
+                        //Recarga el listado al finalizar la ejecucción.
+                        location.reload();
+                    });
+                } 
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error en creación de camiseta',
+                        text: responseJson.message,
+                        //timer: 1200,
+                    });
+                }            
+            } 
+            catch (error) {               
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error en creación de camisetao',
+                    text: 'Ha ocurrido un error al intentar crear la camiseta. Por favor intente nuevamente o contacte a soporte del sistema.'
+                });
+
+                console.log(error.message);
+            }
         });
     </script>
 

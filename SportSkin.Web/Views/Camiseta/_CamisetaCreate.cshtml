@@ -28,155 +28,124 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <div class="modal-body">
-                <div class="row">                   
-                    <div class="col-md-6 border-end">
-                        <h6 class="text-uppercase text-muted fw-bold small mb-3">
-                            <i class="fa-regular fa-file text-primary"></i>
-                            &nbsp;<span>Datos Generales</span>
-                        </h6>                                                                                               
+            <form id="nuevaCamisetaForm" asp-action="CamisetaCreate" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                        <div class="mb-3">
-                            <label for="nombre" class="form-label fw-semibold">Nombre</label>
-                            <input type="text" class="form-control" id="nombre">
-                        </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 border-end">
+                            <h6 class="text-uppercase text-muted fw-bold small mb-3">
+                                <i class="fa-regular fa-file text-primary"></i>
+                                &nbsp;<span>Datos Generales</span>
+                            </h6>
 
-                        <div class="mb-3">
-                            <label for="descripcion" class="form-label fw-semibold">Descripción</label>
-                            <textarea class="form-control no-resize" id="descripcion" rows="3"></textarea>
-                        </div>                     
-
-                        <div class="mb-3" style="display: flex; flex-direction: column">
-                            <label for="categorias" class="form-label fw-semibold">Categorias</label>
-                            <select class="form-select" multiple id="categorias">
-                                @if (Model.CategoriasCamiseta != null)
-                                {
-                                    @foreach (SportSkin.Application.DTOs.CategoriaCamisetaDTO categoria in Model.CategoriasCamiseta)
-                                    {
-                                        <option value="@categoria.IdCategoriaCamiseta">@categoria.Nombre</option>
-                                    }
-                                }                                                       
-                            </select>
-                        </div>
-
-                        <div class="mb-3" style="display: flex; flex-direction: column">
-                            <label for="condicion" class="form-label fw-semibold">Condición</label>
-                            <select class="form-select" id="condicion">
-                                <option hidden>Seleccione la condición</option>
-                                @if (Model.CondicionesCamiseta != null)
-                                {
-                                    @foreach (SportSkin.Application.DTOs.CondicionCamisetaDTO condicion in Model.CondicionesCamiseta)
-                                    {
-                                        <option value="@condicion.IdCondicionCamiseta">@condicion.Nombre</option>
-                                    }
-                                }
-                            </select>
-                        </div>                        
-                    </div>                  
-
-                    <div class="col-md-6">
-                        <h6 class="text-uppercase text-muted fw-bold small mb-3">
-                            <i class="fa-regular fa-image text-primary"></i>
-                            &nbsp;<span>Datos Específicos y Galería</span>
-                        </h6>
-
-                        <div class="row">
-                            <div class="mb-3 col-md-6" style="display: flex; flex-direction: column">
-                                <label for="equipo" class="form-label fw-semibold">Equipo</label>
-                                <select class="form-select" id="equipo" placeholder="Digite el nombre del equipo"></select>
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label fw-semibold">Nombre</label>
+                                <input asp-for="CamisetaDTO.Nombre" type="text" class="form-control" id="nombre">
+                                <span asp-validation-for="CamisetaDTO.Nombre" class="text-danger"></span>
                             </div>
 
-                            <div class="mb-3 col-md-6" style="display: flex; flex-direction: column">
-                                <label for="jugador" class="form-label fw-semibold">Jugador</label>
-                                <select class="form-select" id="jugador" placeholder="Digite el nombre del jugador"></select>
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label fw-semibold">Descripción</label>
+                                <textarea asp-for="CamisetaDTO.Descripcion" class="form-control no-resize" id="descripcion" rows="3"></textarea>
+                                <span asp-validation-for="CamisetaDTO.Descripcion" class="text-danger"></span>
                             </div>
-                        </div>               
-                                            
-                        <div class="mb-3" style="display: flex; flex-direction: column">
-                            <label for="temporada" class="form-label fw-semibold">Temporada</label>
-                            <select class="form-select" id="temporada" placeholder="Seleccione la temporada"></select>
+
+                            <div class="mb-3" style="display: flex; flex-direction: column">
+                                <label for="categorias" class="form-label fw-semibold">Categorias</label>
+                                <select asp-for="CategoriasSeleccionadas" class="form-select" multiple id="categorias">
+                                    @if (Model.CategoriasCamiseta != null)
+                                    {
+                                        @foreach (SportSkin.Application.DTOs.CategoriaCamisetaDTO categoria in Model.CategoriasCamiseta)
+                                        {
+                                            <option value="@categoria.IdCategoriaCamiseta">@categoria.Nombre</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="CategoriasSeleccionadas" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3" style="display: flex; flex-direction: column">
+                                <label for="condicion" class="form-label fw-semibold">Condición</label>
+                                <select asp-for="CamisetaDTO.IdCondicionCamiseta" class="form-select" id="condicion">
+                                    <option hidden value="">Seleccione la condición</option>
+                                    @if (Model.CondicionesCamiseta != null)
+                                    {
+                                        @foreach (SportSkin.Application.DTOs.CondicionCamisetaDTO condicion in Model.CondicionesCamiseta)
+                                        {
+                                            <option value="@condicion.IdCondicionCamiseta">@condicion.Nombre</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="CamisetaDTO.IdCondicionCamiseta" class="text-danger"></span>
+                            </div>
                         </div>
 
-                        <label for="temporada" class="form-label fw-semibold">Imágenes Adjuntas</label>
+                        <div class="col-md-6">
+                            <h6 class="text-uppercase text-muted fw-bold small mb-3">
+                                <i class="fa-regular fa-image text-primary"></i>
+                                &nbsp;<span>Datos Específicos y Galería</span>
+                            </h6>
 
-                        <input type="file"
-                               class="filepond"
-                               name="filepond"
-                               multiple
-                               data-allow-reorder="true"
-                               data-max-file-size="3MB"
-                               data-max-files="5">
+                            <div class="row">
+                                <!--Hidden auxiliar para almacenar el JSON con los datos del equipo seleccionado.-->
+                                <input asp-for="EquipoAPIFootballJSON" type="hidden" id="equipoJSON"/>
+
+                                <div class="mb-3 col-md-6" style="display: flex; flex-direction: column">                                   
+                                    <label for="equipo" class="form-label fw-semibold">Equipo</label>
+                                    <select class="form-select" id="equipo" placeholder="Digite el nombre del equipo"></select>
+                                    <span asp-validation-for="EquipoAPIFootballJSON" class="text-danger"></span>
+                                </div>
+
+                                <!--Hidden auxiliar para almacenar el JSON con los datos del jugador seleccionado.-->
+                                <input asp-for="JugadorAPIFootballJSON" type="hidden" id="jugadorJSON" />
+
+                                <div class="mb-3 col-md-6" style="display: flex; flex-direction: column">
+                                    <label for="jugador" class="form-label fw-semibold">Jugador</label>
+                                    <select class="form-select" id="jugador" placeholder="Digite el nombre del jugador"></select>
+                                    <span asp-validation-for="JugadorAPIFootballJSON" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="row d-flex">
+                                <div class="mb-3 col-md-6" style="display: flex; flex-direction: column">
+                                    <label for="temporada" class="form-label fw-semibold">Temporada</label>
+                                    <select asp-for="CamisetaDTO.Temporada" class="form-select" id="temporada" placeholder="Seleccione la temporada">
+                                        <option hidden value=""></option>
+                                    </select>
+                                    <span asp-validation-for="CamisetaDTO.Temporada" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-check col-md-6" style="padding-left: 2.5rem">
+                                    <input asp-for="CamisetaDTO.Autografiada" class="form-check-input" type="checkbox" id="autografiada">
+                                    <label class="form-check-label fw-semibold" for="autografiada">
+                                        ¿Está Autografiada?
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <label for="imagenes" class="form-label fw-semibold">Imágenes Adjuntas</label>
+
+                            <input type="file"
+                                   asp-for="ImagenesCamiseta"
+                                   class="filepond"
+                                   name="imagenes"
+                                   multiple
+                                   data-allow-reorder="true"
+                                   data-max-file-size="3MB"
+                                   data-max-files="5">
+                            <span asp-validation-for="ImagenesCamiseta" class="text-danger"></span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success">Guardar</button>
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
-            </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </form>     
         </div>
     </div>
 </div>
-
-@* <div class="row">
-    <div class="col-md-4">
-        <form asp-action="CamisetaCreate">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Nombre" class="control-label"></label>
-                <input asp-for="Nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <input asp-for="Descripcion" class="form-control" />
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdCondicionCamiseta" class="control-label"></label>
-                <select asp-for="IdCondicionCamiseta" class ="form-control" asp-items="ViewBag.IdCondicionCamiseta"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdEquipo" class="control-label"></label>
-                <select asp-for="IdEquipo" class ="form-control" asp-items="ViewBag.IdEquipo"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdJugador" class="control-label"></label>
-                <select asp-for="IdJugador" class ="form-control" asp-items="ViewBag.IdJugador"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Temporada" class="control-label"></label>
-                <input asp-for="Temporada" class="form-control" />
-                <span asp-validation-for="Temporada" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Autografiada" /> @Html.DisplayNameFor(model => model.Autografiada)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdUsuarioVendedor" class="control-label"></label>
-                <select asp-for="IdUsuarioVendedor" class ="form-control" asp-items="ViewBag.IdUsuarioVendedor"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdEstadoCamiseta" class="control-label"></label>
-                <select asp-for="IdEstadoCamiseta" class ="form-control" asp-items="ViewBag.IdEstadoCamiseta"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="FechaRegistro" class="control-label"></label>
-                <input asp-for="FechaRegistro" class="form-control" />
-                <span asp-validation-for="FechaRegistro" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FechaModificacion" class="control-label"></label>
-                <input asp-for="FechaModificacion" class="form-control" />
-                <span asp-validation-for="FechaModificacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div> *@
 
 

@@ -11,6 +11,10 @@ using System.Text;
 using SportSkin.Application.Profiles;
 using SportSkin.Web.Models;
 using SportSkin.Application.DTOs;
+using SportSkin.Infrastructure.Transactions.Interfaces;
+using SportSkin.Infrastructure.Transactions.Implementations;
+using SportSkin.Infrastructure.FilesStorage.Interfaces;
+using SportSkin.Infrastructure.FilesStorage.Implementations;
 
 //***********
 // =======================
@@ -82,14 +86,19 @@ builder.Services.AddControllersWithViews();
 // Configurar Dependency Injection
 // =======================
 //*** Repositories
-builder.Services.AddTransient<IRepositoryCamiseta, RepositoryCamiseta>();
+builder.Services.AddScoped<IRepositoryCamiseta, RepositoryCamiseta>();
 builder.Services.AddTransient<IRepositoryUsuario, RepositoryUsuario>();
 builder.Services.AddTransient<IRepositorySubasta, RepositorySubasta>();
 builder.Services.AddTransient<IRepositoryCategoriaCamiseta, RepositoryCategoriaCamiseta>();
 builder.Services.AddTransient<IRepositoryCondicionCamiseta, RepositoryCondicionCamiseta>();
+builder.Services.AddScoped<IRepositoryEquipo, RepositoryEquipo>();
+builder.Services.AddScoped<IRepositoryJugador, RepositoryJugador>();
+
+//Controlador de transacciones en una unidad de trabajo.
+builder.Services.AddScoped<IUnitOfWork, UnitofWork>();
 
 //*** Services
-builder.Services.AddTransient<IServiceCamiseta, ServiceCamiseta>();
+builder.Services.AddScoped<IServiceCamiseta, ServiceCamiseta>();
 builder.Services.AddTransient<IServiceUsuario, ServiceUsuario>();
 builder.Services.AddTransient<IServiceSubasta, ServiceSubasta>();
 builder.Services.AddTransient<IServiceCategoriaCamiseta, ServiceCategoriaCamiseta>();
@@ -97,6 +106,7 @@ builder.Services.AddTransient<IServiceCondicionCamiseta, ServiceCondicionCamiset
 builder.Services.AddTransient<IServiceEquipo, ServiceEquipo>();
 builder.Services.AddTransient<IServiceJugador, ServiceJugador>();
 builder.Services.AddTransient<IServiceTrayectoriaJugador, ServiceTrayectoriaJugador>();
+builder.Services.AddTransient<IImageStorage, ImageStorage>();
 
 //Conf images route
 builder.Services.Configure<ImageSettings>(

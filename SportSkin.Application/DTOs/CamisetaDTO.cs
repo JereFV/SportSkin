@@ -15,24 +15,24 @@ namespace SportSkin.Application.DTOs
         public int IdCamiseta { get; set; }
 
         [DisplayName("Nombre Camisa")]
-        [Required(ErrorMessage ="{0} es un dato requerido")]
+        [Required(ErrorMessage ="El nombre de la camiseta es un dato requerido.")]
+        [StringLength(50, MinimumLength = 5, ErrorMessage = "El nombre de la camiseta debe tener entre {2} y {1} caracteres.")]
         public string Nombre {  get; set; } = string.Empty;
 
         [DisplayName("Descripción")]
-        [Required(ErrorMessage ="{0} es un dato requerido")]
+        [Required(ErrorMessage ="La descripción es un dato requerido")]
+        [StringLength(200, MinimumLength = 20, ErrorMessage = "La descripción debe tener entre {2} y {1} caracteres.")]
         public string Descripcion {  get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "{0} es un dato requerido")]
+        [Required(ErrorMessage = "La condición de la camiseta es un dato requerido.")]
         public byte IdCondicionCamiseta { get; set; }
 
-        [Required(ErrorMessage = "{0} es un dato requerido")]
         public short IdEquipo {  get; set; }
 
-        [Required(ErrorMessage ="{0} es un dato requerido")]
         public int IdJugador {  get; set; }
 
         [DisplayName("Temporada")]
-        [Required(ErrorMessage = "{0} es un dato requerido")]
+        [Required(ErrorMessage = "La temporada es un dato requerido.")]
         public short Temporada { get; set; }
 
         [DisplayName("¿Autografiada?")]
@@ -64,7 +64,7 @@ namespace SportSkin.Application.DTOs
         [DisplayName("Estado Actual")]
         public EstadoCamisetaDTO EstadoCamisetaNavigation { get; set; } = new();
 
-        public List<IFormFile> ImagenesCamiseta { get; set; } = new();
+        public List<ImagenCamisetaDTO> ImagenesCamiseta { get; set; } = new();
 
         public List<SubastaDTO> Subastas { get; set; } = new();
 

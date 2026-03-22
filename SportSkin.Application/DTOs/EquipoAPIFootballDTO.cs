@@ -14,6 +14,12 @@ namespace SportSkin.Application.DTOs
 
         [JsonPropertyName("name")]
         public string? Nombre { get; set; }
+
+        [JsonPropertyName("country")]
+        public string? Pais { get; set; }
+
+        [JsonPropertyName("national")]
+        public bool EsNacional { get; set; }
     }
 
     public class ResponseEquiposAPIFootball

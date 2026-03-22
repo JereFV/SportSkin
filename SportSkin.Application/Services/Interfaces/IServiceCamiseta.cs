@@ -1,4 +1,5 @@
-﻿using SportSkin.Application.DTOs;
+﻿using Microsoft.AspNetCore.Http;
+using SportSkin.Application.DTOs;
 using SportSkin.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace SportSkin.Application.Services.Interfaces
     {
         Task<ICollection<CamisetaDTO>> ListAsync();
         Task<CamisetaDTO> FindByIdAsync(int id);
-        Task AddAsync(CamisetaDTO dto);
+        Task AddAsync(CamisetaDTO dto, ICollection<IFormFile> imagenes);
         Task UpdateAsync(int id, CamisetaDTO dto);
         Task DeleteAsync(int id);
         Task<ICollection<CamisetaDTO>> GetCamisetaByCategoria(int idCategoria);

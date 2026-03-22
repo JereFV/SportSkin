@@ -21,24 +21,24 @@ namespace SportSkin.Application.Services.Implementations
     }
     public class ServiceSubasta : IServiceSubasta
     {
-        private readonly IRepositorySubasta _repository;
+        private readonly IRepositorySubasta _repositoryCamiseta;
         private readonly IMapper _mapper;
 
         public ServiceSubasta(IRepositorySubasta repository, IMapper mapper)
         {
-            _repository = repository;
+            _repositoryCamiseta = repository;
             _mapper = mapper;
         }
 
         public async Task<ICollection<SubastaDTO>> ListAsync()
         {
-            var list = await _repository.ListAsync();
+            var list = await _repositoryCamiseta.ListAsync();
             return _mapper.Map<ICollection<SubastaDTO>>(list);
         }
 
         public async Task<SubastaDTO> FindByIdAsync(int id)
         {
-            var entity = await _repository.FindByIdAsync(id);
+            var entity = await _repositoryCamiseta.FindByIdAsync(id);
             return _mapper.Map<SubastaDTO>(entity);
         }
 
@@ -58,7 +58,7 @@ namespace SportSkin.Application.Services.Implementations
             if (dto.IncrementoMinimo <= 0)
                 throw new InvalidOperationException("El incremento mínimo debe ser mayor a 0.");
 
-            bool tieneActiva = await _repository.CamisetaTieneSubastaActivaAsync(dto.IdCamiseta);
+            bool tieneActiva = await _repositoryCamiseta.CamisetaTieneSubastaActivaAsync(dto.IdCamiseta);
             if (tieneActiva)
                 throw new InvalidOperationException(
                     "La camiseta seleccionada ya tiene una subasta activa (En proceso).");
@@ -67,7 +67,7 @@ namespace SportSkin.Application.Services.Implementations
             dto = dto with { IdEstadoSubasta = EstadoSubastaIds.Borrador };
 
             var entity = _mapper.Map<Subasta>(dto);
-            return await _repository.AddAsync(entity);
+            return await _repositoryCamiseta.AddAsync(entity);
         }
 
         /*
@@ -75,7 +75,7 @@ namespace SportSkin.Application.Services.Implementations
         */
         public async Task UpdateAsync(int id, SubastaDTO dto)
         {
-            var entity = await _repository.FindByIdAsync(id)
+            var entity = await _repositoryCamiseta.FindByIdAsync(id)
                 ?? throw new KeyNotFoundException($"No existe la subasta con id={id}");
 
             if (!await PuedeEditarAsync(id))
@@ -91,25 +91,25 @@ namespace SportSkin.Application.Services.Implementations
                 throw new InvalidOperationException("El incremento mínimo debe ser mayor a 0.");
 
             _mapper.Map(dto, entity);
-            await _repository.UpdateAsync(entity);
+            await _repositoryCamiseta.UpdateAsync(entity);
         }
 
         public async Task DeleteAsync(int id)
         {
-            await _repository.DeleteAsync(id);
+            await _repositoryCamiseta.DeleteAsync(id);
         }
 
 
         // Publica manualmente: Borrador(5) → En proceso(1)
         public async Task PublicarAsync(int id)
         {
-            await _repository.PublicarAsync(id);
+            await _repositoryCamiseta.PublicarAsync(id);
         }
 
         //Cancela manualmente → Cerrada(2)
         public async Task CancelarAsync(int id)
         {
-            await _repository.CancelarAsync(id);
+            await _repositoryCamiseta.CancelarAsync(id);
         }
 
        
@@ -117,7 +117,7 @@ namespace SportSkin.Application.Services.Implementations
        
         public async Task<bool> PuedeEditarAsync(int id)
         {
-            var subasta = await _repository.FindByIdAsync(id);
+            var subasta = await _repositoryCamiseta.FindByIdAsync(id);
             if (subasta is null) return false;
 
             bool noHaIniciado = subasta.FechaInicio > DateTime.Now;
@@ -129,7 +129,7 @@ namespace SportSkin.Application.Services.Implementations
         // Puede cancelarse si NO ha iniciado O no tiene pujas.
         public async Task<bool> PuedeCancelarAsync(int id)
         {
-            var subasta = await _repository.FindByIdAsync(id);
+            var subasta = await _repositoryCamiseta.FindByIdAsync(id);
             if (subasta is null) return false;
 
             bool noHaIniciado = subasta.FechaInicio > DateTime.Now;
@@ -139,7 +139,7 @@ namespace SportSkin.Application.Services.Implementations
         }
 
         public Task<bool> CamisetaTieneSubastaActivaAsync(int idCamiseta, int? excludeIdSubasta = null)
-        => _repository.CamisetaTieneSubastaActivaAsync(idCamiseta, excludeIdSubasta);
+        => _repositoryCamiseta.CamisetaTieneSubastaActivaAsync(idCamiseta, excludeIdSubasta);
 
         /*
             Llamado por el Background Service.
@@ -148,7 +148,7 @@ namespace SportSkin.Application.Services.Implementations
         /*
         public async Task<int> ActivarSubastasPendientesAsync()
         {
-            return await _repository.ActivarSubastasPendientesAsync();
+            return await _repositoryCamiseta.ActivarSubastasPendientesAsync();
         }
         */
 
@@ -159,38 +159,38 @@ namespace SportSkin.Application.Services.Implementations
         /*
         public async Task<int> CerrarSubastasVencidasAsync()
         {
-            return await _repository.CerrarSubastasVencidasAsync();
+            return await _repositoryCamiseta.CerrarSubastasVencidasAsync();
         }
         */
 
         public async Task<ICollection<SubastaDTO>> GetSubastasActivasAsync(
         DateTime? desde, DateTime? hasta)
         {
-            var list = await _repository.GetSubastasActivasAsync(desde, hasta);
+            var list = await _repositoryCamiseta.GetSubastasActivasAsync(desde, hasta);
             return _mapper.Map<ICollection<SubastaDTO>>(list);
         }
 
         public async Task<ICollection<SubastaDTO>> GetSubastasFinalizadasAsync(
         DateTime? desde, DateTime? hasta)
         {
-            var list = await _repository.GetSubastasFinalizadasAsync(desde, hasta);
+            var list = await _repositoryCamiseta.GetSubastasFinalizadasAsync(desde, hasta);
             return _mapper.Map<ICollection<SubastaDTO>>(list);
         }
 
         public async Task<ICollection<SubastaDTO>> GetSubastasVendidasAsync()
         {
-            var list = await _repository.GetSubastasVendidasAsync();
+            var list = await _repositoryCamiseta.GetSubastasVendidasAsync();
             return _mapper.Map<ICollection<SubastaDTO>>(list);
         }
         public async Task<ICollection<SubastaDTO>> GetSubastasByVendedorAsync(int idUsuarioVendedor)
         {
-            var list = await _repository.GetSubastasByVendedorAsync(idUsuarioVendedor);
+            var list = await _repositoryCamiseta.GetSubastasByVendedorAsync(idUsuarioVendedor);
             return _mapper.Map<ICollection<SubastaDTO>>(list);
         }
 
         public async Task<ICollection<SubastaDTO>> GetSubastasMasPopularesAsync(int top)
         {
-            var list = await _repository.GetSubastasMasPopularesAsync(top);
+            var list = await _repositoryCamiseta.GetSubastasMasPopularesAsync(top);
             return _mapper.Map<ICollection<SubastaDTO>>(list);
         }
     }

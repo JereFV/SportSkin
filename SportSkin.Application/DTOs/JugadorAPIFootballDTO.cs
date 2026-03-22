@@ -13,7 +13,16 @@ namespace SportSkin.Application.DTOs
         public int IdJugador { get; set; }
 
         [JsonPropertyName("name")]
-        public string? Nombre { get; set; }
+        public string? NombreResumido { get; set; }
+
+        [JsonPropertyName("firstname")]
+        public string? PrimerNombre { get; set; }
+
+        [JsonPropertyName("lastname")]
+        public string? Apellidos { get; set; }
+
+        [JsonPropertyName("nationality")]
+        public string? Nacionalidad { get; set; }
     }
 
     public class ResponseJugadoresAPIFootball

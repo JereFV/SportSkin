@@ -91,15 +91,40 @@ namespace SportSkin.Web.Controllers
         {          
             try
             {
-                //if (!ModelState.IsValid)
-                //{
-                //    ViewBag.Notificacion = SweetAlertHelper.CrearNotificacion(
-                //        "Advertencia de validación", 
-                //        "El formulario contiene errores en los valores de los campos, por favor realizar las correciones e intentar nuevamente.", 
-                //        SweetAlertMessageType.warning);
+                if (string.IsNullOrEmpty(model.EquipoAPIFootballJSON))
+                    ModelState.AddModelError("Equipo", "-Debe seleccionar el equipo de la camiseta.");
 
-                //    return View("_CamisetaCreate", model);
-                //}
+                if (string.IsNullOrEmpty(model.JugadorAPIFootballJSON))
+                    ModelState.AddModelError("Jugador", "-Debe seleccionar el jugador de la camiseta.");
+
+                if (model.CamisetaDTO.Temporada == 0)
+                    ModelState.AddModelError("Temporada", "-Debe seleccionar la temporada de la camiseta.");
+
+                if (model.ImagenesCamiseta.Count == 0)
+                    ModelState.AddModelError("Imágenes", "-Debe adjuntar al menos una imagen de la camiseta.");
+
+                //Al haber errores de validación, los recopila y los muestra en el mensaje de respuesta.
+
+                //Filtra las validaciones del modelo para obtener los mensajes de campos necesarios, dado que el modelo incluye una gran cantidad de campos que no son releventes en este momento de validar.              
+                var camposAValidar = new[] { "Equipo", "Jugador", "Temporada", "Imágenes" };
+                
+                IEnumerable<string> mensajesError = ModelState
+                                    .Where(x => camposAValidar.Contains(x.Key))
+                                    .SelectMany(v => v.Value.Errors)
+                                    .Select(e => e.ErrorMessage);
+
+                //En caso de existir errores de validación, los recopila y devuelve a la interfaz.
+                if (mensajesError.Any())
+                {                     
+                    string mensaje = "Estimado usuario, existen los siguientes errores de validación en el fomulario:<br/><br/>";
+
+                    return Json(new
+                    {
+                        statusCode = "warning",
+                        message = mensaje += string.Join("<br/>", mensajesError)
+                                 
+                    });
+                }
 
                 //Asignación del id del usuario en sesión como vendedor.
                 var usuarioSesion = JObject.Parse(HttpContext.Session.GetString("UsuarioSesion") ?? "");
@@ -107,10 +132,10 @@ namespace SportSkin.Web.Controllers
                 if (int.TryParse(usuarioSesion["IdUsuario"]?.ToString(), out int idUsuario))
                     model.CamisetaDTO.IdUsuarioVendedor = idUsuario;
                 else
-                    throw new Exception("Ha ocurrido al intentar el Id del usuario en sesión.");
+                    throw new Exception("Ha ocurrido al intentar obtener el Id del usuario en sesión.");
 
                 //Asigna las categorias seleccionadas a partir del catálogo, aplicando un filtro.
-                model.CamisetaDTO.CategoriasCamiseta = model.CategoriasCamiseta?.Where(x => model.CategoriasSeleccionadas.Contains(x.IdCategoriaCamiseta)).ToList() ?? [];
+                model.CamisetaDTO.CategoriasCamiseta = (await _serviceCategoriaCamiseta.ListAsync())?.Where(x => model.CategoriasSeleccionadas.Contains(x.IdCategoriaCamiseta)).ToList() ?? [];
 
                 //Deserealiza las estructuras JSON de Equipo y Jugador en DTOS.
                 model.CamisetaDTO.EquipoNavigation = JsonSerializer.Deserialize<EquipoDTO>(model.EquipoAPIFootballJSON) ?? model.CamisetaDTO.EquipoNavigation;
@@ -125,7 +150,7 @@ namespace SportSkin.Web.Controllers
 
                 return Json(new
                 {
-                    sucess = true,
+                    statusCode = "sucess",
                     message = $"La camiseta {model.CamisetaDTO.Nombre} ha sido creada satsifactoriamente."
                 });
             }
@@ -133,9 +158,9 @@ namespace SportSkin.Web.Controllers
             {
                 return Json(new
                 {
-                    sucess = false,
+                    statusCode = "error",
                     message = $"Ha ocurrido un error al intentar crear la camiseta. Por favor intente nuevamente o contacte a soporte del sistema."
-                });
+                });              
             }
         }
 

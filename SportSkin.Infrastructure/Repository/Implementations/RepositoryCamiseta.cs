@@ -22,8 +22,11 @@ namespace SportSkin.Infrastructure.Repository.Implementations
 
         public async Task AddAsync(Camiseta entity)
         {
-            entity.IdEstadoCamiseta = 1;
-            entity.EstadoRegistro = true;
+            //Añade las categorías al seguimiento del contexto para evitar que intente hacer inserciones en el catálogo.
+            foreach (CategoriaCamiseta categoria in entity.IdCategoriaCamiseta)
+            {
+                _context.Attach(categoria);
+            }
 
             //El SaveChanges se ejecuta en una transacción usando un Unit Of Work
             await _context.Set<Camiseta>().AddAsync(entity);

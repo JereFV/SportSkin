@@ -22,8 +22,8 @@ namespace SportSkin.Infrastructure.FilesStorage.Implementations
 
         public async Task<string> SaveImageAsync(int idCamiseta, IFormFile imagen)
         {
-            string directorioIamgen = _rutaBase + idCamiseta.ToString();
-            string rutaImagen = Path.Combine(directorioIamgen, imagen.Name);
+            string directorioIamgen = Path.Combine(_rutaBase, idCamiseta.ToString());
+            string rutaImagen = Path.Combine(directorioIamgen, Path.GetFileName(imagen.FileName));
 
             //Crea el directorio de imágenes de camiseta si no existe previamente.
             if (!Directory.Exists(directorioIamgen))
@@ -33,7 +33,7 @@ namespace SportSkin.Infrastructure.FilesStorage.Implementations
                 await imagen.CopyToAsync(stream);
 
             //Devuelve la ruta de la imagen posterior al directorio wwwroot.
-            return rutaImagen.Split("wwwroot")[1];
+            return rutaImagen.Split("wwwroot")[1].Replace("\\", "/");
         }
 
         //Borra todas las imagenes contenidas en un directorio de camiseta específico.

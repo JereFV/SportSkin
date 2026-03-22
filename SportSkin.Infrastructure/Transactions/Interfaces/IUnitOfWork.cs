@@ -1,4 +1,5 @@
-﻿using SportSkin.Infrastructure.Data;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using SportSkin.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,6 @@ namespace SportSkin.Infrastructure.Transactions.Interfaces
         Task<int> SaveChangesAsync();
         Task CommitTransactionAsync();
         Task RollBackTransactionAsync();
+        IExecutionStrategy CreateExecutionStrategy();
     }
 }

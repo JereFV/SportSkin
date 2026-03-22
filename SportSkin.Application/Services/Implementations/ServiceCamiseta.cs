@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
 using SportSkin.Infrastructure.FilesStorage.Interfaces;
@@ -36,49 +37,56 @@ namespace SportSkin.Application.Services.Implementations
         public async Task AddAsync(CamisetaDTO dto, ICollection<IFormFile> imagenes)
         {
             Camiseta? camiseta = null;
+            var strategy = _unitOfWork.CreateExecutionStrategy();
 
-            try
+            //Envuelve la transacción completa en una estrategia de ejecucción. (necesario para ejecutar transacciones manuales con configuración actual de EF Core)
+            await strategy.ExecuteAsync(async () =>
             {
-                //Mapeo de DTO a entidad.
-                camiseta = _mapper.Map<Camiseta>(dto);
-
-                //Inicia transacción.
-                await _unitOfWork.BeginTransactionAsync();
-
-                /*Inicialmente, añade los registros de equipo y jugador en caso de que no existan, de lo contrario obtiene los registros respectivos
-                para asociarlos a la nueva camiseta.*/
-                camiseta.IdEquipoNavigation = await _repositoryEquipo.AddAsync(camiseta.IdEquipoNavigation);
-                camiseta.IdJugadorNavigation = await _repositoryJugador.AddAsync(camiseta.IdJugadorNavigation);
-
-                //Añade la camiseta y ejecuta SaveChanges para obtener el id generado.
-                await _repositoryCamiseta.AddAsync(camiseta);
-                await _unitOfWork.SaveChangesAsync(); 
-
-                //Recorre cada una de las imágenes guardandolas en la ruta física y posteriormente en la entidad de base de datos.
-                foreach (IFormFile imagen in imagenes) 
+                try
                 {
-                    string rutaImagen = await _imageStorage.SaveImageAsync(camiseta.IdCamiseta, imagen);
+                    //Mapeo de DTO a entidad.
+                    camiseta = _mapper.Map<Camiseta>(dto);
+                    
+                    //Inicia transacción.
+                    await _unitOfWork.BeginTransactionAsync();
 
-                    camiseta.ImagenCamiseta.Add(new ImagenCamiseta
+                    /*Inicialmente, añade los registros de equipo y jugador en caso de que no existan, de lo contrario obtiene los registros respectivos
+                    para asociarlos a la nueva camiseta.*/
+                    camiseta.IdEquipoNavigation = await _repositoryEquipo.AddAsync(camiseta.IdEquipoNavigation);
+                    camiseta.IdJugadorNavigation = await _repositoryJugador.AddAsync(camiseta.IdJugadorNavigation);
+
+                    //Añade la camiseta y ejecuta SaveChanges para obtener el id generado.
+                    await _repositoryCamiseta.AddAsync(camiseta);
+                    await _unitOfWork.SaveChangesAsync();
+
+                    //Recorre cada una de las imágenes guardandolas en la ruta física y posteriormente en la entidad de base de datos.
+                    foreach (IFormFile imagen in imagenes)
                     {
-                        IdImagen = (byte)(camiseta.ImagenCamiseta.Count + 1),
-                        IdCamiseta = camiseta.IdCamiseta,
-                        RutaImagen = rutaImagen
-                    });
+                        string rutaImagen = await _imageStorage.SaveImageAsync(camiseta.IdCamiseta, imagen);
+
+                        camiseta.ImagenCamiseta.Add(new ImagenCamiseta
+                        {
+                            IdImagen = (byte)(camiseta.ImagenCamiseta.Count + 1),
+                            IdCamiseta = camiseta.IdCamiseta,
+                            RutaImagen = rutaImagen
+                        });
+                    }
+
+                    //Guarda los registros de imagenes y persiste lo realizado durante la transacción.
+                    await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.CommitTransactionAsync();
                 }
+                catch (Exception)
+                {
+                    //Al produciarse una excepción, ejecuta Rollback sobre las entidades y borra las imágenes que hayan sido guardadas.
+                    await _unitOfWork.RollBackTransactionAsync();
 
-                //Guarda los registros de imagenes y persiste lo realizado durante la transacción.
-                await _unitOfWork.SaveChangesAsync();
-                await _unitOfWork.CommitTransactionAsync();
-            }
-            catch (Exception)
-            {
-                //Al produciarse una excepción, ejecuta Rollback sobre las entidades y borra las imágenes que hayan sido guardadas.
-                await _unitOfWork.RollBackTransactionAsync();
+                    if (camiseta != null && camiseta.IdCamiseta != 0)
+                        _imageStorage.DeleteImages(camiseta.IdCamiseta);
 
-                if (camiseta != null && camiseta.IdCamiseta != 0)
-                    _imageStorage.DeleteImages(camiseta.IdCamiseta);
-            }
+                    throw;
+                }
+            });      
         }
 
         public Task DeleteAsync(int id)

@@ -28,7 +28,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <form id="nuevaCamisetaForm" asp-action="CamisetaCreate" method="post">
+            <form id="nuevaCamisetaForm" asp-action="CamisetaCreate" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <div class="modal-body">
@@ -94,7 +94,7 @@
                                 <div class="mb-3 col-md-6" style="display: flex; flex-direction: column">                                   
                                     <label for="equipo" class="form-label fw-semibold">Equipo</label>
                                     <select class="form-select" id="equipo" placeholder="Digite el nombre del equipo"></select>
-                                    <span asp-validation-for="EquipoAPIFootballJSON" class="text-danger"></span>
+                                    @* <span asp-validation-for="EquipoAPIFootballJSON" class="text-danger"></span> *@
                                 </div>
 
                                 <!--Hidden auxiliar para almacenar el JSON con los datos del jugador seleccionado.-->
@@ -103,17 +103,15 @@
                                 <div class="mb-3 col-md-6" style="display: flex; flex-direction: column">
                                     <label for="jugador" class="form-label fw-semibold">Jugador</label>
                                     <select class="form-select" id="jugador" placeholder="Digite el nombre del jugador"></select>
-                                    <span asp-validation-for="JugadorAPIFootballJSON" class="text-danger"></span>
+                                    @* <span asp-validation-for="JugadorAPIFootballJSON" class="text-danger"></span> *@
                                 </div>
                             </div>
 
                             <div class="row d-flex">
                                 <div class="mb-3 col-md-6" style="display: flex; flex-direction: column">
                                     <label for="temporada" class="form-label fw-semibold">Temporada</label>
-                                    <select asp-for="CamisetaDTO.Temporada" class="form-select" id="temporada" placeholder="Seleccione la temporada">
-                                        <option hidden value=""></option>
-                                    </select>
-                                    <span asp-validation-for="CamisetaDTO.Temporada" class="text-danger"></span>
+                                    <select asp-for="CamisetaDTO.Temporada" class="form-select" id="temporada" placeholder="Seleccione la temporada"></select>
+                                    @* <span asp-validation-for="CamisetaDTO.Temporada" class="text-danger"></span> *@
                                 </div>
 
                                 <div class="form-check col-md-6" style="padding-left: 2.5rem">
@@ -129,12 +127,13 @@
                             <input type="file"
                                    asp-for="ImagenesCamiseta"
                                    class="filepond"
-                                   name="imagenes"
+                                   name="ImagenesCamiseta"
                                    multiple
                                    data-allow-reorder="true"
                                    data-max-file-size="3MB"
-                                   data-max-files="5">
-                            <span asp-validation-for="ImagenesCamiseta" class="text-danger"></span>
+                                   data-max-files="5"
+                                   data-val="false">                       
+                            @* <span asp-validation-for="ImagenesCamiseta" class="text-danger"></span> *@
                         </div>
                     </div>
                 </div>

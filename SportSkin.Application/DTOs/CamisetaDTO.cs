@@ -31,8 +31,7 @@ namespace SportSkin.Application.DTOs
 
         public int IdJugador {  get; set; }
 
-        [DisplayName("Temporada")]
-        [Required(ErrorMessage = "La temporada es un dato requerido.")]
+        [DisplayName("Temporada")]       
         public short Temporada { get; set; }
 
         [DisplayName("¿Autografiada?")]
@@ -47,7 +46,7 @@ namespace SportSkin.Application.DTOs
         [DisplayName("Fecha de Creación")]
         public DateTime FechaRegistro { get; set; }
 
-        public DateTime FechaModificacion { get; set; }
+        public DateTime? FechaModificacion { get; set; }
 
         [DisplayName("Condición")]
         public CondicionCamisetaDTO CondicionCamisetaNavigation { get; set; } = new();

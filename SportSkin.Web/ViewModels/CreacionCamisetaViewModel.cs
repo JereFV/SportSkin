@@ -11,14 +11,11 @@ namespace SportSkin.Web.ViewModels
         [Required(ErrorMessage = "Debe seleccionar al menos una categoría.")]
         public int[] CategoriasSeleccionadas { get; set; } = [];
 
-        //Estructuras JSON auxiliares para transportar los datos seleccionados en los campos de Equipo y Jugador.
-        [Required(ErrorMessage = "El equipo es un dato requerido.")]
+        //Estructuras JSON auxiliares para transportar los datos seleccionados en los campos de Equipo y Jugador.        
         public string EquipoAPIFootballJSON { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "El jugador es un dato requerido.")]
+        
         public string JugadorAPIFootballJSON { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Debe seleccionar al menos una imagen de la camsieta.")]
+       
         //Colección de imagenes adjuntas.
         public List<IFormFile> ImagenesCamiseta { get; set; } = [];
 

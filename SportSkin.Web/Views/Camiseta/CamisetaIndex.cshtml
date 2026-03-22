@@ -147,10 +147,7 @@ else
     <partial name="_CamisetaCreate" model="Model?.CreacionCamiseta" />
 
     <script>
-        $(document).ready(function() {
-            //Configuración del jquery validate para no ignorar ningún tipo de campo.
-            $.validator.setDefaults({ ignore: [] });
-
+        $(document).ready(function() {           
             $('#categorias').multiselect({
                 nonSelectedText: 'Seleccione una o más categorías',
                 buttonWidth: '100%',
@@ -268,7 +265,7 @@ else
 
             let selectTemporada = new TomSelect('#temporada', {
                 //controlClass: 'form-control',
-                valueField: 'id',
+                valueField: 'anio',
                 labelField: 'anio',
                 searchField: [],                              
                 render: {
@@ -295,7 +292,8 @@ else
                 labelIdle: 'Arrastra tus imágenes o adjuntalas aquí: <span class="filepond--label-action link-primary">Seleccionar imagen</span>',
                 acceptedFileTypes: ['image/png', 'image/jpeg'],
                 itemInsertLocation: 'after',              
-                imagePreviewHeight: 245, // Altura fija para que todas las miniaturas midan lo mismo               
+                imagePreviewHeight: 245, // Altura fija para que todas las miniaturas midan lo mismo
+                storeAsFile: true
             });
         });
 
@@ -318,30 +316,42 @@ else
 
                 const responseJson = await response.json();
 
-                if (responseJson.sucess) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Camiseta creada',
-                        text: responseJson.message,
-                        //timer: 1200,                      
-                    }).then(() => {
-                        //Recarga el listado al finalizar la ejecucción.
-                        location.reload();
-                    });
-                } 
-                else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error en creación de camiseta',
-                        text: responseJson.message,
-                        //timer: 1200,
-                    });
-                }            
+                switch (responseJson.statusCode)
+                {
+                    case "sucess":
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Camiseta creada',
+                            text: responseJson.message,                  
+                        }).then(() => {
+                            //Recarga el listado al finalizar la ejecucción.
+                            location.reload();
+                        });
+
+                        break;
+                    case "warning":
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Advertencia',
+                            html: responseJson.message,
+                        });
+
+                        break;
+
+                    case "error":
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error en creación de camiseta',
+                            text: responseJson.message,                      
+                        });
+
+                        break;
+                }                       
             } 
             catch (error) {               
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error en creación de camisetao',
+                    title: 'Error en creación de camiseta',
                     text: 'Ha ocurrido un error al intentar crear la camiseta. Por favor intente nuevamente o contacte a soporte del sistema.'
                 });
 

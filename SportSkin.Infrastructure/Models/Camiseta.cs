@@ -27,7 +27,7 @@ public partial class Camiseta
 
     public DateTime FechaRegistro { get; set; }
 
-    public DateTime FechaModificacion { get; set; }
+    public DateTime? FechaModificacion { get; set; }
 
     public bool EstadoRegistro { get; set; }
 

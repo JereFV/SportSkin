@@ -20,14 +20,14 @@ namespace SportSkin.Infrastructure.Repository.Interfaces
         Task PublicarAsync(int id);
         Task CancelarAsync(int id);
         
-        /* ── Transiciones automáticas (Background Service) ─────────────
+        // ── Transiciones automáticas (Background Service) ─────────────
         Task<int> ActivarSubastasPendientesAsync();
-        Task<int> CerrarSubastasVencidasAsync();
-        
+        Task<ICollection<Subasta>> CerrarSubastasVencidasAsync();
+
 
         //Valida cuando es el próximo evento para actualizar estados de subasta
         Task<DateTime?> GetProximoEventoAsync();
-        */
+        
 
         // Validación de negocio
         Task<bool> CamisetaTieneSubastaActivaAsync(int idCamiseta, int? excluirIdSubasta = null);

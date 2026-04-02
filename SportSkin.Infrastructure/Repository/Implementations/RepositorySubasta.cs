@@ -15,7 +15,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
     {
         private readonly SportSkinContext _context;
         // IDs de EstadoSubasta según BD 
-        // 1=En proceso | 2=Cerrada | 3=Vendida | 4=Finalizada | 5=Borrador
+        // 1=En proceso | 2=Vendida | 3=Finalizada| 4=Borrador| 5=Cancelada
         private const byte ESTADO_EN_PROCESO = 1;
         private const byte ESTADO_VENDIDA = 2;
         private const byte ESTADO_FINALIZADA = 3;        
@@ -47,7 +47,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .Include(s => s.IdCamisetaNavigation)
                     .ThenInclude(c => c.IdCategoriaCamiseta)
                 .Include(s => s.IdCamisetaNavigation)
-                    .ThenInclude(c => c.IdUsuarioVendedorNavigation) // agregar esto
+                    .ThenInclude(c => c.IdUsuarioVendedorNavigation) 
                 .Include(s => s.IdEstadoSubastaNavigation)
                 .Include(s => s.Puja)
                     .ThenInclude(p => p.IdUsuarioPujaNavigation);
@@ -77,8 +77,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             _context.Subasta.Add(entity);
             await _context.Camiseta
                 .Where(c => c.IdCamiseta == entity.IdCamiseta)
-                .ExecuteUpdateAsync(s => s.SetProperty(c => c.IdEstadoCamiseta, ESTADO_CAMISETA_EN_SUBASTA));
-
+                .ExecuteUpdateAsync(s => s.SetProperty(c => c.IdEstadoCamiseta, ESTADO_CAMISETA_EN_SUBASTA));            
             await _context.SaveChangesAsync();
             return entity.IdSubasta;
         }
@@ -171,18 +170,16 @@ namespace SportSkin.Infrastructure.Repository.Implementations
 
 
 
-        // --- Transiciones automáticas (Background Service) ---
-
-        /* 
+        /* --- Transiciones automáticas (Background Service) ---         
             Activa subastas Borrador(5) cuya FechaInicio ya llegó → En proceso(1).
             Retorna la cantidad de subastas activadas.
         */
-        /*
         public async Task<int> ActivarSubastasPendientesAsync()
         {
+            var ahora = DateTime.Now;
             var pendientes = await _context.Subasta
-                .Where(s => s.IdEstadoSubasta == ESTADO_BORRADOR
-                         && s.FechaInicio <= DateTime.Now)
+                .Where(s => s.IdEstadoSubasta == ESTADO_PUBLICADA
+                         && s.FechaInicio <= ahora)
                 .ToListAsync();
 
             if (!pendientes.Any()) return 0;
@@ -193,53 +190,84 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             await _context.SaveChangesAsync();
             return pendientes.Count;
         }
-        */
+        
 
-        /* 
+        /*
             Cierra subastas En proceso(1) cuya FechaCierre ya pasó.
             Con pujas → Finalizada(4). Sin pujas → Cerrada(2).
             Retorna la cantidad de subastas cerradas.
         */
-        /*
-        public async Task<int> CerrarSubastasVencidasAsync()
+        
+        // En proceso(1) → Vendida(2) con ganador  |  Finalizada(3) sin pujas
+        // Determina ganador, registra MontoCompra, FechaCompra, IdUsuarioComprador.
+        // Devuelve la LISTA de subastas cerradas para que el BG Service
+        // pueda notificar a cada grupo en SignalR.
+        public async Task<ICollection<Subasta>> CerrarSubastasVencidasAsync()
         {
+            var ahora = DateTime.Now;
             var vencidas = await _context.Subasta
                 .Include(s => s.Puja)
                 .Where(s => s.IdEstadoSubasta == ESTADO_EN_PROCESO
-                         && s.FechaCierre <= DateTime.Now
+                         && s.FechaCierre <= ahora
                          && s.FechaCompra == null)
                 .ToListAsync();
 
-            if (!vencidas.Any()) return 0;
+            if (!vencidas.Any()) return vencidas;
 
             foreach (var subasta in vencidas)
             {
-                subasta.IdEstadoSubasta = subasta.Puja.Any()
-                    ? ESTADO_FINALIZADA   // Tuvo pujas → espera determinación de ganador
-                    : ESTADO_FINALIZADA;     // Sin pujas → cerrada sin actividad
+                if (subasta.Puja.Any())
+                {
+                    // Hay pujas → determinar ganador (puja de mayor monto)
+                    var pujaGanadora = subasta.Puja
+                        .OrderByDescending(p => p.Monto)
+                        .First();
+
+                    subasta.IdEstadoSubasta = ESTADO_VENDIDA;
+                    subasta.IdUsuarioComprador = pujaGanadora.IdUsuarioPuja;
+                    subasta.MontoCompra = pujaGanadora.Monto;
+                    subasta.MontoComision = pujaGanadora.Monto * subasta.PorcentajeComision / 100;
+                    subasta.FechaCompra = ahora;
+
+                    // Marcar la camiseta como vendida
+                    await _context.Camiseta
+                        .Where(c => c.IdCamiseta == subasta.IdCamiseta)
+                        .ExecuteUpdateAsync(s =>
+                            s.SetProperty(c => c.IdEstadoCamiseta, ESTADO_CAMISETA_VENDIDA));
+                }
+                else
+                {
+                    // Sin pujas → finalizada sin ganador, camiseta vuelve a disponible
+                    subasta.IdEstadoSubasta = ESTADO_FINALIZADA;
+
+                    await _context.Camiseta
+                        .Where(c => c.IdCamiseta == subasta.IdCamiseta)
+                        .ExecuteUpdateAsync(s =>
+                            s.SetProperty(c => c.IdEstadoCamiseta, ESTADO_CAMISETA_DISPONIBLE));
+                }
             }
 
             await _context.SaveChangesAsync();
-            return vencidas.Count;
+            return vencidas;
         }
-        */
-        // --- Smart Scheduling ---
 
-        /* 
+
+        /*--- Smart Scheduling ---
+
+         
             Retorna la fecha del próximo evento esperado:
             - FechaInicio más próxima de borradores pendientes de activar
             - FechaCierre más próxima de subastas en proceso pendientes de cerrar
             El Background Service duerme exactamente hasta esa fecha.
             Retorna null si no hay eventos futuros registrados.
         */
-        /*
         public async Task<DateTime?> GetProximoEventoAsync()
         {
             var ahora = DateTime.Now;
 
             // Próxima activación: FechaInicio de borradores futuros
             var proximaActivacion = await _context.Subasta
-                .Where(s => s.IdEstadoSubasta == ESTADO_BORRADOR
+                .Where(s => s.IdEstadoSubasta == ESTADO_PUBLICADA
                          && s.FechaInicio > ahora)
                 .Select(s => (DateTime?)s.FechaInicio)
                 .MinAsync();
@@ -258,7 +286,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             return proximaActivacion < proximoCierre ? proximaActivacion : proximoCierre;
         }
 
-        */
+        
 
         // ---- Validación de negocio ---
         //Se verifica si una camiseta tiene una subasta activa

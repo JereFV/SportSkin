@@ -2,19 +2,20 @@ using Libreria.Web.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
-using SportSkin.Application.Services.Interfaces;
+using SportSkin.Application.DTOs;
+using SportSkin.Application.Profiles;
 using SportSkin.Application.Services.Implementations;
+using SportSkin.Application.Services.Interfaces;
 using SportSkin.Infrastructure.Data;
+using SportSkin.Infrastructure.FilesStorage.Implementations;
+using SportSkin.Infrastructure.FilesStorage.Interfaces;
 using SportSkin.Infrastructure.Repository.Implementations;
 using SportSkin.Infrastructure.Repository.Interfaces;
-using System.Text;
-using SportSkin.Application.Profiles;
-using SportSkin.Web.Models;
-using SportSkin.Application.DTOs;
-using SportSkin.Infrastructure.Transactions.Interfaces;
 using SportSkin.Infrastructure.Transactions.Implementations;
-using SportSkin.Infrastructure.FilesStorage.Interfaces;
-using SportSkin.Infrastructure.FilesStorage.Implementations;
+using SportSkin.Infrastructure.Transactions.Interfaces;
+using SportSkin.Web.BackgroundServices;
+using SportSkin.Web.Models;
+using System.Text;
 
 //***********
 // =======================
@@ -108,6 +109,8 @@ builder.Services.AddTransient<IServiceJugador, ServiceJugador>();
 builder.Services.AddTransient<IServiceTrayectoriaJugador, ServiceTrayectoriaJugador>();
 builder.Services.AddTransient<IImageStorage, ImageStorage>();
 
+builder.Services.AddSingleton<SubastaBackgroundService>();
+builder.Services.AddHostedService<SubastaBackgroundService>();
 //Conf images route
 builder.Services.Configure<ImageSettings>(
     builder.Configuration.GetSection("ImageSettings")

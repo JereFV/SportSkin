@@ -583,7 +583,7 @@ else
         }
 
         // Validación cliente del form de editar
-                document.getElementById('formEditarSubasta').addEventListener('submit', function (e) {
+        document.getElementById('formEditarSubasta').addEventListener('submit', function (e) {
             let valido = true;
             const t = (key) => i18next.t(key.split(':')[1] || key, {
                 ns: key.includes(':') ? key.split(':')[0] : 'common'

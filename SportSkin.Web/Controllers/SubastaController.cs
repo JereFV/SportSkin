@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
+using SportSkin.Web.BackgroundServices;
 using SportSkin.Web.ViewModels;
 using System.Text.Json;
 
@@ -15,6 +16,7 @@ namespace SportSkin.Web.Controllers
         private readonly IServiceCamiseta _serviceCamiseta;
         private readonly IServiceUsuario _serviceUsuario;
         private readonly SubastaSettings _settings;
+        private readonly SubastaBackgroundService _bgService;
 
         public SubastaController(
             IServiceSubasta serviceSubasta,
@@ -339,6 +341,32 @@ namespace SportSkin.Web.Controllers
 
             return RedirectToAction(nameof(MisSubastas));
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> CerrarPorTiempo(int id)
+        {
+            try
+            {
+                var subasta = await _serviceSubasta.FindByIdAsync(id);
+                if (subasta == null) return NotFound();
+
+                // Si ya está cerrada (el BG Service se adelantó), no hacer nada
+                if (subasta.IdEstadoSubasta != 1) // 1 = En proceso
+                    return Json(new { success = true, yaEstabaCerrada = true });
+
+                // Si la FechaCierre ya pasó, forzar el procesamiento ahora
+                if (subasta.FechaCierre <= DateTime.Now)
+                    _bgService.NotificarCambio();
+
+                return Json(new { success = true, yaEstabaCerrada = false });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
+        }
+
 
         // ─────────────────────────────────────────────────────────────
         // POST: /Subasta/Cancelar/5

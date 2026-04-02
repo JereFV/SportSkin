@@ -23,10 +23,10 @@ namespace SportSkin.Application.Services.Interfaces
 
 
         // --- Transiciones automáticas (Background Service) ---
-        /*
+        
         Task<int> ActivarSubastasPendientesAsync();
         Task<int> CerrarSubastasVencidasAsync();
-        */
+        
 
 
         Task<bool> PuedeEditarAsync(int id);

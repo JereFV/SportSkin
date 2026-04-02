@@ -1,42 +1,37 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SportSkin.Infrastructure.Repository.Interfaces;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+//using SportSkin.Web.Hubs;
 
 namespace SportSkin.Web.BackgroundServices
 {
-
-
     /*
-         Servicio en segundo plano con Smart Scheduling.
-    
-         Pregunta cuándo es el próximo evento (FechaInicio o FechaCierre) y
-         duerme exactamente hasta ese momento.
-    
-         Flujo de estados que gestiona:
-           Borrador(5)   → En proceso(1)  cuando FechaInicio llega
-           En proceso(1) → Finalizada(4)  cuando FechaCierre llega y hay pujas
-           En proceso(1) → Cerrada(2)     cuando FechaCierre llega y no hay pujas
-    
-         IMPORTANTE — lifetimes de DI:
-           BackgroundService = Singleton. DbContext = Scoped.
-           Usamos IServiceScopeFactory para crear un scope nuevo por ciclo,
-           evitando el error "Cannot consume scoped service from singleton".
+        SubastaBackgroundService — Smart Scheduling + Despertar Anticipado.
+
+        Dos mecanismos de cancelación:
+          1. stoppingToken  → lo controla el host. Si la app cierra, este token
+                              se cancela y el servicio termina limpiamente.
+          2. _wakeUpCts     → token INTERNO. Cancelarlo interrumpe solo el
+                              Task.Delay del sueño actual sin matar el servicio.
+                              Cualquier clase puede llamar NotificarCambio()
+                              para despertar el ciclo anticipadamente.
+
+        Flujo de estados que gestiona:
+          Publicada(6) → En proceso(1)  cuando FechaInicio llega
+          En proceso(1)→ Vendida(2)     cuando FechaCierre llega y hay pujas
+          En proceso(1)→ Finalizada(3)  cuando FechaCierre llega y no hay pujas
     */
-    /*
     public class SubastaBackgroundService : BackgroundService
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<SubastaBackgroundService> _logger;
 
-        // Espera máxima cuando no hay eventos futuros registrados.
-        // Revisa cada hora por si se crearon nuevas subastas.
-        private static readonly TimeSpan EsperaMaxima = TimeSpan.FromHours(1);
+        // Token interno del sueño — se renueva en cada ciclo
+        private CancellationTokenSource _wakeUpCts = new();
 
-        // Margen de seguridad para compensar imprecisiones del timer de .NET.
+        private static readonly TimeSpan EsperaMaxima = TimeSpan.FromHours(1);
         private static readonly TimeSpan MargenAnticipacion = TimeSpan.FromSeconds(5);
 
         public SubastaBackgroundService(
@@ -47,61 +42,78 @@ namespace SportSkin.Web.BackgroundServices
             _logger = logger;
         }
 
+        // ── API pública ──────────────────────────────────────────────
+        // El SubastaController llama esto cada vez que se publica
+        // una subasta nueva, para que el servicio recalcule su sueño.
+        // Thread-safe: CancellationTokenSource.Cancel() lo es.
+        public void NotificarCambio()
+        {
+            _logger.LogInformation(
+                "[SubastaService] Despertar anticipado solicitado por cambio externo.");
+            _wakeUpCts.Cancel();
+        }
+
+        // ── Loop principal ───────────────────────────────────────────
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("[SubastaService] Iniciado con Smart Scheduling.");
 
-            // Espera inicial para que la app termine de arrancar completamente
-            await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);
+            // Espera inicial — da tiempo a que la app arranque completamente
+            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                // 1. Procesar transiciones vencidas en este momento
+                // 1. Procesar todo lo que ya venció en este momento
                 await ProcesarTransicionesAsync(stoppingToken);
 
                 if (stoppingToken.IsCancellationRequested) break;
 
-                // 2. Preguntar cuándo es el próximo evento futuro
+                // 2. Calcular cuánto tiempo dormir hasta el próximo evento
                 var proximoEvento = await ObtenerProximoEventoAsync();
+                TimeSpan espera = CalcularEspera(proximoEvento);
 
-                TimeSpan espera;
+                // 3. Renovar el token interno
+                //    El anterior ya fue cancelado (por NotificarCambio o por vencimiento).
+                //    Creamos uno nuevo para el próximo sueño.
+                var viejoCts = _wakeUpCts;
+                _wakeUpCts = new CancellationTokenSource();
+                viejoCts.Dispose();
 
-                if (proximoEvento == null)
-                {
-                    // Sin eventos futuros: dormir la espera máxima
-                    espera = EsperaMaxima;
-                    _logger.LogInformation(
-                        "[SubastaService] Sin eventos futuros. " +
-                        "Reintentando en {Horas}h.", EsperaMaxima.TotalHours);
-                }
-                else
-                {
-                    // Dormir exactamente hasta el próximo evento
-                    espera = proximoEvento.Value - DateTime.Now - MargenAnticipacion;
+                // 4. Dormir enlazando AMBOS tokens:
+                //    stoppingToken = la app cierra → salir del loop
+                //    _wakeUpCts    = alguien llamó NotificarCambio() → despertar
+                using var linked = CancellationTokenSource
+                    .CreateLinkedTokenSource(stoppingToken, _wakeUpCts.Token);
 
-                    if (espera < TimeSpan.Zero)
-                        espera = TimeSpan.Zero; // Ya pasó, procesar de inmediato
+                _logger.LogInformation(
+                    "[SubastaService] Durmiendo {Min:F1} min. Próximo evento: {Evento}",
+                    espera.TotalMinutes,
+                    proximoEvento?.ToString("dd/MM/yyyy HH:mm:ss") ?? "ninguno");
 
-                    _logger.LogInformation(
-                        "[SubastaService] Próximo evento: {Evento:dd/MM/yyyy HH:mm:ss}. " +
-                        "Durmiendo {Minutos:F1} min.",
-                        proximoEvento.Value,
-                        espera.TotalMinutes);
-                }
-
-                // Dormimos. El CancellationToken permite detener limpiamente si la app cierra.
                 try
                 {
-                    await Task.Delay(espera, stoppingToken);
+                    await Task.Delay(espera, linked.Token);
                 }
                 catch (OperationCanceledException)
                 {
-                    // La app está cerrando — salir del loop limpiamente
-                    break;
+                    // Puede ser la app cerrando o un despertar anticipado.
+                    // El while lo distingue: si stoppingToken está cancelado, sale.
+                    _logger.LogInformation("[SubastaService] Sueño interrumpido, reprocessando.");
                 }
             }
 
             _logger.LogInformation("[SubastaService] Detenido correctamente.");
+        }
+
+        // ── Helpers privados ─────────────────────────────────────────
+
+        private TimeSpan CalcularEspera(DateTime? proximoEvento)
+        {
+            if (proximoEvento == null)
+                return EsperaMaxima;
+
+            var espera = proximoEvento.Value - DateTime.Now - MargenAnticipacion;
+            return espera < TimeSpan.Zero ? TimeSpan.Zero : espera;
         }
 
         private async Task ProcesarTransicionesAsync(CancellationToken stoppingToken)
@@ -111,27 +123,53 @@ namespace SportSkin.Web.BackgroundServices
             try
             {
                 using var scope = _scopeFactory.CreateScope();
-                var repo = scope.ServiceProvider.GetRequiredService<IRepositorySubasta>();
-
-                // Borrador(5) → En proceso(1)
+                var repo = scope.ServiceProvider
+                                .GetRequiredService<IRepositorySubasta>();
+                /*var hub = scope.ServiceProvider
+                                .GetRequiredService<IHubContext<SubastaHub>>();
+                */
+                // Publicada → En proceso
                 int activadas = await repo.ActivarSubastasPendientesAsync();
                 if (activadas > 0)
                     _logger.LogInformation(
-                        "[SubastaService] {Count} subasta(s) activada(s) → En proceso.",
-                        activadas);
+                        "[SubastaService] {N} subasta(s) activada(s) → En proceso.", activadas);
 
-                // En proceso(1) → Finalizada(4) o Cerrada(2)
-                int cerradas = await repo.CerrarSubastasVencidasAsync();
-                if (cerradas > 0)
+                // En proceso → Vendida / Finalizada
+                // La lista nos permite notificar a cada grupo en SignalR
+                var cerradas = await repo.CerrarSubastasVencidasAsync();
+
+                foreach (var subasta in cerradas)
+                {
+                    bool tieneGanador = subasta.IdUsuarioComprador.HasValue;
+
+                    string nombreGanador = tieneGanador
+                        ? $"{subasta.IdUsuarioCompradorNavigation?.Nombre} " +
+                          $"{subasta.IdUsuarioCompradorNavigation?.Apellido1}".Trim()
+                        : string.Empty;
+
+                    // Notificar a todos los navegadores viendo esta subasta
+                   /* await hub.Clients
+                        .Group($"subasta-{subasta.IdSubasta}")
+                        .SendAsync("SubastaCerrada", new
+                        {
+                            tieneGanador,
+                            idGanador = subasta.IdUsuarioComprador,
+                            nombreGanador,
+                            montoFinal = subasta.MontoCompra,
+                            fechaCierre = subasta.FechaCompra?.ToString("dd/MM/yyyy HH:mm")
+                                           ?? DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                        });
+                   */
                     _logger.LogInformation(
-                        "[SubastaService] {Count} subasta(s) cerrada(s) / finalizadas.",
-                        cerradas);
+                        "[SubastaService] Subasta {Id} cerrada. Ganador: {G}",
+                        subasta.IdSubasta,
+                        tieneGanador ? nombreGanador : "ninguno (sin pujas)");
+                }
             }
             catch (Exception ex)
             {
-                // Logueamos pero NO relanzamos — el servicio debe seguir corriendo
-                _logger.LogError(ex,
-                    "[SubastaService] Error al procesar transiciones automáticas.");
+                // No relanzamos — el servicio debe seguir corriendo aunque falle un ciclo
+                _logger.LogError(ex, "[SubastaService] Error procesando transiciones.");
             }
         }
 
@@ -140,16 +178,16 @@ namespace SportSkin.Web.BackgroundServices
             try
             {
                 using var scope = _scopeFactory.CreateScope();
-                var repo = scope.ServiceProvider.GetRequiredService<IRepositorySubasta>();
+                var repo = scope.ServiceProvider
+                                .GetRequiredService<IRepositorySubasta>();
                 return await repo.GetProximoEventoAsync();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex,
-                    "[SubastaService] Error al obtener próximo evento. " +
-                    "Usando espera máxima como fallback.");
+                    "[SubastaService] Error obteniendo próximo evento. Usando espera máxima.");
                 return null;
             }
         }
-    }*/
+    }
 }

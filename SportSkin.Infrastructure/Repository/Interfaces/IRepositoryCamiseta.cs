@@ -16,6 +16,7 @@ namespace SportSkin.Infrastructure.Repository.Interfaces
         void Update(Camiseta entity);
         Task DeleteAsync(int id);
         Task ChangeStateAsync(int id);
+        Task<Camiseta> FindByIdAsyncWithTracking(int id);
 
         Task<ICollection<Camiseta>> GetCamisetaByCategoria(int idCategoria);
         Task<ICollection<Camiseta>> GetCamisetaByEquipo(int idEquipo);

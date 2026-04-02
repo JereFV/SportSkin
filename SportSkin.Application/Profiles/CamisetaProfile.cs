@@ -24,19 +24,16 @@ namespace SportSkin.Application.Profiles
                 .ForMember(x => x.Subastas, x => x.MapFrom(x => x.Subasta))                
                 .ReverseMap();
 
-            //DTO -> Entidad (Crear)
+            //DTO -> Entidad (Crear, Editar)
             CreateMap<CamisetaDTO, Camiseta>()
                 .ForMember(x => x.IdCategoriaCamiseta, x => x.MapFrom(x => x.CategoriasCamiseta))
                 .ForMember(x => x.IdEquipoNavigation, x => x.MapFrom(x => x.EquipoNavigation))
-                .ForMember(x => x.IdJugadorNavigation, x => x.MapFrom(x => x.JugadorNavigation))              
-                .ForMember(dest => dest.IdCondicionCamisetaNavigation, orig => orig.Ignore())               
-                .ForMember(dest => dest.IdEstadoCamisetaNavigation, opt => opt.Ignore())               
+                .ForMember(x => x.IdJugadorNavigation, x => x.MapFrom(x => x.JugadorNavigation))
+                .ForMember(dest => dest.IdCondicionCamisetaNavigation, orig => orig.Ignore())
+                .ForMember(dest => dest.IdEstadoCamisetaNavigation, opt => opt.Ignore())
                 .ForMember(dest => dest.IdUsuarioVendedorNavigation, orig => orig.Ignore())
                 .ForMember(dest => dest.ImagenCamiseta, orig => orig.Ignore())
-                .ForMember(dest => dest.Subasta, orig => orig.Ignore())
-                .ForMember(dest => dest.FechaRegistro, orig => orig.Ignore())
-                .ForMember(dest => dest.IdUsuarioVendedor, orig => orig.Ignore())
-                .ForMember(dest => dest.IdEstadoCamiseta, orig => orig.Ignore());
+                .ForMember(dest => dest.Subasta, orig => orig.Ignore());                       
         }
     }
 }

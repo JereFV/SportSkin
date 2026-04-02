@@ -36,6 +36,10 @@ namespace SportSkin.Application.Services.Implementations
             //Se accede a las propiedades de la respuesta para obtener los equipos coincidentes con el filtro.
             ICollection<JugadorAPIFootballDTO> jugadores = responseJugadores?.Jugadores?.Select(x => x.DatosJugador)?.ToList() ?? [];
 
+            //ICollection<JugadorAPIFootballDTO> jugadores = new List<JugadorAPIFootballDTO>();
+
+            //jugadores.Add(new JugadorAPIFootballDTO { IdJugador = 731, NombreCompleto = "K. Navas", PrimerNombre = "Keylor Antonio", Apellidos = "Navas Gamboa" });
+
             return jugadores;
         }
     }

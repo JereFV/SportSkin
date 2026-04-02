@@ -392,14 +392,18 @@ else
         //Evento submit del formulario de creación de camisetas.
         document.getElementById("nuevaCamisetaForm").addEventListener("submit", async function (e) {
             try {
-                e.preventDefault();
-
+                e.preventDefault();    
+                
                 //Valida que todos los campos cumplan con las especificaciones necesarias.
                 if (!$("#nuevaCamisetaForm").valid())
                     return;
 
                 const form = this;
                 const formData = new FormData(form);
+                const categorias = sincronizarCategorias('nuevaCamisetaForm');
+
+                formData.delete('CategoriasSeleccionadas');
+                categorias.forEach(valor => formData.append('CategoriasSeleccionadas', valor));
 
                 const response = await fetch(form.action, {
                     method: "POST",
@@ -471,6 +475,9 @@ else
             //Formulario del modal, una vez renderizado.
             const form = contenedor.querySelector('form');
 
+            //Agrega el nuevo contenedor al jquery validate.
+            $.validator.unobtrusive.parse(contenedor);
+
             //Obtención de datos de la camiseta almacenados en estructuras.
             const datosEdicion = {
                 equipo: JSON.parse(form.querySelector('#equipoJSON').value),
@@ -479,7 +486,7 @@ else
                 imagenes: JSON.parse(form.querySelector('#imagenesJSON').value)
             };
 
-            inicializarControles('editarCamisetaForm', datosEdicion);
+            inicializarControles('editarCamisetaForm', datosEdicion);            
 
             //Abre el modal ya renderizado.
             const modal = new bootstrap.Modal(document.getElementById('editModal'));
@@ -496,6 +503,10 @@ else
 
                     const form = this;
                     const formData = new FormData(form);
+                    const categorias = sincronizarCategorias('editarCamisetaForm');
+
+                    formData.delete('CategoriasSeleccionadas');
+                    categorias.forEach(valor => formData.append('CategoriasSeleccionadas', valor));
 
                     const response = await fetch(form.action, {
                         method: "POST",
@@ -582,8 +593,20 @@ else
                         }
                     });
                 }
-        
-       
+
+        function sincronizarCategorias(containerId) {
+            const scope = document.getElementById(containerId);
+            const selectOriginal = scope.querySelector('#categorias');
+
+            const valoresSeleccionados = Array.from(selectOriginal.options)
+                .filter(opt => opt.selected)
+                .map(opt => opt.value);
+
+            console.log('Valores seleccionados:', valoresSeleccionados);
+
+            // Devuelve los valores para usarlos al construir el FormData
+            return valoresSeleccionados;
+        }
     </script>
 
     <style>

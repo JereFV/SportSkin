@@ -34,7 +34,9 @@ namespace SportSkin.Application.Services.Implementations
 
             //Se accede a las propiedades de la respuesta para obtener las temporadas en el equipo específico.
             int[] temporadas = trayectoriaJugador?.Equipos?.Where(x => x.Equipo?.IdEquipo == idEquipo).FirstOrDefault()?.Temporadas ?? [];
-                     
+
+            //int[] temporadas = [2025, 2026];
+
             return temporadas;
         }
     }

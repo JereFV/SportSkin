@@ -164,5 +164,23 @@ namespace SportSkin.Infrastructure.Repository.Implementations
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Camiseta> FindByIdAsyncWithTracking(int id)
+        {
+            var camiseta = await _context.Set<Camiseta>()
+                                   .Where(x => x.IdCamiseta == id)
+                                   .Include(x => x.ImagenCamiseta)
+                                   .Include(x => x.IdCondicionCamisetaNavigation)
+                                   .Include(x => x.IdEstadoCamisetaNavigation)
+                                   //.Include(x => x.IdEquipoNavigation)
+                                   //.Include(x => x.IdJugadorNavigation)
+                                   .Include(x => x.IdCategoriaCamiseta)
+                                   .Include(x => x.IdUsuarioVendedorNavigation)
+                                   .Include(x => x.Subasta)
+                                   .ThenInclude(x => x.IdEstadoSubastaNavigation)
+                                   .FirstOrDefaultAsync();
+
+            return camiseta;
+        }
     }
 }

@@ -37,6 +37,17 @@ namespace SportSkin.Application.Services.Implementations
             //Se accede a las propiedades de la respuesta para obtener los equipos coincidentes con el filtro.
             ICollection<EquipoAPIFootballDTO> equipos = responseEquipos?.Equipos?.Select(x => x.DatosEquipo)?.ToList() ?? [];
 
+            //ICollection<EquipoAPIFootballDTO> equipos = new List<EquipoAPIFootballDTO>();
+
+            //equipos.Add(new EquipoAPIFootballDTO { Nombre = "Pumas", IdEquipo = 1, Pais = "Mexico", EsNacional = false });
+            //equipos.Add(new EquipoAPIFootballDTO { Nombre = "Pumas UNAM W", IdEquipo = 5, Pais = "Mexico", EsNacional = false });
+            //equipos.Add(new EquipoAPIFootballDTO { Nombre = "Pumas Tabasco", IdEquipo = 2, Pais = "Mexico", EsNacional = false });
+            //equipos.Add(new EquipoAPIFootballDTO { Nombre = "Pumas UNAM U20", IdEquipo = 3, Pais = "Mexico", EsNacional = false });
+            //equipos.Add(new EquipoAPIFootballDTO { Nombre = "Kitsap Pumas", IdEquipo = 4, Pais = "Mexico", EsNacional = false });
+            //equipos.Add(new EquipoAPIFootballDTO { Nombre = "UNAM Pumas U21", IdEquipo = 6, Pais = "Mexico", EsNacional = false });
+            //equipos.Add(new EquipoAPIFootballDTO { Nombre = "U.N.A.M. - Pumas", IdEquipo = 2286, Pais = "Mexico", EsNacional = false });
+            //equipos.Add(new EquipoAPIFootballDTO { Nombre = "Pumas U19", IdEquipo = 8, Pais = "Mexico", EsNacional = false });
+
             return equipos;
         }
     }

@@ -45,10 +45,7 @@ namespace SportSkin.Application.Services.Implementations
                 try
                 {
                     //Mapeo de DTO a entidad.
-                    camiseta = _mapper.Map<Camiseta>(dto);
-                    camiseta.FechaRegistro = DateTime.Now;
-                    camiseta.IdEstadoCamiseta = 1; //Disponible
-                    camiseta.IdUsuarioVendedor = 2; //Disponible
+                    camiseta = _mapper.Map<Camiseta>(dto);                  
 
                     //Inicia transacción.
                     await _unitOfWork.BeginTransactionAsync();
@@ -177,6 +174,12 @@ namespace SportSkin.Application.Services.Implementations
                 try
                 {
                     camiseta = await _repositoryCamiseta.FindByIdAsync(dto.IdCamiseta);
+
+                    //Asignación de valores faltantes al DTO antes del mapeo. (Solución temporal)
+                    dto.FechaRegistro = camiseta.FechaRegistro;
+                    dto.IdUsuarioVendedor = camiseta.IdUsuarioVendedor;
+                    dto.EstadoRegistro = camiseta.EstadoRegistro;
+                    dto.IdEstadoCamiseta = camiseta.IdEstadoCamiseta;
 
                     //Mapeo de DTO a la entidad obtenida para mantener el tracking.
                     _mapper.Map(dto, camiseta);

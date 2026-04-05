@@ -14,6 +14,7 @@ using SportSkin.Infrastructure.Repository.Interfaces;
 using SportSkin.Infrastructure.Transactions.Implementations;
 using SportSkin.Infrastructure.Transactions.Interfaces;
 using SportSkin.Web.BackgroundServices;
+using SportSkin.Web.Hubs;
 using SportSkin.Web.Models;
 using System.Text;
 
@@ -80,8 +81,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Integrar Serilog al host
 builder.Host.UseSerilog(Log.Logger);
 
-// Add services to the container.
+//  Uso de MVC.
 builder.Services.AddControllersWithViews();
+
+// Uso de SignalR
+builder.Services.AddSignalR();
+
 //***********
 // =======================
 // Configurar Dependency Injection
@@ -94,6 +99,7 @@ builder.Services.AddTransient<IRepositoryCategoriaCamiseta, RepositoryCategoriaC
 builder.Services.AddTransient<IRepositoryCondicionCamiseta, RepositoryCondicionCamiseta>();
 builder.Services.AddScoped<IRepositoryEquipo, RepositoryEquipo>();
 builder.Services.AddScoped<IRepositoryJugador, RepositoryJugador>();
+builder.Services.AddTransient<IRepositoryPuja, RepositoryPuja>();
 
 //Controlador de transacciones en una unidad de trabajo.
 builder.Services.AddScoped<IUnitOfWork, UnitofWork>();
@@ -108,13 +114,17 @@ builder.Services.AddTransient<IServiceEquipo, ServiceEquipo>();
 builder.Services.AddTransient<IServiceJugador, ServiceJugador>();
 builder.Services.AddTransient<IServiceTrayectoriaJugador, ServiceTrayectoriaJugador>();
 builder.Services.AddTransient<IImageStorage, ImageStorage>();
+builder.Services.AddTransient<IServicePuja, ServicePuja>();
 
+//Background Service
 builder.Services.AddSingleton<SubastaBackgroundService>();
 builder.Services.AddHostedService<SubastaBackgroundService>();
+
 //Conf images route
 builder.Services.Configure<ImageSettings>(
     builder.Configuration.GetSection("ImageSettings")
 );
+
 //Comision de subasta(fija)
 builder.Services.Configure<SubastaSettings>(
     builder.Configuration.GetSection("SubastaSettings")
@@ -126,7 +136,6 @@ builder.Services.Configure<SubastaSettings>(
 builder.Services.AddAutoMapper(config =>
 {
     //*** Profiles
-    //config.AddProfile<AutorProfile>();   
     config.AddProfile <CamisetaProfile>();
     config.AddProfile<CondicionCamisetaProfile>();
     config.AddProfile<CategoriaCamisetaProfile>();
@@ -177,7 +186,6 @@ builder.Services.AddSession(options => {
     options.Cookie.IsEssential = true;
 });
 
-//builder.Services.AddHostedService<SportSkin.Web.BackgroundServices.SubastaBackgroundService>();
 var app = builder.Build();
 
 // Warm-up: despierta la conexión antes del primer request
@@ -208,13 +216,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
-
 app.UseSerilogRequestLogging();
-
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
+// Mapeo de Hubs de SignalR.
+app.MapHub<SubastaHub>("hubs/subasta");
 
 app.MapControllerRoute(
     name: "default",

@@ -1,4 +1,6 @@
-﻿using SportSkin.Infrastructure.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using SportSkin.Infrastructure.Data;
 using SportSkin.Infrastructure.Models;
 using SportSkin.Infrastructure.Repository.Interfaces;
 using System;
@@ -18,11 +20,28 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             _context = context;
         }
 
+        //Guarda una nueva puja mediante una transacción para control de concurrencia.
         public async Task AddAsync(Puja entity)
         {
-            await _context.Puja.AddAsync(entity);
+            var strategy = _context.Database.CreateExecutionStrategy();
 
-            await _context.SaveChangesAsync();
+            await strategy.ExecuteAsync(async () => 
+            {
+                using var transaction = await _context.Database.BeginTransactionAsync();
+
+                try
+                {                   
+                    await _context.Puja.AddAsync(entity);
+                    await _context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }               
+            });                 
         }
     }
 }

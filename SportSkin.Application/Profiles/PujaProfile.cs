@@ -16,6 +16,7 @@ namespace SportSkin.Application.Profiles
             CreateMap<Puja, PujaDTO>().ReverseMap();
 
             CreateMap<PujaDTO, Puja>()
+                .ForMember(dest => dest.Fecha, opt => opt.MapFrom(src => DateTime.Now))
                 .ForMember(dest => dest.IdSubastaNavigation, opt => opt.Ignore())
                 .ForMember(dest => dest.IdUsuarioPujaNavigation, opt => opt.Ignore());
         }

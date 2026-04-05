@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using SportSkin.Application.DTOs;
@@ -16,19 +17,25 @@ namespace SportSkin.Web.Controllers
         private readonly IServiceSubasta _serviceSubasta;
         private readonly IServiceCamiseta _serviceCamiseta;
         private readonly IServiceUsuario _serviceUsuario;
+        private readonly IServicePuja _servicePuja;
         private readonly SubastaSettings _settings;
         private readonly SubastaBackgroundService _bgService;
+        private readonly IHubContext _hubContext;
 
         public SubastaController(
             IServiceSubasta serviceSubasta,
             IServiceCamiseta serviceCamiseta,
             IServiceUsuario serviceUsuario,
-            IOptions<SubastaSettings> settings)
+            IOptions<SubastaSettings> settings,
+            IServicePuja servicePuja,
+            IHubContext hubContext)
         {
             _serviceSubasta = serviceSubasta;
             _serviceCamiseta = serviceCamiseta;
             _serviceUsuario = serviceUsuario;
             _settings = settings.Value;
+            _servicePuja = servicePuja;
+            _hubContext = hubContext;
         }
 
         private int GetUsuarioSesionId()
@@ -37,6 +44,7 @@ namespace SportSkin.Web.Controllers
             var obj = JObject.Parse(json);
             return obj["IdUsuario"]?.Value<int>() ?? 0;
         }
+
         private string GetUsuarioSesionNombre()
         {
             var json = HttpContext.Session.GetString("UsuarioSesion") ?? "{}";
@@ -427,6 +435,40 @@ namespace SportSkin.Web.Controllers
             };
 
             return View(interfazSubastaViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Pujar([FromBody]PujaDTO request)
+        {
+            try
+            {         
+                request.IdUsuarioPuja = GetUsuarioSesionId();  //Asignación del usuario de la puja a partir del valor almacenado en sesión.
+                request.Fecha = DateTime.Now;
+
+                await _servicePuja.AddAsync(request);
+
+                //Variables auxiliares para el acceso al nombre del usuario en sesión.
+                string usuarioSesion = GetUsuarioSesionNombre();
+                string[] usuarioSesionSplit = usuarioSesion.Split(' ');
+
+                //Notifica la nueva puja realizada a todos los clientes conectados a la subasta y ejecuta el método de actualización de valores definido del lado cliente.
+                await _hubContext.Clients
+                    .Group($"subasta-{request.IdSubasta}")
+                    .SendAsync("NuevaPuja", new
+                    {
+                        usuario = usuarioSesionSplit[0] + usuarioSesionSplit[1], //Devuelve solo el nombre y primer apellido.
+                        inicialesUsuario = usuarioSesionSplit[0][..1] + usuarioSesionSplit[1][..1],
+                        monto = request.Monto.ToString("C", new System.Globalization.CultureInfo("en-US")),
+                        fecha = request.Fecha.ToString("dd/MM/yyyy HH:mm:ss"),
+                    });
+
+                return Ok();
+            }
+            catch (Exception) 
+            { 
+                return BadRequest();
+            }         
         }
     }
 }

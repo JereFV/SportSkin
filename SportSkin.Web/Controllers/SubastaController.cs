@@ -418,11 +418,12 @@ namespace SportSkin.Web.Controllers
             {
                 Subasta = subasta,
                 SituacionFirma = subasta.IdCamisetaNavigation.Autografiada ? "Firmada" : "No Firmada",
-                PujaActual = subasta.Puja.Any() ? subasta.Puja.Max(x => x.Monto) : subasta.PrecioBase,
+                PujaActual = subasta.Puja.Count != 0 ? subasta.Puja.Max(x => x.Monto) : 0,
                 CantidadTotalPujas = subasta.Puja?.Count ?? 0,
                 InicialesVendedor = subasta.IdCamisetaNavigation.UsuarioVendedorNavigation.Nombre[..1] + subasta.IdCamisetaNavigation.UsuarioVendedorNavigation.Apellido1[..1],
                 NombreCompletoVendedor = $"{subasta.IdCamisetaNavigation.UsuarioVendedorNavigation?.Nombre} {subasta.IdCamisetaNavigation.UsuarioVendedorNavigation?.Apellido1} {subasta.IdCamisetaNavigation.UsuarioVendedorNavigation?.Apellido2}",
-                NombreCompletoJugador = $"{subasta.IdCamisetaNavigation.JugadorNavigation?.Nombre} {subasta.IdCamisetaNavigation.JugadorNavigation?.Apellido}"
+                NombreCompletoJugador = $"{subasta.IdCamisetaNavigation.JugadorNavigation?.Nombre} {subasta.IdCamisetaNavigation.JugadorNavigation?.Apellido}",
+                MontoMinProximaPuja = subasta.Puja?.Count != 0 ? subasta.Puja?.Max(x => x.Monto) ?? 0 + subasta.IncrementoMinimo : subasta.IncrementoMinimo
             };
 
             return View(interfazSubastaViewModel);

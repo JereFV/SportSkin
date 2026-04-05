@@ -516,7 +516,88 @@ body {
     pointer-events: none;
 }
 
-/*Media queries*/
+/* Modal de pujas */
+#modalPujar .modal-content {
+    border-radius: 12px;
+    border: 1px solid var(--ss-border);
+}
+
+.modal-bid-hint {
+    /*background: var(--ss-surface);*/
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: .82rem;
+    color: var(--ss-muted);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.modal-user-chip {
+    /*background: var(--ss-surface);*/
+    border: 1px solid var(--ss-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: .82rem;
+    color: var(--ss-muted);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-amount-wrapper {
+    display: flex;   
+    align-items: center;
+    border: 1.5px solid var(--ss-border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+    transition: border-color .15s;
+}
+
+.modal-amount-wrapper:focus-within {
+    border-color: var(--ss-primary);
+}
+
+.modal-currency-prefix {
+    padding: 0 14px;
+    background: var(--auction-surface);
+    border-right: 1px solid var(--auction-border);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--auction-muted);
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+}
+
+#inputMonto {
+    border: none;
+    outline: none;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ss-text);
+    padding: 12px 16px;
+    width: 100%;
+    background: transparent;
+}
+
+#inputMonto::placeholder {
+    color: #d1d5db;
+    font-weight: 400;
+}
+
+#errorMonto {
+    display: none;
+    font-size: .78rem;
+    color: var(--ss-danger);
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+}
+
+/*MEDIA QUERIES*/
 @media (min-width: 1400px) {
     .userstable-action-buttons {
         margin-right: 0.5rem;

@@ -20,5 +20,9 @@ namespace SportSkin.Web.ViewModels
         public string? InicialesVendedor { get; set; }
 
         public string? NombreCompletoJugador { get; set; }
+
+        //Datos utilizados por el modal de Pujar.
+        [DisplayFormat(DataFormatString = "${0:N0}")]
+        public int MontoMinProximaPuja { get; set; }
     }
 }

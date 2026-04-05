@@ -1,0 +1,44 @@
+﻿@model IEnumerable<SportSkin.Application.DTOs.ImagenCamisetaDTO>
+
+@if (Model.Count() > 0)
+{
+    //Variable auxiliar para controlar la posición de la imagen en iteración.
+    int contador = 1;
+
+    <div id="imagesCarrousel" class="carousel slide">
+        <div class="carousel-inner">
+            <!-- Botones de navegación -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#imagesCarrousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#imagesCarrousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+
+            @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model)
+            {
+                <div class="@(contador++ == 1 ? "carousel-item active" : "carousel-item")">
+                    <div class="ratio ratio-1x1" style="max-width: 615px;">
+                        <img src="@imagen.RutaImagen" class="object-fit-cover rounded" alt="...">
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Miniaturas de imágenes -->
+        <div class="d-flex gap-1 mt-3">
+            <!-- Se reestablece el valor del contador auxiliar previo a una nueva iteración. -->
+            @{
+                contador = 0;
+            }
+
+            @foreach (SportSkin.Application.DTOs.ImagenCamisetaDTO imagen in Model)
+            {
+                <img src="@imagen.RutaImagen" class="img-thumbnail" style="width: 120px; max-height: 120px; object-fit: cover; cursor: pointer;" data-bs-target="#imagesCarrousel" data-bs-slide-to="@contador">
+
+                //Aumento en contador auxiliar.
+                { contador++; }
+            }
+        </div>
+    </div>
+}

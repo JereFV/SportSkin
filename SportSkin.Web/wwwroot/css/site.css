@@ -1,33 +1,33 @@
 html {
-  font-size: 14px;
+    font-size: 15px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 17px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+    color: var(--bs-secondary-color);
+    text-align: end;
 }
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+    text-align: start;
 }
 
 .no-resize {
@@ -43,8 +43,480 @@ body {
 .filepond--item {
     max-width: 245px;
     width: 100%;
-} 
+}
 
+/*INTERFAZ DE SUBASTA*/
+
+/*Variables propias de la seccion de subasta.*/
+:root {
+    --ss-border: #dee2e6;
+    --ss-surface: #f8f9fa;
+    --ss-muted: #6c757d;
+    --ss-text: #212529;
+    --ss-success-bg: #d1f5ee;
+    --ss-warning-bg: #fef5e7;
+    --ss-danger-bg: #fde8e8;
+    --ss-primary: #2c3e50;
+    --ss-success: #18bc9c;
+    --ss-warning: #f39c12;
+    --ss-danger: #e74c3c;
+}
+
+/* Layout */
+.auction-wrapper {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 2rem;
+    align-items: start;
+    padding-bottom: 6rem;
+}
+
+/* Cards */
+.a-card {
+    background: #fff;
+    border: 1px solid var(--ss-border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.a-card:last-child {
+    margin-bottom: 0;
+}
+
+/* Datos de camiseta. */
+.object-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ss-text);
+    margin-bottom: .4rem;
+}
+
+.object-desc {
+    font-size: .95rem;
+    color: var(--ss-muted);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+/* Atributos de la camiseta en grupos */
+.shirt-attrs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 1.25rem;
+}
+
+.shirt-attr-item {
+    background: var(--ss-surface);
+    border: 1px solid var(--ss-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.shirt-attr-icon {
+    font-size: .85rem;
+    color: var(--ss-muted);
+    flex-shrink: 0;
+    width: 16px;
+    text-align: center;
+}
+
+.shirt-attr-label {
+    font-size: .68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--ss-muted);
+    line-height: 1.2;
+}
+
+.shirt-attr-value {
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--ss-text);
+    line-height: 1.3;
+}
+
+/* Estado de subasta y agrupacion interna del timer */
+.timer-status-title {
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--ss-warning);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.timer-block.timer-critical .timer-status-title {
+    color: var(--ss-danger);
+}
+
+.timer-block.timer-ended .timer-status-title {
+    color: var(--ss-muted);
+}
+
+.timer-divider {
+    border: none;
+    border-top: 1px solid #f0c030;
+    margin: 0 0 12px;
+}
+
+.timer-block.timer-critical .timer-divider {
+    border-color: #f1a8a5;
+}
+
+.timer-block.timer-ended .timer-divider {
+    border-color: var(--ss-border);
+}
+
+.timer-main-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.timer-clock-icon {
+    font-size: 1.1rem;
+    color: var(--ss-warning);
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.timer-block.timer-critical .timer-clock-icon {
+    color: var(--ss-danger);
+}
+
+.timer-block.timer-ended .timer-clock-icon {
+    color: var(--ss-muted);
+}
+
+/* Chip de vendedor */
+.seller-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--ss-surface);
+    border: 1px solid var(--ss-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 1rem;
+}
+
+.seller-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: .8rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.seller-name {
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--ss-text);
+}
+
+.seller-email {
+    font-size: .75rem;
+    color: var(--ss-muted);
+}
+
+/* Temporizador */
+.timer-block {
+    display: flex;
+    flex-direction: column;
+    background: var(--ss-warning-bg);
+    border: 1px solid #f7c948;
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-bottom: 1rem;
+}
+
+.timer-block.timer-critical {
+    background: var(--ss-danger-bg);
+    border-color: #f1a8a5;
+    animation: pulse-critical 1s ease-in-out infinite;
+}
+
+.timer-block.timer-ended {
+    background: var(--ss-surface);
+    border-color: var(--ss-border);
+}
+
+@keyframes pulse-critical {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .75;
+    }
+}
+
+.timer-label {
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--ss-warning);
+    white-space: nowrap;
+    align-self: center
+}
+
+.timer-block.timer-critical .timer-label {
+    color: var(--ss-danger);
+}
+
+.timer-block.timer-ended .timer-label {
+    color: var(--ss-muted);
+}
+
+.timer-digits-group {
+    display: flex;
+    align-items: baseline;
+    gap: 1px;
+    margin-left: 2px;
+}
+
+.timer-num {
+    font-size: 1.65rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .02em;
+    line-height: 1;
+    color: var(--ss-warning);
+}
+
+.timer-block.timer-critical .timer-num {
+    color: var(--ss-danger);
+}
+
+.timer-block.timer-ended .timer-num {
+    color: var(--ss-muted);
+}
+
+.timer-unit-inline {
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--ss-warning);
+    margin-right: 1px;
+    line-height: 1;
+    align-self: flex-end;
+    padding-bottom: 3px;
+}
+
+.timer-block.timer-critical .timer-unit-inline {
+    color: var(--ss-danger);
+}
+
+.timer-block.timer-ended .timer-unit-inline {
+    color: var(--ss-muted);
+}
+
+.timer-colon {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ss-warning);
+    line-height: 1;
+    padding-bottom: 1px;
+    opacity: .5;
+}
+
+.timer-block.timer-critical .timer-colon {
+    color: var(--ss-danger);
+}
+
+.timer-block.timer-ended .timer-colon {
+    color: var(--ss-muted);
+}
+
+/* Métricas y datos de subasta */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.metric-card {
+    background: var(--ss-surface);
+    border: 1px solid var(--ss-border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.metric-label {
+    font-size: .78rem;
+    color: var(--ss-muted);
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.metric-value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ss-text);
+}
+
+.metric-value.metric-highlight {
+    font-size: 1.35rem;
+    color: var(--ss-primary);
+}
+
+/* Historial de pujas */
+.bids-section-title {
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--ss-muted);
+    margin-bottom: .75rem;
+}
+
+.bids-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .85rem;
+}
+
+.bids-table thead th {
+    font-size: .72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--ss-muted);
+    padding: 0 10px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--ss-border);
+}
+
+.bids-table thead th:last-child {
+    text-align: right;
+}
+
+.bids-table tbody tr {
+    border-bottom: 1px solid var(--ss-border);
+}
+
+.bids-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.bids-table tbody tr.bid-leader {
+    background: var(--ss-success-bg);
+}
+
+.bids-table tbody td {
+    padding: 9px 10px;
+    vertical-align: middle;
+}
+
+.bids-table tbody td:last-child {
+    text-align: right;
+}
+
+.bid-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bid-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #dde3ea;
+    color: var(--ss-primary);
+    font-size: .68rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.bid-leader .bid-avatar {
+    background: var(--ss-success-bg);
+    color: var(--ss-success);
+}
+
+.bid-username {
+    font-weight: 500;
+    font-size: .9rem;
+    color: var(--ss-text);
+}
+
+.bid-amount {
+    font-weight: 700;
+    font-size: .9rem;
+    color: var(--ss-text);
+}
+
+.bid-amount.leader-amount {
+     color: var(--ss-success);
+}
+
+.bid-date {
+    color: var(--ss-muted);
+    font-size: .82rem;
+}
+
+.no-bids-msg {
+    text-align: center;
+    padding: 0.5rem 0;
+    color: var(--ss-muted);
+    font-size: .9rem;
+}
+
+/* Boton flotante de invocación al modal de Pujar. */
+.fab-pujar {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1040;
+    background: var(--ss-primary);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(44,62,80,.3);
+    transition: transform .15s, box-shadow .15s;
+}
+
+.fab-pujar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(44,62,80,.4);
+}
+
+.fab-pujar:active {
+    transform: scale(.97);
+}
+
+.fab-pujar.fab-disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    box-shadow: none;
+    pointer-events: none;
+}
+
+/*Media queries*/
 @media (min-width: 1400px) {
     .userstable-action-buttons {
         margin-right: 0.5rem;
@@ -59,5 +531,11 @@ body {
     /*Centra los elementos del filepond en vistas más pequeñas*/
     .filepond--item {
         justify-self: center
+    }
+}
+
+@media (max-width: 900px) {
+    .auction-wrapper {
+        grid-template-columns: 1fr;
     }
 }

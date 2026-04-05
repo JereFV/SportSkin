@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
+using SportSkin.Infrastructure.Models;
 using SportSkin.Web.BackgroundServices;
 using SportSkin.Web.ViewModels;
 using System.Text.Json;
@@ -367,7 +368,6 @@ namespace SportSkin.Web.Controllers
             }
         }
 
-
         // ─────────────────────────────────────────────────────────────
         // POST: /Subasta/Cancelar/5
         // ─────────────────────────────────────────────────────────────
@@ -407,5 +407,25 @@ namespace SportSkin.Web.Controllers
             return RedirectToAction(nameof(MisSubastas));
         }
 
+        public async Task<IActionResult> Subasta(int id)
+        {
+            var subasta = await _serviceSubasta.FindByIdAsync(id);
+
+            if (subasta == null)
+                return NotFound();
+
+            InterfazSubastaViewModel interfazSubastaViewModel = new InterfazSubastaViewModel()
+            {
+                Subasta = subasta,
+                SituacionFirma = subasta.IdCamisetaNavigation.Autografiada ? "Firmada" : "No Firmada",
+                PujaActual = subasta.Puja.Any() ? subasta.Puja.Max(x => x.Monto) : subasta.PrecioBase,
+                CantidadTotalPujas = subasta.Puja?.Count ?? 0,
+                InicialesVendedor = subasta.IdCamisetaNavigation.UsuarioVendedorNavigation.Nombre[..1] + subasta.IdCamisetaNavigation.UsuarioVendedorNavigation.Apellido1[..1],
+                NombreCompletoVendedor = $"{subasta.IdCamisetaNavigation.UsuarioVendedorNavigation?.Nombre} {subasta.IdCamisetaNavigation.UsuarioVendedorNavigation?.Apellido1} {subasta.IdCamisetaNavigation.UsuarioVendedorNavigation?.Apellido2}",
+                NombreCompletoJugador = $"{subasta.IdCamisetaNavigation.JugadorNavigation?.Nombre} {subasta.IdCamisetaNavigation.JugadorNavigation?.Apellido}"
+            };
+
+            return View(interfazSubastaViewModel);
+        }
     }
 }

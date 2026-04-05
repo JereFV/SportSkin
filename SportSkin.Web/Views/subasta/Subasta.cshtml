@@ -1,0 +1,265 @@
+﻿@model SportSkin.Web.ViewModels.InterfazSubastaViewModel
+
+@{
+    ViewData["Title"] = "Subasta - " + Model.Subasta.IdCamisetaNavigation?.Nombre;
+}
+
+<div class="row mb-3">
+    <a class="icon-link icon-link-hover link-info" asp-action="SubastaIndex">
+        <svg xmlns="http://www.w3.org/2000/svg" class="bi" viewBox="0 0 16 16" aria-hidden="true">
+            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+        </svg>
+        Regresar al listado
+    </a>
+</div>
+
+<div class="auction-wrapper">
+    @*Imágenes de la camiseta.*@
+    <div class="auction-carousel-wrap">
+        <partial name="_ImagesCarrousel" model="Model.Subasta?.IdCamisetaNavigation?.ImagenesCamiseta" />
+    </div>
+
+    @*Detalle de camiseta y subasta.*@
+    <div>
+        @* Card Camiseta*@
+        <div class="a-card">
+            <div class="object-title">@Model.Subasta?.IdCamisetaNavigation?.Nombre</div>
+
+            @* Categorías *@
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                @foreach (var cat in Model.Subasta?.IdCamisetaNavigation?.CategoriasCamiseta ?? Enumerable.Empty<SportSkin.Application.DTOs.CategoriaCamisetaDTO>())
+                {
+                    <span class="badge text-bg-primary">
+                        <i class="fa-solid fa-tag" style="font-size:.65rem"></i> @cat.Nombre
+                    </span>
+                }
+                <span class="badge @(Model.Subasta?.IdCamisetaNavigation?.Autografiada == true ? "text-bg-success" : "text-bg-warning")">
+                    <i class="fa-solid fa-signature" style="font-size:.65rem"></i> @Html.DisplayFor(model => model.SituacionFirma)
+                </span>
+            </div>
+
+            @* Datos específicos de la camiseta. *@
+            <div class="shirt-attrs">
+                <div class="shirt-attr-item">
+                    <i class="fa-solid fa-magnifying-glass shirt-attr-icon"></i>
+                    <div>
+                        <div class="shirt-attr-label">Condición</div>
+                        <div class="shirt-attr-value">@Html.DisplayFor(model => model.Subasta.IdCamisetaNavigation.CondicionCamisetaNavigation.Nombre)</div>
+                    </div>
+                </div>
+                <div class="shirt-attr-item">
+                    <i class="fa-solid fa-futbol shirt-attr-icon"></i>
+                    <div>
+                        <div class="shirt-attr-label">Equipo</div>
+                        <div class="shirt-attr-value">@Html.DisplayFor(model => model.Subasta.IdCamisetaNavigation.EquipoNavigation.Nombre)</div>
+                    </div>
+                </div>
+                <div class="shirt-attr-item">
+                    <i class="fa-solid fa-person-running shirt-attr-icon"></i>
+                    <div>
+                        <div class="shirt-attr-label">Jugador</div>
+                        <div class="shirt-attr-value">@Html.DisplayFor(model => model.NombreCompletoJugador)</div>
+                    </div>
+                </div>
+                <div class="shirt-attr-item">
+                    <i class="fa-solid fa-calendar-days shirt-attr-icon"></i>
+                    <div>
+                        <div class="shirt-attr-label">Temporada</div>
+                        <div class="shirt-attr-value">@Html.DisplayFor(model => model.Subasta.IdCamisetaNavigation.Temporada)</div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="object-desc">@Html.DisplayFor(model => model.Subasta.IdCamisetaNavigation.Descripcion)</p>
+
+            @* Chip del vendedor *@
+            <div style="font-size:.75rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--ss-muted); margin-bottom:.5rem;">
+                Vendedor
+            </div>
+            <div class="seller-chip">
+                <div class="seller-avatar bg-primary">@Model.InicialesVendedor</div>
+                <div>
+                    <div class="seller-name">@Html.DisplayFor(model => model.NombreCompletoVendedor)</div>
+                    <div class="seller-email">@Html.DisplayFor(model => model.Subasta.IdCamisetaNavigation.UsuarioVendedorNavigation.Correo)</div>
+                </div>
+            </div>
+        </div>
+
+        @* Card Subasta *@
+        <div class="a-card">
+            <div id="timerBlock"
+                 class="timer-block"
+                 data-close="@Model.Subasta?.FechaCierre.ToString("o")">
+                @*Fecha de cierre inyectada en formato ISO 8601 para su lectura desde JS.*@
+
+                @*Título de estado — cambia dinámicamente via JS.*@
+                <div class="timer-status-title" id="timerStatusTitle">
+                    <i class="fa-solid fa-circle-dot" style="font-size:.6rem" id="timerStatusIcon"></i>
+                    <span id="timerStatusText">Subasta en curso</span>
+                </div>
+
+                <hr class="timer-divider">
+
+                @*Fila principal: ícono reloj + leyenda fija + dígitos con unidades inline.*@
+                <div class="timer-main-row">
+                    <i class="fa-regular fa-clock timer-clock-icon" id="timerIcon" style="color: var(--ss-warning)"></i>
+                    <span class="timer-label">Tiempo restante</span>
+                    <div class="timer-digits-group">
+                        <span class="timer-num" id="timerH">--</span><span class="timer-unit-inline">h</span><span class="timer-colon">:</span><span class="timer-num" id="timerM">--</span><span class="timer-unit-inline">m</span><span class="timer-colon">:</span><span class="timer-num" id="timerS">--</span><span class="timer-unit-inline">s</span>
+                    </div>
+                </div>
+            </div>
+
+            @* Datos de la subasta *@
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Precio base</div>
+                    <div class="metric-value">@Html.DisplayFor(model => model.Subasta.PrecioBase)</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Puja más alta</div>
+                    <div class="metric-value metric-highlight" id="pujaActualDisplay">
+                        @Html.DisplayFor(model => model.PujaActual)
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Incremento mín.</div>
+                    <div class="metric-value">@Html.DisplayFor(model => model.Subasta.IncrementoMinimo)</div>
+                </div>
+            </div>
+
+            @* Historial de pujas *@
+            <div class="bids-section-title">
+                <i class="fa-solid fa-clock-rotate-left me-1"></i>
+                Historial de pujas
+                @if (Model.Subasta?.Puja.Count > 0)
+                {
+                    <span class="badge text-bg-primary ms-1">@Model.CantidadTotalPujas</span>
+                }
+            </div>
+
+            @if (Model.Subasta?.Puja.Count > 0)
+            {
+                <table class="bids-table">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Monto</th>
+                            <th>Fecha y hora</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            //Variable auxiliar para determinar si la puja a renderizar es la puja "líder".
+                            bool esPrimera = true;
+                        }
+                        @foreach (var puja in Model.Subasta.Puja.OrderByDescending(x => x.Fecha))
+                        {
+                            <tr class="@(esPrimera ? "bid-leader" : "")">
+                                <td>
+                                    <div class="bid-user-cell">
+                                        <div class="bid-avatar">
+                                            @puja.IdUsuarioPujaNavigation?.Nombre.Substring(0, 1)@puja.IdUsuarioPujaNavigation?.Apellido1.Substring(0, 1)
+                                        </div>
+                                        <span class="bid-username"> @puja.IdUsuarioPujaNavigation?.Nombre @puja.IdUsuarioPujaNavigation?.Apellido1</span>
+                                        @if (esPrimera)
+                                        {
+                                            <span class="badge text-bg-success">
+                                                <i class="fa-solid fa-trophy" style="font-size:.8rem"></i> Líder
+                                            </span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="bid-amount @(esPrimera ? "leader-amount" : "")">
+                                        @puja.Monto.ToString("C", new System.Globalization.CultureInfo("en-US"))
+                                    </span>
+                                </td>
+                                <td class="bid-date">@puja.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                            esPrimera = false;
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="no-bids-msg">
+
+                    Aún no hay pujas. ¡Sé el primero en hacerlo!
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<button class="fab-pujar" id="fabPujar"
+        data-bs-toggle="modal" data-bs-target="#modalPujar"
+        title="Pujar">
+    <i class="fa-solid fa-gavel"></i>
+    Pujar
+</button>
+
+@section Scripts {
+    <script>
+        // Constantes de acceso a elementos del DOM.
+        const timerBlock       = document.getElementById("timerBlock");
+        const timerIcon        = document.getElementById("timerIcon");
+        const timerStatusTitle = document.getElementById("timerStatusTitle");
+        const timerStatusIcon  = document.getElementById("timerStatusIcon");
+        const timerStatusText  = document.getElementById("timerStatusText");
+        const horas              = document.getElementById("timerH");
+        const minutos              = document.getElementById("timerM");
+        const segundos              = document.getElementById("timerS");
+        const botonPujar       = document.getElementById("fabPujar");
+        const fechaCierre      = new Date(timerBlock.dataset.close);
+
+        //Ejecucción inmediata del tick de tiempo restante y configuración de un loop de ejecucción cada segundo.
+        tick();
+        const intervalId = setInterval(tick, 1000);
+
+        // Función tick que actualiza el temporizador en tiempo real.
+        function tick() {
+            const diferenciaSegundos = Math.floor((fechaCierre - new Date()) / 1000);
+
+            // Subasta cerrada.
+            if (diferenciaSegundos <= 0) {
+                horas.textContent = "00";
+                minutos.textContent = "00"; 
+                segundos.textContent = "00";
+                timerStatusText.textContent    = "Subasta finalizada";
+                timerStatusIcon.className      = "fa-solid fa-circle-xmark";               
+                timerIcon.style.color          = "var(--ss-muted)";
+                timerBlock.classList.remove("timer-critical");
+                timerBlock.classList.add("timer-ended");
+                botonPujar.classList.add("fab-disabled");
+                botonPujar.setAttribute("data-bs-toggle", "");              
+                clearInterval(intervalId);
+
+                return;
+            }
+
+            // Si a la subasta le quedan menos de 10 minutos, renderiza estilos "críticos".
+            if (diferenciaSegundos <= 600) {
+                timerBlock.classList.add("timer-critical");
+                timerStatusText.textContent    = "¡Subasta a punto de finalizar!";
+                timerStatusIcon.className      = "fa-solid fa-circle-exclamation";               
+                timerIcon.style.color          = "var(--ss-danger)";
+            }
+
+            renderizarTiempoRestante(diferenciaSegundos);
+        }
+
+        // Actualiza los valores de tiempo restante a cada uno de los segmentos de digitos. (horas, minutos y segundos)
+        function renderizarTiempoRestante(totalSeconds) {
+            horas.textContent = pad(Math.floor(totalSeconds / 3600));
+            minutos.textContent = pad(Math.floor((totalSeconds % 3600) / 60));
+            segundos.textContent = pad(totalSeconds % 60);
+        }
+
+        //Asignación de un formato específico para el valor enviado.
+        function pad(n) { return String(n).padStart(2, "0"); }
+    </script>
+}

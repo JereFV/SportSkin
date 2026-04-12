@@ -457,6 +457,10 @@ body {
     color: var(--ss-text);
 }
 
+#cantidadPujas, #liderSubasta {
+    font-size: .7rem
+}
+
 .bid-amount {
     font-weight: 700;
     font-size: .9rem;
@@ -553,7 +557,6 @@ body {
     border: 1.5px solid var(--ss-border);
     border-radius: 8px;
     overflow: hidden;
-    margin-bottom: 1.25rem;
     transition: border-color .15s;
 }
 
@@ -589,12 +592,8 @@ body {
     font-weight: 400;
 }
 
-#errorMonto {
-    display: none;
-    font-size: .78rem;
-    color: var(--ss-danger);
-    margin-top: -1rem;
-    margin-bottom: 1rem;
+.toast-close-button {
+    align-self: flex-start !important;
 }
 
 /*MEDIA QUERIES*/

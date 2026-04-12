@@ -81,13 +81,15 @@
     <!--Jquery Validation-->
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+    <!--Signal R-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
     <!-- SWEETALERT NOTIFICATION -->
     @if (TempData["Notificacion"] != null || ViewBag.Notificacion != null)
     {
         var notificacion = TempData["Notificacion"] ?? ViewBag.Notificacion;
-        <script type="text/javascript">
 
+        <script type="text/javascript">
             const payload = @Html.Raw(notificacion);
 
             if (payload) {

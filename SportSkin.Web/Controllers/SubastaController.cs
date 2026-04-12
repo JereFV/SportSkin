@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Libreria.Web.Util;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
@@ -7,6 +8,7 @@ using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
 using SportSkin.Infrastructure.Models;
 using SportSkin.Web.BackgroundServices;
+using SportSkin.Web.Hubs;
 using SportSkin.Web.ViewModels;
 using System.Text.Json;
 
@@ -20,7 +22,7 @@ namespace SportSkin.Web.Controllers
         private readonly IServicePuja _servicePuja;
         private readonly SubastaSettings _settings;
         private readonly SubastaBackgroundService _bgService;
-        private readonly IHubContext _hubContext;
+        private readonly IHubContext<SubastaHub> _hubContext;
 
         public SubastaController(
             IServiceSubasta serviceSubasta,
@@ -28,7 +30,7 @@ namespace SportSkin.Web.Controllers
             IServiceUsuario serviceUsuario,
             IOptions<SubastaSettings> settings,
             IServicePuja servicePuja,
-            IHubContext hubContext)
+            IHubContext<SubastaHub> hubContext)
         {
             _serviceSubasta = serviceSubasta;
             _serviceCamiseta = serviceCamiseta;
@@ -42,6 +44,7 @@ namespace SportSkin.Web.Controllers
         {
             var json = HttpContext.Session.GetString("UsuarioSesion") ?? "{}";
             var obj = JObject.Parse(json);
+
             return obj["IdUsuario"]?.Value<int>() ?? 0;
         }
 
@@ -49,7 +52,16 @@ namespace SportSkin.Web.Controllers
         {
             var json = HttpContext.Session.GetString("UsuarioSesion") ?? "{}";
             var obj = JObject.Parse(json);
+
             return $"{obj["Nombre"]} {obj["Apellido1"]} {obj["Apellido2"]}".Trim();
+        }
+
+        private int GetRolUsuarioSesionId()
+        {
+            var json = HttpContext.Session.GetString("UsuarioSesion") ?? "{}";
+            var obj = JObject.Parse(json);
+
+            return obj["IdRolUsuario"]?.Value<int>() ?? 0;
         }
 
         // GET: Subasta/Index
@@ -422,7 +434,9 @@ namespace SportSkin.Web.Controllers
             if (subasta == null)
                 return NotFound();
 
-            InterfazSubastaViewModel interfazSubastaViewModel = new InterfazSubastaViewModel()
+            int idUsuarioSesion = GetUsuarioSesionId();
+
+            InterfazSubastaViewModel interfazSubastaViewModel = new()
             {
                 Subasta = subasta,
                 SituacionFirma = subasta.IdCamisetaNavigation.Autografiada ? "Firmada" : "No Firmada",
@@ -431,19 +445,21 @@ namespace SportSkin.Web.Controllers
                 InicialesVendedor = subasta.IdCamisetaNavigation.UsuarioVendedorNavigation.Nombre[..1] + subasta.IdCamisetaNavigation.UsuarioVendedorNavigation.Apellido1[..1],
                 NombreCompletoVendedor = $"{subasta.IdCamisetaNavigation.UsuarioVendedorNavigation?.Nombre} {subasta.IdCamisetaNavigation.UsuarioVendedorNavigation?.Apellido1} {subasta.IdCamisetaNavigation.UsuarioVendedorNavigation?.Apellido2}",
                 NombreCompletoJugador = $"{subasta.IdCamisetaNavigation.JugadorNavigation?.Nombre} {subasta.IdCamisetaNavigation.JugadorNavigation?.Apellido}",
-                MontoMinProximaPuja = subasta.Puja?.Count != 0 ? subasta.Puja?.Max(x => x.Monto) ?? 0 + subasta.IncrementoMinimo : subasta.IncrementoMinimo
+                MontoMinProximaPuja = subasta.Puja?.Count != 0 ? (subasta.Puja?.Max(x => x.Monto) ?? 0) + subasta.IncrementoMinimo : subasta.PrecioBase,
+                IdUsuarioSesion = idUsuarioSesion,
+                //Valida si el usuario que accede a la subasta realizó la puja actualmente más alta.
+                EsPujaActual = subasta.Puja?.Count != 0 && subasta.Puja?.OrderByDescending(x => x.Monto).FirstOrDefault()?.IdUsuarioPuja == idUsuarioSesion,
+                IdRolUsuarioSesion = GetRolUsuarioSesionId()
             };
 
             return View(interfazSubastaViewModel);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost]        
         public async Task<IActionResult> Pujar([FromBody]PujaDTO request)
         {
             try
-            {         
-                request.IdUsuarioPuja = GetUsuarioSesionId();  //Asignación del usuario de la puja a partir del valor almacenado en sesión.
+            {                       
                 request.Fecha = DateTime.Now;
 
                 await _servicePuja.AddAsync(request);
@@ -457,17 +473,27 @@ namespace SportSkin.Web.Controllers
                     .Group($"subasta-{request.IdSubasta}")
                     .SendAsync("NuevaPuja", new
                     {
-                        usuario = usuarioSesionSplit[0] + usuarioSesionSplit[1], //Devuelve solo el nombre y primer apellido.
+                        idUsuario = GetUsuarioSesionId(),
+                        nombreUsuario = usuarioSesionSplit[0] + usuarioSesionSplit[1], //Devuelve solo el nombre y primer apellido.
                         inicialesUsuario = usuarioSesionSplit[0][..1] + usuarioSesionSplit[1][..1],
-                        monto = request.Monto.ToString("C", new System.Globalization.CultureInfo("en-US")),
+                        monto = request.Monto,
+                        montoFormateado = request.Monto.ToString("C0", new System.Globalization.CultureInfo("en-US")),
                         fecha = request.Fecha.ToString("dd/MM/yyyy HH:mm:ss"),
-                    });
+                    });          
 
-                return Ok();
+                return Json(new
+                {
+                    success = true,
+                    message = "Se ha registrado correctamente la puja ingresada."
+                });
             }
             catch (Exception) 
-            { 
-                return BadRequest();
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Ha ocurrido un error al intentar registrar la puja ingresada. Por favor intente de nuevo más tarde."
+                });        
             }         
         }
     }

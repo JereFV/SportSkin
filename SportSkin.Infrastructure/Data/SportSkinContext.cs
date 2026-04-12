@@ -287,6 +287,7 @@ public partial class SportSkinContext : DbContext
         {
             entity.HasKey(e => new { e.IdPuja, e.IdSubasta });
 
+            entity.Property(e => e.IdPuja).ValueGeneratedOnAdd();
             entity.Property(e => e.Fecha).HasColumnType("datetime");
 
             entity.HasOne(d => d.IdSubastaNavigation).WithMany(p => p.Puja)

@@ -86,12 +86,11 @@
         </div>
 
         @* Card Subasta *@
-        <div class="a-card">
+        <div class="a-card" id="seccionSubastas">        
             <div id="timerBlock"
                  class="timer-block"
-                 data-close="@Model.Subasta?.FechaCierre.ToString("o")">
-                @*Fecha de cierre inyectada en formato ISO 8601 para su lectura desde JS.*@
-
+                 data-close="@Model.Subasta?.FechaCierre.ToString("o")"> @*Fecha de cierre inyectada en formato ISO 8601 para su lectura desde JS.*@
+                
                 @*Título de estado — cambia dinámicamente via JS.*@
                 <div class="timer-status-title" id="timerStatusTitle">
                     <i class="fa-solid fa-circle-dot" style="font-size:.6rem" id="timerStatusIcon"></i>
@@ -131,18 +130,18 @@
             </div>
 
             @* Historial de pujas *@
-            <div class="bids-section-title">
+            <div class="bids-section-title" id="divTituloHistorialPujas">
                 <i class="fa-solid fa-clock-rotate-left me-1"></i>
                 Historial de pujas
                 @if (Model.Subasta?.Puja.Count > 0)
                 {
-                    <span class="badge text-bg-primary ms-1">@Model.CantidadTotalPujas</span>
+                    <span class="badge text-bg-primary ms-1" id="cantidadPujas">@Model.CantidadTotalPujas</span>
                 }
             </div>
 
             @if (Model.Subasta?.Puja.Count > 0)
             {
-                <table class="bids-table">
+                <table class="bids-table" id="tablaHistorial">
                     <thead>
                         <tr>
                             <th>Usuario</th>
@@ -150,7 +149,7 @@
                             <th>Fecha y hora</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="bodyHistorial">
                         @{
                             //Variable auxiliar para determinar si la puja a renderizar es la puja "líder".
                             bool esPrimera = true;
@@ -166,15 +165,16 @@
                                         <span class="bid-username"> @puja.IdUsuarioPujaNavigation?.Nombre @puja.IdUsuarioPujaNavigation?.Apellido1</span>
                                         @if (esPrimera)
                                         {
-                                            <span class="badge text-bg-success">
-                                                <i class="fa-solid fa-trophy" style="font-size:.8rem"></i> Líder
+                                            <span class="badge text-bg-success" id="liderSubasta">
+                                                <i class="fa-solid fa-trophy" style="font-size:.8rem"></i>
+                                                @(Model.Subasta.IdEstadoSubasta == 2 || Model.Subasta.IdEstadoSubasta == 3 ? "Ganador" : "Líder")
                                             </span>
                                         }
                                     </div>
                                 </td>
                                 <td>
                                     <span class="bid-amount @(esPrimera ? "leader-amount" : "")">
-                                        @puja.Monto.ToString("C", new System.Globalization.CultureInfo("en-US"))
+                                        @puja.Monto.ToString("C0", new System.Globalization.CultureInfo("en-US"))
                                     </span>
                                 </td>
                                 <td class="bid-date">@puja.Fecha.ToString("dd/MM/yyyy HH:mm:ss")</td>
@@ -187,8 +187,7 @@
             }
             else
             {
-                <div class="no-bids-msg">
-
+                <div class="no-bids-msg" id="mensajeSinPujas">
                     Aún no hay pujas. ¡Sé el primero en hacerlo!
                 </div>
             }
@@ -196,7 +195,11 @@
     </div>
 </div>
 
-<button class="fab-pujar" id="fabPujar"
+@* Botón de invocación al modal de Pujar.
+   Habilitado únicamente para usuarios con el rol de Comprador.
+*@
+<button class="fab-pujar @(Model.IdRolUsuarioSesion != 3 ? "fab-disabled" : "")" 
+        id="fabPujar"
         data-bs-toggle="modal" data-bs-target="#modalPujar"
         title="Pujar">
     <i class="fa-solid fa-gavel"></i>
@@ -222,11 +225,10 @@
                     <i class="fa-solid fa-circle-info mt-1" style="flex-shrink:0"></i>
                     <span>
                         Monto mínimo a pujar:
-                        <strong id="montoMinimoDisplay">@Model.MontoMinProximaPuja.ToString("C", new System.Globalization.CultureInfo("en-US"))</strong>
-                        (puja actual + incremento mínimo)
+                        <strong id="montoMinimoDisplay">@Model.MontoMinProximaPuja.ToString("C0", new System.Globalization.CultureInfo("en-US"))</strong>                       
                     </span>
-                </div>                        
-               
+                </div>
+
                 <div class="modal-amount-wrapper">
                     <div class="modal-currency-prefix">$</div>
                     <input type="number"
@@ -236,12 +238,9 @@
                            step="@Model.Subasta?.IncrementoMinimo" />
                 </div>
 
-                <p id="errorMonto">
-                    <i class="fa-solid fa-triangle-exclamation me-1"></i>
-                    <span id="errorMontoText"></span>
-                </p>
-
-                <button class="btn btn-success w-100 mt-2" id="btnConfirmarPuja">
+                <span id="errorMontoText" class="text-danger"></span>              
+                         
+                <button class="btn btn-success w-100 mt-4" id="btnConfirmarPuja" disabled onclick="realizarPuja()">
                     Confirmar puja
                 </button>
 
@@ -256,7 +255,7 @@
 </div>
 
 @section Scripts {
-    <script>
+    <script>         
         // Constantes de acceso a elementos del DOM.
         const timerBlock       = document.getElementById("timerBlock");
         const timerIcon        = document.getElementById("timerIcon");
@@ -268,10 +267,30 @@
         const segundos              = document.getElementById("timerS");
         const botonPujar       = document.getElementById("fabPujar");
         const fechaCierre      = new Date(timerBlock.dataset.close);
+        const inputMontoPuja = document.getElementById("inputMonto");
+        const botonConfirmarPuja = document.getElementById("btnConfirmarPuja");
+
+        //Variable auxiliar para gestionar si la puja actual más alta pertenece al usuario en sesión.
+        let esPujaActual = @(Model.EsPujaActual ? "true" : "false");
+
+        //Inicialización de conexión con el Hub de SignalR.
+        const connection = new signalR.HubConnectionBuilder()
+                                      .withUrl("/hubs/subasta")
+                                      .withAutomaticReconnect()
+                                      .build();
 
         //Ejecucción inmediata del tick de tiempo restante y configuración de un loop de ejecucción cada segundo.
-        tick();
-        const intervalId = setInterval(tick, 1000);
+         tick();
+        const intervalId = setInterval(tick, 1000);      
+
+        //Establece la conexión con Signal R, uniendo la sesión al grupo de la subasta actual.
+        connection.start()
+            .then(function() {
+                connection.invoke("UnirseASubasta", @Model.Subasta?.IdSubasta);            
+            })
+            .catch(function(err) {
+                console.error("Error al intentar establecer conexión con el Hub de Subastas de SignalR:", err.toString());
+            });
 
         // Función tick que actualiza el temporizador en tiempo real.
         function tick() {
@@ -288,8 +307,10 @@
                 timerBlock.classList.remove("timer-critical");
                 timerBlock.classList.add("timer-ended");
                 botonPujar.classList.add("fab-disabled");
-                botonPujar.setAttribute("data-bs-toggle", "");              
-                clearInterval(intervalId);
+                botonPujar.setAttribute("data-bs-toggle", "");  
+                
+                if (intervalId != null)
+                    clearInterval(intervalId);
 
                 return;
             }
@@ -314,5 +335,174 @@
 
         //Asignación de un formato específico para el valor enviado.
         function pad(n) { return String(n).padStart(2, "0"); }
+
+        //Evento de refrescamiento de la interfaz al agregar una nueva puja.
+        connection.on("NuevaPuja", function(data) {
+            //Puja actual más alta.
+            document.getElementById("pujaActualDisplay").textContent = data.montoFormateado;
+
+            const spanTotalPujas = document.getElementById("cantidadPujas");
+
+            //Si es la primera puja registrada construye el span con el total de pujas, de lo contrario solo lo actualiza.
+            if (spanTotalPujas == null)
+                document.getElementById("divTituloHistorialPujas").insertAdjacentHTML("beforeend", '<span class="badge text-bg-primary ms-1" id="cantidadPujas">1</span>')           
+            else
+                spanTotalPujas.textContent = Number(spanTotalPujas.textContent) + 1;
+          
+            const tablaHistorial = document.getElementById("tablaHistorial");            
+            const nuevaFila =  `<tr class="bid-leader">
+                                    <td>
+                                        <div class="bid-user-cell">
+                                            <div class="bid-avatar">
+                                                ${data.inicialesUsuario}
+                                            </div>
+
+                                            <span class="bid-username">${data.nombreUsuario}</span>
+
+                                            <span class="badge text-bg-success" id="liderSubasta">
+                                                <i class="fa-solid fa-trophy" style="font-size:.8rem"></i>Líder
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="bid-amount leader-amount">
+                                            ${data.montoFormateado}
+                                        </span>
+                                    </td>
+
+                                    <td class="bid-date">
+                                        ${data.fecha}
+                                    </td>
+                               </tr>`;
+
+            //Si es la primera puja construye la tabla de historial y la muestra, de lo contrario añade un nuevo registro como puja líder.
+            if (tablaHistorial == null) {
+                const tabla = `<table class="bids-table" id="tablaHistorial">
+                                   <thead>
+                                        <tr>
+                                            <th>Usuario</th>
+                                            <th>Monto</th>
+                                            <th>Fecha y hora</th>
+                                        </tr>
+                                   </thead>
+                                   <tbody>
+                                        ${nuevaFila}
+                                   </tbody>
+                               </table>`;
+
+                document.getElementById("mensajeSinPujas").style.display = "none";
+                document.getElementById("seccionSubastas").insertAdjacentHTML("beforeend", tabla);
+            }
+            else {
+                //Elimina los estilos de registro líder a la puja que anteriormente era la mayor.
+                document.getElementById("liderSubasta").remove();
+                document.querySelector(".leader-amount").classList.remove("leader-amount");
+                document.querySelector(".bid-leader").classList.remove("bid-leader");
+
+                document.getElementById("bodyHistorial").insertAdjacentHTML("afterbegin", nuevaFila);         
+            }
+
+            //Actualiza los valores del modal de Pujar.
+            const montoMinProximaPuja = data.monto + @Model.Subasta?.IncrementoMinimo;
+
+            document.getElementById("montoMinimoDisplay").textContent = montoMinProximaPuja.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0});;
+            inputMontoPuja.value = "";
+            inputMontoPuja.setAttribute("placeholder", montoMinProximaPuja);
+            inputMontoPuja.setAttribute("min", montoMinProximaPuja);
+            botonConfirmarPuja.setAttribute("disabled", true);
+            
+            //Notificación de puja superada en caso de que la puja registrada haya sido realizada por otro usuario y el usuario en sesión tuviera previamente la puja más alta.
+            if (esPujaActual && data.idUsuario != @Model.IdUsuarioSesion) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '¡Su puja ha sido superada!',
+                    toast: true,
+                    position: 'top-end',
+                    showCloseButton: true,
+                    showConfirmButton: false,
+                    customClass: {
+                        closeButton: 'toast-close-button'
+                    }
+                });
+
+                esPujaActual = false;
+            }
+            else if (data.idUsuario == @Model.IdUsuarioSesion)
+                esPujaActual = true;
+        });
+
+        //Evento change para controlar la validez del monto a pujar.
+        document.getElementById("inputMonto").addEventListener("change", (event) => {           
+            const errorMontoPuja = document.getElementById("errorMontoText");           
+
+            if (Number(inputMontoPuja.getAttribute("min")) > Number(event.target.value)) {
+                errorMontoPuja.textContent = "El monto de puja ingresado no es válido.";
+                botonConfirmarPuja.setAttribute("disabled", true);
+            }
+            else {
+                errorMontoPuja.textContent = "";
+                botonConfirmarPuja.removeAttribute("disabled");
+            }
+        });
+
+        function realizarPuja() {                    
+            try {
+                const nombreCamiseta = "@Model.Subasta?.IdCamisetaNavigation?.Nombre";
+
+                Swal.fire({
+                    title: "Confirmación de Puja",
+                    text: `¿Está seguro que desea registrar la puja digitada para la subasta de ${nombreCamiseta}?`,
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Sí, continuar",
+                    cancelButtonText: "Cancelar",
+                    confirmButtonColor: "#18bc9c"
+                }).then(async function (result) {
+                    if (result.isConfirmed) {
+                        const request = {
+                            IdSubasta: @Model.Subasta?.IdSubasta,
+                            Monto: parseInt(inputMontoPuja.value),
+                            IdUsuarioPuja: @Model.IdUsuarioSesion,                         
+                        };
+
+                        const response = await fetch("/Subasta/Pujar", {
+                            method:  "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(request)
+                        });
+
+                        const responseJSON = await response.json();
+
+                        if (responseJSON.success)
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Puja registrada',
+                                text: responseJSON.message,
+                            }).then(() => {
+                                //Cierra el modal de Pujar para mayor accesibilidad.
+                                const modalPujar = bootstrap.Modal.getInstance(document.getElementById("modalPujar"));
+
+                                modalPujar.hide();
+                            });                   
+                        else
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error en registro de puja',
+                                text: responseJSON.message,
+                            });
+                    }
+                 });          
+            } 
+            catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error en registro de puja',
+                    text: 'Ha ocurrido un error al intentar registrar la puja ingresada. Por favor intente de nuevo más tarde.',
+                });
+
+                console.log(err);
+            }
+        }
     </script>
 }

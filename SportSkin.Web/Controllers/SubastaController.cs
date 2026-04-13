@@ -30,6 +30,7 @@ namespace SportSkin.Web.Controllers
             IServiceUsuario serviceUsuario,
             IOptions<SubastaSettings> settings,
             IServicePuja servicePuja,
+            SubastaBackgroundService bgService,
             IHubContext<SubastaHub> hubContext)
         {
             _serviceSubasta = serviceSubasta;
@@ -37,6 +38,7 @@ namespace SportSkin.Web.Controllers
             _serviceUsuario = serviceUsuario;
             _settings = settings.Value;
             _servicePuja = servicePuja;
+            _bgService = bgService;
             _hubContext = hubContext;
         }
 
@@ -333,13 +335,14 @@ namespace SportSkin.Web.Controllers
             try
             {
                 await _serviceSubasta.PublicarAsync(id);
-
+                
                 TempData["Notificacion"] = JsonSerializer.Serialize(new
                 {
                     title = "Subasta publicada",
                     text = "La subasta ahora está En proceso y es visible.",
                     icon = "success"
                 });
+                _bgService.NotificarCambio();
             }
             catch (InvalidOperationException ex)
             {

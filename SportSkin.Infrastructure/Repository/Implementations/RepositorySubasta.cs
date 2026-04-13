@@ -137,7 +137,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 throw new InvalidOperationException(
                     "La fecha de inicio ya pasó. Actualice las fechas antes de publicar.");
 
-            entity.IdEstadoSubasta = ESTADO_EN_PROCESO;
+            entity.IdEstadoSubasta = ESTADO_PUBLICADA;
             await _context.SaveChangesAsync();
         }
         

@@ -184,7 +184,7 @@ else
                                         <span class="text-@urgencia fw-semibold">
                                             @if (tiempoRestante.TotalHours < 1)
                                             {
-                                                <span data-i18n="auctions:time.closesIn">Cierra en</span> @($"{(int)tiempoRestante.TotalMinutes}") <span data-i18n="auctions:time.min">min</span>
+                                                <span data-i18n="auctions:time.closesIn">Cierra en</span> @($"{(int)tiempoRestante.TotalMinutes}") <span data-i18n="auctions:time.min_other">min</span>
                                             }
                                             else if (tiempoRestante.TotalHours < 24)
                                             {

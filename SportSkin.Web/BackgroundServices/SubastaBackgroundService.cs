@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SportSkin.Infrastructure.Repository.Interfaces;
+using SportSkin.Web.Hubs;
 //using SportSkin.Web.Hubs;
 
 namespace SportSkin.Web.BackgroundServices
@@ -17,6 +18,8 @@ namespace SportSkin.Web.BackgroundServices
                               Task.Delay del sueño actual sin matar el servicio.
                               Cualquier clase puede llamar NotificarCambio()
                               para despertar el ciclo anticipadamente.
+        
+         SemaphoreSlim para el despertar.SemaphoreSlim.Release() es  thread-safe para este patrón.
 
         Flujo de estados que gestiona:
           Publicada(6) → En proceso(1)  cuando FechaInicio llega
@@ -28,11 +31,15 @@ namespace SportSkin.Web.BackgroundServices
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<SubastaBackgroundService> _logger;
 
-        // Token interno del sueño — se renueva en cada ciclo
-        private CancellationTokenSource _wakeUpCts = new();
+        // SemaphoreSlim(0,1): empieza sin señal.
+        // Release() = señal de despertar (Para Jeremy =>equivale al Cancel() anterior).
+        // WaitAsync(timeout) = esperar con timeout (equivale al Task.Delay anterior).
+        // Si Release() llega antes de WaitAsync, la espera retorna inmediatamente.
+        // Si llega durante WaitAsync, la interrumpe. Sin condición de carrera.
+        private readonly SemaphoreSlim _wakeUpSignal = new SemaphoreSlim(0, 1);
 
         private static readonly TimeSpan EsperaMaxima = TimeSpan.FromHours(1);
-        private static readonly TimeSpan MargenAnticipacion = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan MargenPostCierre = TimeSpan.FromSeconds(2);
 
         public SubastaBackgroundService(
             IServiceScopeFactory scopeFactory,
@@ -43,14 +50,18 @@ namespace SportSkin.Web.BackgroundServices
         }
 
         // ── API pública ──────────────────────────────────────────────
-        // El SubastaController llama esto cada vez que se publica
-        // una subasta nueva, para que el servicio recalcule su sueño.
-        // Thread-safe: CancellationTokenSource.Cancel() lo es.
+        // Thread-safe. Puede llamarse desde cualquier hilo.
+        // Si ya hay una señal pendiente (Release previo no consumido),
+        // este Release no hace nada — el semáforo tiene max=1.
         public void NotificarCambio()
         {
-            _logger.LogInformation(
-                "[SubastaService] Despertar anticipado solicitado por cambio externo.");
-            _wakeUpCts.Cancel();
+            // TryRelease: si currentCount ya es 1 (señal pendiente), no hace nada.
+            // Evita la excepción SemaphoreFullException.
+            if (_wakeUpSignal.CurrentCount == 0)
+            {
+                _wakeUpSignal.Release();
+                _logger.LogInformation("[SubastaService] Despertar anticipado solicitado.");
+            }
         }
 
         // ── Loop principal ───────────────────────────────────────────
@@ -72,33 +83,25 @@ namespace SportSkin.Web.BackgroundServices
                 var proximoEvento = await ObtenerProximoEventoAsync();
                 TimeSpan espera = CalcularEspera(proximoEvento);
 
-                // 3. Renovar el token interno
-                //    El anterior ya fue cancelado (por NotificarCambio o por vencimiento).
-                //    Creamos uno nuevo para el próximo sueño.
-                var viejoCts = _wakeUpCts;
-                _wakeUpCts = new CancellationTokenSource();
-                viejoCts.Dispose();
-
-                // 4. Dormir enlazando AMBOS tokens:
-                //    stoppingToken = la app cierra → salir del loop
-                //    _wakeUpCts    = alguien llamó NotificarCambio() → despertar
-                using var linked = CancellationTokenSource
-                    .CreateLinkedTokenSource(stoppingToken, _wakeUpCts.Token);
-
                 _logger.LogInformation(
-                    "[SubastaService] Durmiendo {Min:F1} min. Próximo evento: {Evento}",
-                    espera.TotalMinutes,
-                    proximoEvento?.ToString("dd/MM/yyyy HH:mm:ss") ?? "ninguno");
+                   "[SubastaService] Próximo evento: {Evento}. Durmiendo {Min:F1} min.",
+                   proximoEvento?.ToString("dd/MM/yyyy HH:mm:ss") ?? "ninguno",
+                   espera.TotalMinutes);
 
+                // 3. Dormir usando el semáforo.
+                //    WaitAsync retorna true si fue despertado por Release() (NotificarCambio)
+                //    WaitAsync retorna false si venció el timeout (espera normal)
+                //    Si stoppingToken se cancela, lanza OperationCanceledException → salimos
                 try
                 {
-                    await Task.Delay(espera, linked.Token);
+                    await _wakeUpSignal.WaitAsync((int)espera.TotalMilliseconds, stoppingToken);
+                    _logger.LogInformation("[SubastaService] Ciclo completado, reprocesando.");
                 }
                 catch (OperationCanceledException)
                 {
                     // Puede ser la app cerrando o un despertar anticipado.
                     // El while lo distingue: si stoppingToken está cancelado, sale.
-                    _logger.LogInformation("[SubastaService] Sueño interrumpido, reprocessando.");
+                    _logger.LogInformation("[SubastaService] Iniciando nuevo ciclo a las {Hora:HH:mm:ss}", DateTime.Now);
                 }
             }
 
@@ -112,10 +115,14 @@ namespace SportSkin.Web.BackgroundServices
             if (proximoEvento == null)
                 return EsperaMaxima;
 
-            var espera = proximoEvento.Value - DateTime.Now - MargenAnticipacion;
+
+            var espera = proximoEvento.Value - DateTime.Now + MargenPostCierre;
+
+            // Si ya pasó el evento (espera negativa), procesar inmediatamente
             return espera < TimeSpan.Zero ? TimeSpan.Zero : espera;
         }
-
+       /*
+          Viejo
         private async Task ProcesarTransicionesAsync(CancellationToken stoppingToken)
         {
             if (stoppingToken.IsCancellationRequested) return;
@@ -127,7 +134,7 @@ namespace SportSkin.Web.BackgroundServices
                                 .GetRequiredService<IRepositorySubasta>();
                 /*var hub = scope.ServiceProvider
                                 .GetRequiredService<IHubContext<SubastaHub>>();
-                */
+                /*
                 // Publicada → En proceso
                 int activadas = await repo.ActivarSubastasPendientesAsync();
                 if (activadas > 0)
@@ -159,12 +166,84 @@ namespace SportSkin.Web.BackgroundServices
                             fechaCierre = subasta.FechaCompra?.ToString("dd/MM/yyyy HH:mm")
                                            ?? DateTime.Now.ToString("dd/MM/yyyy HH:mm")
                         });
-                   */
+                   /*
                     _logger.LogInformation(
                         "[SubastaService] Subasta {Id} cerrada. Ganador: {G}",
                         subasta.IdSubasta,
                         tieneGanador ? nombreGanador : "ninguno (sin pujas)");
                 }
+            }
+            catch (Exception ex)
+            {
+                // No relanzamos — el servicio debe seguir corriendo aunque falle un ciclo
+                _logger.LogError(ex, "[SubastaService] Error procesando transiciones.");
+            }
+        }*/
+
+        private async Task ProcesarTransicionesAsync(CancellationToken stoppingToken)
+        {
+            if (stoppingToken.IsCancellationRequested) return;
+
+            try
+            {
+             using var scope = _scopeFactory.CreateScope();
+                var repo = scope.ServiceProvider
+                                .GetRequiredService<IRepositorySubasta>();
+                var hub = scope.ServiceProvider
+                                .GetRequiredService<IHubContext<SubastaHub>>();
+
+                // Publicada(6) → En proceso(1)
+                int activadas = await repo.ActivarSubastasPendientesAsync();
+                _logger.LogInformation(
+                    "[SubastaService] ActivarPendientes ejecutado: {N} activada(s). Hora: {H:HH:mm:ss}",
+                    activadas, DateTime.Now);
+                if (activadas > 0)
+                    _logger.LogInformation(
+                        "[SubastaService] {N} subasta(s) activada(s) → En proceso.", activadas);
+
+                // En proceso(1) → Vendida(2) / Finalizada(3)
+                // Devuelve la lista para poder notificar por SignalR a cada grupo
+                var cerradas = await repo.CerrarSubastasVencidasAsync();
+
+                foreach (var subasta in cerradas)
+                {
+                    bool tieneGanador = subasta.IdUsuarioComprador.HasValue;
+
+                    // Necesitamos el navigation del comprador para el nombre.
+                    // CerrarSubastasVencidasAsync no lo incluye por defecto,
+                    // así que lo cargamos solo si hay ganador.
+                    string nombreGanador = string.Empty;
+                    if (tieneGanador)
+                    {
+                        // Cargar el usuario ganador para mostrar su nombre
+                        var ganadorNav = subasta.IdUsuarioCompradorNavigation;
+                        nombreGanador = ganadorNav != null
+                            ? $"{ganadorNav.Nombre} {ganadorNav.Apellido1}".Trim()
+                            : $"Usuario #{subasta.IdUsuarioComprador}";
+                    }
+
+                    // Notificar a TODOS los navegadores viendo esta subasta
+                    await hub.Clients
+                        .Group($"subasta-{subasta.IdSubasta}")
+                        .SendAsync("SubastaCerrada", new
+                        {
+                            tieneGanador,
+                            idGanador = subasta.IdUsuarioComprador,
+                            nombreGanador,
+                            montoFinal = subasta.MontoCompra,
+                            fechaCierre = subasta.FechaCompra?.ToString("dd/MM/yyyy HH:mm")
+                                           ?? DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                        });
+
+                    _logger.LogInformation(
+                        "[SubastaService] Subasta {Id} cerrada. Ganador: {G}",
+                        subasta.IdSubasta,
+                        tieneGanador ? nombreGanador : "ninguno (sin pujas)");
+                }
+
+                if (cerradas.Any())
+                    _logger.LogInformation(
+                        "[SubastaService] {N} subasta(s) cerrada(s).", cerradas.Count);
             }
             catch (Exception ex)
             {
@@ -178,14 +257,19 @@ namespace SportSkin.Web.BackgroundServices
             try
             {
                 using var scope = _scopeFactory.CreateScope();
-                var repo = scope.ServiceProvider
-                                .GetRequiredService<IRepositorySubasta>();
-                return await repo.GetProximoEventoAsync();
+                var repo = scope.ServiceProvider.GetRequiredService<IRepositorySubasta>();
+                var resultado = await repo.GetProximoEventoAsync();
+
+                // Log temporal para debug
+                _logger.LogInformation(
+                    "[SubastaService] GetProximoEvento retornó: {R}",
+                    resultado?.ToString("dd/MM HH:mm:ss") ?? "NULL");
+
+                return resultado;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,
-                    "[SubastaService] Error obteniendo próximo evento. Usando espera máxima.");
+                _logger.LogError(ex, "[SubastaService] Error obteniendo próximo evento.");
                 return null;
             }
         }

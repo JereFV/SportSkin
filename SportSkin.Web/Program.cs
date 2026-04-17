@@ -118,7 +118,8 @@ builder.Services.AddTransient<IServicePuja, ServicePuja>();
 
 //Background Service
 builder.Services.AddSingleton<SubastaBackgroundService>();
-builder.Services.AddHostedService<SubastaBackgroundService>();
+builder.Services.AddHostedService<SubastaBackgroundService>(provider =>
+    provider.GetRequiredService<SubastaBackgroundService>());
 
 //Conf images route
 builder.Services.Configure<ImageSettings>(

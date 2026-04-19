@@ -17,11 +17,9 @@ namespace SportSkin.Application.Profiles
                 .ForMember(x => x.Puja, x => x.MapFrom(x => x.Puja))
                 .ForMember(x => x.IdCamisetaNavigation, x => x.MapFrom(x => x.IdCamisetaNavigation))
                 .ForMember(x => x.IdEstadoSubastaNavigation, x => x.MapFrom(x => x.IdEstadoSubastaNavigation))
-                .ForMember(x => x.IdUsuarioCompradorNavigation, opt => opt.Ignore()) 
-                .ReverseMap();
+                .ForMember(x => x.IdUsuarioCompradorNavigation, x => x.MapFrom(x => x.IdUsuarioCompradorNavigation));
 
             CreateMap<SubastaDTO, Subasta>()
-                .ForMember(dest => dest.IdSubasta, opt => opt.Ignore())
                 .ForMember(dest => dest.IdCamisetaNavigation, opt => opt.Ignore())
                 .ForMember(dest => dest.IdEstadoSubastaNavigation, opt => opt.Ignore())
                 .ForMember(dest => dest.IdUsuarioCompradorNavigation, opt => opt.Ignore())

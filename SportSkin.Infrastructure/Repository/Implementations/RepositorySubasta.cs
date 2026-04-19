@@ -385,5 +385,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .AsNoTracking()
                 .ToListAsync();
         }
+                
+
     }
 }

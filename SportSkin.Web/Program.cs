@@ -100,7 +100,8 @@ builder.Services.AddTransient<IRepositoryCondicionCamiseta, RepositoryCondicionC
 builder.Services.AddScoped<IRepositoryEquipo, RepositoryEquipo>();
 builder.Services.AddScoped<IRepositoryJugador, RepositoryJugador>();
 builder.Services.AddTransient<IRepositoryPuja, RepositoryPuja>();
-
+builder.Services.AddTransient<IRepositoryPago, RepositoryPago>();
+builder.Services.AddTransient<IRepositoryMetodoPago, RepositoryMetodoPago>();
 //Controlador de transacciones en una unidad de trabajo.
 builder.Services.AddScoped<IUnitOfWork, UnitofWork>();
 
@@ -115,6 +116,8 @@ builder.Services.AddTransient<IServiceJugador, ServiceJugador>();
 builder.Services.AddTransient<IServiceTrayectoriaJugador, ServiceTrayectoriaJugador>();
 builder.Services.AddTransient<IImageStorage, ImageStorage>();
 builder.Services.AddTransient<IServicePuja, ServicePuja>();
+builder.Services.AddTransient<IServicePago, ServicePago>();
+builder.Services.AddTransient<IServiceMetodoPago, ServiceMetodoPago>();
 
 //Background Service
 builder.Services.AddSingleton<SubastaBackgroundService>();
@@ -151,6 +154,10 @@ builder.Services.AddAutoMapper(config =>
     config.AddProfile<PujaProfile>();
     config.AddProfile<FacturaProfile>();
     config.AddProfile<DatosEnvioProfile>();
+    config.AddProfile<MetodoPagoProfile>();
+    config.AddProfile<EstadoFacturaProfile>();
+    config.AddProfile<MetodoPagoProfile>();
+    config.AddProfile<ZonaEnvioProfile>();
 });
 
 // =======================

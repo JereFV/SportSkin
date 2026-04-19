@@ -1,0 +1,417 @@
+﻿@using System.Globalization
+@model SportSkin.Web.ViewModels.PagoIndexViewModel
+@{
+    ViewData["Title"] = "Gestión de Pagos";
+    var culturaUSD = new CultureInfo("en-US");
+    var total = Model.Pagos.Count;
+    var pendientes = Model.Pagos.Count(p => p.IdEstadoFactura == 1);
+    var confirmados = Model.Pagos.Count(p => p.IdEstadoFactura == 2);
+}
+
+@functions {
+    static string IconoMetodoPago(string metodo)
+    {
+        return metodo.ToLower() switch
+        {
+            var m when m.Contains("tarjeta") => "fa-solid fa-credit-card",
+            var m when m.Contains("bitcoin") => "fa-brands fa-bitcoin",
+            var m when m.Contains("paypal") => "fa-brands fa-paypal",
+            var m when m.Contains("efectivo") => "fa-solid fa-money-bill-wave",
+            var m when m.Contains("transfer") => "fa-solid fa-building-columns",
+            _ => "fa-solid fa-wallet"
+        };
+    }
+
+    static string IconoMetodoPagoCss(string metodo)
+    {
+        return metodo.ToLower() switch
+        {
+            var m when m.Contains("tarjeta") => "fa-solid fa-credit-card",
+            var m when m.Contains("bitcoin") => "fa-brands fa-bitcoin",
+            var m when m.Contains("paypal") => "fa-brands fa-paypal",
+            var m when m.Contains("efectivo") => "fa-solid fa-money-bill-wave",
+            var m when m.Contains("transfer") => "fa-solid fa-building-columns",
+            _ => "fa-solid fa-wallet"
+        };
+    }
+}
+
+@* ── ENCABEZADO ── *@
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-0">
+            <i class="fa-solid fa-receipt text-primary me-2"></i>
+            Gestión de Pagos
+        </h1>
+        <p class="text-muted mb-0">Registro y confirmación de pagos de subastas</p>
+    </div>
+    @if (Model.SubastasPendientes.Any())
+    {
+        <button type="button"
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#modalRegistrarPago">
+            <i class="fa-solid fa-cart-shopping me-2"></i>Subastas por pagar
+            <span class="badge bg-light text-primary ms-1">@Model.SubastasPendientes.Count</span>
+        </button>
+    }
+</div>
+
+@* ── TARJETAS RESUMEN ── *@
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="fs-2 fw-bold text-primary">@total</div>
+            <div class="small text-muted">Total Registrados</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="fs-2 fw-bold text-warning">@pendientes</div>
+            <div class="small text-muted">Pendientes</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="fs-2 fw-bold text-success">@confirmados</div>
+            <div class="small text-muted">Confirmados</div>
+        </div>
+    </div>
+</div>
+
+@* ── TABLA TIPO FACTURA ── *@
+@if (!Model.Pagos.Any())
+{
+    <div class="alert alert-info d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-info-circle"></i>
+        <div>No hay pagos registrados en el sistema.</div>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table mb-0" id="tablaPagos">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4" style="width:80px"> </th>
+                        <th>Producto</th>
+                        <th>Comprador</th>
+                        <th>Método</th>
+                        <th>Precio</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Pagos)
+                    {
+                        var esPendiente = item.IdEstadoFactura == 1;
+                        var badgeColor = esPendiente ? "warning" : "success";
+                        var badgeIcon = esPendiente ? "bi-clock" : "bi-check-circle";
+
+                        <tr class="align-middle">
+                            <td class="ps-4">
+                                @if (!string.IsNullOrEmpty(item.RutaImagenCamiseta))
+                                {
+                                    <img src="@item.RutaImagenCamiseta"
+                                         alt="@item.NombreCamiseta"
+                                         class="rounded"
+                                         style="width:56px;height:56px;object-fit:cover;" />
+                                }
+                                else
+                                {
+                                    <div class="rounded bg-body-tertiary d-flex align-items-center justify-content-center"
+                                         style="width:56px;height:56px;">
+                                        <i class="bi bi-image text-muted"></i>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <div class="fw-semibold">@item.NombreCamiseta</div>
+                                <div class="small text-muted font-monospace">#@item.IdFactura</div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-person-circle text-secondary"></i>
+                                    <span>@item.NombreComprador</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill bg-secondary px-3 py-2">
+                                    <i class="@IconoMetodoPago(item.MetodoPago) me-1"></i>@item.MetodoPago
+                                </span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-primary">
+                                    @item.Total.ToString("C0", culturaUSD)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-@badgeColor px-3 py-2">
+                                    <i class="bi @badgeIcon me-1"></i>@item.EstadoPago
+                                </span>
+                            </td>
+                            <td>
+                                <div class="small">@item.FechaCreacion.ToString("dd/MM/yyyy")</div>
+                                @if (item.FechaPago.HasValue)
+                                {
+                                    <div class="small text-success">
+                                        <i class="bi bi-check2 me-1"></i>@item.FechaPago.Value.ToString("dd/MM/yyyy")
+                                    </div>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (esPendiente)
+                                {
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-success btn-confirmar"
+                                            data-id="@item.IdFactura"
+                                            data-nombre="@item.NombreCamiseta"
+                                            data-monto="@item.Total.ToString("C0", culturaUSD)"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalConfirmar">
+                                        <i class="bi bi-check-circle me-1"></i>Confirmar
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">
+                                        <i class="bi bi-check-all me-1"></i>Pagado
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@* ── MODAL SUBASTAS POR PAGAR ── *@
+<div class="modal fade" id="modalRegistrarPago" tabindex="-1"
+     aria-labelledby="labelModalRegistrar" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="labelModalRegistrar">
+                    <i class="fa-solid fa-cart-shopping text-primary me-2"></i>Liquidar Subastas Ganadas
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form asp-controller="Pago" asp-action="Registrar" method="post" id="formRegistrar">
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Estas son las subastas que ganaste y aún no tienen pago registrado.
+                        Seleccioná una para proceder con el pago.
+                    </p>
+
+                    @* Lista seleccionable *@
+                    <div class="mb-3 border rounded overflow-hidden">
+                        @foreach (var sub in Model.SubastasPendientes)
+                        {
+                            var montoStr = sub.MontoTotal.ToString("C0", culturaUSD);
+                            var compradorStr = sub.NombreComprador.Replace("'", "");
+                            var nombreStr = sub.NombreCamiseta.Replace("'", "");
+
+                            <div class="d-flex align-items-center gap-3 p-3 border-bottom selectable-row"
+                                 style="cursor:pointer;"
+                                 onclick="seleccionarSubasta(@sub.IdSubasta, '@nombreStr', '@montoStr', '@compradorStr', this)">
+                                @if (!string.IsNullOrEmpty(sub.RutaImagen))
+                                {
+                                    <img src="@sub.RutaImagen"
+                                         class="rounded flex-shrink-0"
+                                         style="width:56px;height:56px;object-fit:cover;"
+                                         alt="@sub.NombreCamiseta" />
+                                }
+                                else
+                                {
+                                    <div class="rounded bg-body-tertiary d-flex align-items-center justify-content-center flex-shrink-0"
+                                         style="width:56px;height:56px;">
+                                        <i class="bi bi-image text-muted"></i>
+                                    </div>
+                                }
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold">@sub.NombreCamiseta</div>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-person me-1"></i>@sub.NombreComprador
+                                    </div>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-calendar3 me-1"></i>Cerró: @sub.FechaCierre.ToString("dd/MM/yyyy HH:mm")
+                                    </div>
+                                </div>
+                                <div class="text-end flex-shrink-0">
+                                    <div class="fw-bold text-primary fs-5">@montoStr</div>
+                                    <div class="small text-muted">precio final</div>
+                                </div>
+                                <div class="flex-shrink-0 check-icon" style="display:none;">
+                                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <input type="hidden" name="idSubasta" id="inputIdSubasta" value="0" />
+
+                    <div id="resumenSeleccion" class="alert alert-primary d-none mb-3">
+                        <strong>Seleccionado:</strong>
+                        <span id="resumenNombre"></span> &mdash;
+                        <span id="resumenMonto"></span> &mdash;
+                        <span id="resumenComprador"></span>
+                    </div>
+
+                    @* Métodos de pago con btn-check *@
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">Método de Pago</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var metodo in Model.MetodosPago)
+                            {
+                                var icono = IconoMetodoPagoCss(metodo.Nombre);
+                                <input type="radio"
+                                       name="idMetodoPago"
+                                       id="metodo_@metodo.IdMetodoPago"
+                                       value="@metodo.IdMetodoPago"
+                                       class="btn-check metodo-radio" />
+                                <label class="btn btn-outline-secondary d-flex align-items-center gap-2"
+                                       for="metodo_@metodo.IdMetodoPago">
+                                    <i class="@icono fs-5"></i>
+                                    <span>@metodo.Nombre</span>
+                                </label>
+                            }
+                        </div>
+                        <div class="form-text mt-2">
+                            <i class="bi bi-shield-check me-1"></i>
+                            El pago es simulado. No se procesará ningún cargo real.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="submitRegistrar()">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Registrar Pago
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* ── MODAL CONFIRMAR PAGO ── *@
+<div class="modal fade" id="modalConfirmar" tabindex="-1"
+     aria-labelledby="labelModalConfirmar" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="labelModalConfirmar">
+                    <i class="bi bi-check-circle text-success me-2"></i>Confirmar Pago
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fa-solid fa-circle-check text-success mb-3" style="font-size:3rem;"></i>
+                <p class="mb-1">¿Confirmar el pago de la factura?</p>
+                <p class="fw-bold fs-5" id="confirmarNombreProducto"></p>
+                <p class="text-primary fw-bold fs-4" id="confirmarMonto"></p>
+                <p class="text-muted small">Esta acción no se puede deshacer.</p>
+            </div>
+            <form asp-controller="Pago" asp-action="Confirmar" method="post" id="formConfirmar">
+                <input type="hidden" name="idFactura" id="inputIdFactura" value="" />
+                <div class="modal-footer justify-content-center gap-3">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="bi bi-check-circle me-2"></i>Sí, Confirmar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#tablaPagos').DataTable({
+                "order": [[6, "desc"]],
+                "columnDefs": [
+                    { "orderable": false, "targets": [0, 7] },
+                    { "className": "dt-middle", "targets": "_all" }
+                ],
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+                }
+            });
+        });
+
+        function seleccionarSubasta(idSubasta, nombre, monto, comprador, elemento) {
+            document.querySelectorAll('.selectable-row').forEach(function(row) {
+                row.classList.remove('bg-primary', 'bg-opacity-10');
+                var check = row.querySelector('.check-icon');
+                if (check) check.style.display = 'none';
+            });
+            elemento.classList.add('bg-primary', 'bg-opacity-10');
+            var checkIcon = elemento.querySelector('.check-icon');
+            if (checkIcon) checkIcon.style.display = '';
+            document.getElementById('inputIdSubasta').value           = idSubasta;
+            document.getElementById('resumenNombre').textContent      = nombre;
+            document.getElementById('resumenMonto').textContent       = monto;
+            document.getElementById('resumenComprador').textContent   = comprador;
+            document.getElementById('resumenSeleccion').classList.remove('d-none');
+        }
+
+        function submitRegistrar() {
+            var idSubasta = document.getElementById('inputIdSubasta').value;
+            var metodoSeleccionado = document.querySelector('.metodo-radio:checked');
+
+            if (!idSubasta || idSubasta === '0') {
+                Swal.fire('Selección requerida', 'Debes seleccionar una subasta de la lista.', 'warning');
+                return;
+            }
+            if (!metodoSeleccionado) {
+                Swal.fire('Selección requerida', 'Debes seleccionar un método de pago.', 'warning');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Registrar Pago',
+                text: '¿Confirmar el registro del pago?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, registrar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#198754'
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    document.getElementById('formRegistrar').submit();
+                }
+            });
+        }
+
+        document.querySelectorAll('.btn-confirmar').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.getElementById('inputIdFactura').value                  = this.dataset.id;
+                document.getElementById('confirmarNombreProducto').textContent   = this.dataset.nombre;
+                document.getElementById('confirmarMonto').textContent            = this.dataset.monto;
+            });
+        });
+    </script>
+
+    <style>
+        .selectable-row:hover {
+            background-color: var(--bs-primary-bg-subtle);
+        }
+
+        #tablaPagos td {
+            vertical-align: middle;
+        }
+
+        .btn-check:checked + label {
+            border-color: #0d6efd;
+            color: #0d6efd;
+            background-color: #e8f0fe;
+        }
+    </style>
+}

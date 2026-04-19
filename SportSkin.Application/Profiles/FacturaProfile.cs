@@ -13,8 +13,16 @@ namespace SportSkin.Application.Profiles
     {
         public FacturaProfile()
         {
-            CreateMap<Factura, FacturaDTO>().ReverseMap();
+            // Entidad → DTO: mapea navegaciones
+            CreateMap<Factura, FacturaDTO>()
+                .ForMember(dest => dest.IdEstadoFacturaNavigation,
+                           opt => opt.MapFrom(src => src.IdEstadoFacturaNavigation))
+                .ForMember(dest => dest.IdMetodoPagoNavigation,
+                           opt => opt.MapFrom(src => src.IdMetodoPagoNavigation))
+                .ForMember(dest => dest.IdSubastaNavigation,
+                           opt => opt.MapFrom(src => src.IdSubastaNavigation));
 
+            // DTO → Entidad: ignora navegaciones (solo se usan FKs escalares)
             CreateMap<FacturaDTO, Factura>()
                 .ForMember(dest => dest.IdEstadoFacturaNavigation, opt => opt.Ignore())
                 .ForMember(dest => dest.IdMetodoPagoNavigation, opt => opt.Ignore())

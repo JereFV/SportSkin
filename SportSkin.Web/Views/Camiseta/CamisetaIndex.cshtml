@@ -1,8 +1,11 @@
-﻿@model SportSkin.Web.ViewModels.CamisetaViewModel
+﻿@using Newtonsoft.Json.Linq
+@model SportSkin.Web.ViewModels.CamisetaViewModel
 
 @{
     ViewData["Title"] = "Camisetas";
     var total = Model?.Camisetas?.Count() ?? 0;
+    var sesionStr = Context.Session.GetString("UsuarioSesion");
+    var sesion = sesionStr != null ? JObject.Parse(sesionStr) : null;
 }
 
 <!--Contenedor auxiliar, usado para renderizar el modal de edición.-->
@@ -39,7 +42,7 @@
             <li>
                 <a class="dropdown-item d-flex align-items-center gap-2
                    @(ViewBag.FiltroActual == "vendidos" ? "active" : "")"
-                   asp-action="CamisetaIndex" asp-route-filtro="vendidos">
+                   asp-action="CamisetaIndex" asp-route-idUsuario="@sesion?["IdUsuario"]" asp-route-filtro="vendidos">
                     <i class="bi bi-check-circle text-success"></i>
                     <span data-i18n="filters.sold"></span>
                 </a>
@@ -47,7 +50,7 @@
             <li>
                 <a class="dropdown-item d-flex align-items-center gap-2
                    @(ViewBag.FiltroActual == "ensubasta" ? "active" : "")"
-                   asp-action="CamisetaIndex" asp-route-filtro="ensubasta">
+                   asp-action="CamisetaIndex" asp-route-idUsuario="@sesion?["IdUsuario"]" asp-route-filtro="ensubasta">
                     <i class="fa-solid fa-gavel text-primary"></i>
                     <span data-i18n="status.inAuction"></span>
                 </a>
@@ -55,14 +58,14 @@
             <li>
                 <a class="dropdown-item d-flex align-items-center gap-2
                    @(ViewBag.FiltroActual == "sinsubasta" ? "active" : "")"
-                   asp-action="CamisetaIndex" asp-route-filtro="sinsubasta">
+                   asp-action="CamisetaIndex" asp-route-idUsuario="@sesion?["IdUsuario"]" asp-route-filtro="sinsubasta">
                     <i class="bi bi-tag text-secondary"></i>
                     <span data-i18n="status.available"></span>
                 </a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
-                <a class="dropdown-item d-flex align-items-center gap-2" asp-action="CamisetaIndex">
+                <a class="dropdown-item d-flex align-items-center gap-2" asp-action="CamisetaIndex" asp-route-idUsuario="@sesion?["IdUsuario"]">
                     <i class="bi bi-x-circle text-danger"></i>
                     <span data-i18n="actions.clearFilter"></span>
                 </a>

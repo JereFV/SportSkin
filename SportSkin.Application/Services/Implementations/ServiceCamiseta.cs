@@ -145,21 +145,29 @@ namespace SportSkin.Application.Services.Implementations
             var collection = _mapper.Map<ICollection<CamisetaDTO>>(list);
             return collection;
         }
-        public async Task<ICollection<CamisetaDTO>> GetCamisetasVendidas()
+
+        public async Task<ICollection<CamisetaDTO>> ListAsyncByUser(int idUsuario)
         {
-            var list = await _repositoryCamiseta.GetCamisetasVendidas();
+            var list = await _repositoryCamiseta.ListAsyncByUser(idUsuario);
+            var collection = _mapper.Map<ICollection<CamisetaDTO>>(list);
+            return collection;
+        }
+
+        public async Task<ICollection<CamisetaDTO>> GetCamisetasVendidas(int idUsuario)
+        {
+            var list = await _repositoryCamiseta.GetCamisetasVendidas(idUsuario);
             return _mapper.Map<ICollection<CamisetaDTO>>(list);
         }
 
-        public async Task<ICollection<CamisetaDTO>> GetCamisetasEnSubasta()
+        public async Task<ICollection<CamisetaDTO>> GetCamisetasEnSubasta(int idUsuario)
         {
-            var list = await _repositoryCamiseta.GetCamisetasEnSubasta();
+            var list = await _repositoryCamiseta.GetCamisetasEnSubasta(idUsuario);
             return _mapper.Map<ICollection<CamisetaDTO>>(list);
         }
 
-        public async Task<ICollection<CamisetaDTO>> GetCamisetasSinSubasta()
+        public async Task<ICollection<CamisetaDTO>> GetCamisetasSinSubasta(int idUsuario)
         {
-            var list = await _repositoryCamiseta.GetCamisetasSinSubasta();
+            var list = await _repositoryCamiseta.GetCamisetasSinSubasta(idUsuario);
             return _mapper.Map<ICollection<CamisetaDTO>>(list);
         }
 

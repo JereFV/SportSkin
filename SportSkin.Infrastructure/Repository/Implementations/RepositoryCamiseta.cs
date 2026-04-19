@@ -91,7 +91,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             throw new NotImplementedException();
         }
 
-        public async Task<ICollection<Camiseta>> ListAsync()
+        public async Task<ICollection<Camiseta>> ListAsyncByUser(int idUsuario)
         {
             var collection = await _context.Set<Camiseta>()
                 .Include(c => c.IdCondicionCamisetaNavigation)
@@ -101,12 +101,28 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .Include(c => c.IdEstadoCamisetaNavigation)              
                 .OrderBy(c => c.IdCamiseta)
                 .AsNoTracking()
+                .Where(x => x.IdUsuarioVendedor == idUsuario)
                 .ToListAsync();
 
             return collection;
         }
 
-        public async Task<ICollection<Camiseta>> GetCamisetasVendidas()
+        public async Task<ICollection<Camiseta>> ListAsync()
+        {
+            var collection = await _context.Set<Camiseta>()
+                .Include(c => c.IdCondicionCamisetaNavigation)
+                .Include(c => c.IdEquipoNavigation)
+                .Include(c => c.IdJugadorNavigation)
+                .Include(c => c.ImagenCamiseta)
+                .Include(c => c.IdEstadoCamisetaNavigation)
+                .OrderBy(c => c.IdCamiseta)
+                .AsNoTracking()                
+                .ToListAsync();
+
+            return collection;
+        }
+
+        public async Task<ICollection<Camiseta>> GetCamisetasVendidas(int idUsuario)
         {
             return await _context.Camiseta
                 .Include(c => c.IdCondicionCamisetaNavigation)
@@ -115,12 +131,13 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .Include(c => c.ImagenCamiseta)
                 .Include(c => c.IdEstadoCamisetaNavigation) 
                 .Where(c => c.IdEstadoCamiseta == 3         // 3 = Vendida
-                         && c.EstadoRegistro == true)        // solo registros activos
+                         && c.EstadoRegistro == true
+                         && c.IdUsuarioVendedor == idUsuario)        // solo registros activos
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public async Task<ICollection<Camiseta>> GetCamisetasEnSubasta()
+        public async Task<ICollection<Camiseta>> GetCamisetasEnSubasta(int idUsuario)
         {
             return await _context.Camiseta
                 .Include(c => c.IdCondicionCamisetaNavigation)
@@ -129,12 +146,13 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .Include(c => c.ImagenCamiseta)
                 .Include(c => c.IdEstadoCamisetaNavigation)
                 .Where(c => c.IdEstadoCamiseta == 2         // 2 = En Subasta
-                         && c.EstadoRegistro == true)
+                         && c.EstadoRegistro == true
+                         && c.IdUsuarioVendedor == idUsuario)
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public async Task<ICollection<Camiseta>> GetCamisetasSinSubasta()
+        public async Task<ICollection<Camiseta>> GetCamisetasSinSubasta(int idUsuario)
         {
             return await _context.Camiseta
                 .Include(c => c.IdCondicionCamisetaNavigation)
@@ -143,7 +161,8 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .Include(c => c.ImagenCamiseta)
                 .Include(c => c.IdEstadoCamisetaNavigation)
                 .Where(c => c.IdEstadoCamiseta == 1         // 1 = Disponible
-                         && c.EstadoRegistro == true)
+                         && c.EstadoRegistro == true
+                         && c.IdUsuarioVendedor == idUsuario)
                 .AsNoTracking()
                 .ToListAsync();
         }

@@ -89,7 +89,7 @@ namespace SportSkin.Web.Controllers
         private async Task<CrearSubastaViewModel> ConstruirFormCrearAsync(
             CrearSubastaViewModel? vmConErrores = null)
         {
-            var camisetas = await _serviceCamiseta.GetCamisetasSinSubasta();
+            var camisetas = await _serviceCamiseta.GetCamisetasSinSubasta(GetUsuarioSesionId());
 
             if (vmConErrores != null)
             {

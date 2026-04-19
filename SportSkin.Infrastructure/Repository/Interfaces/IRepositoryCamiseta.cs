@@ -11,6 +11,8 @@ namespace SportSkin.Infrastructure.Repository.Interfaces
     {
         Task<ICollection<Camiseta>> ListAsync();
 
+        Task<ICollection<Camiseta>> ListAsyncByUser(int idUsuario);
+
         Task<Camiseta> FindByIdAsync(int id);
         Task AddAsync(Camiseta entity);
         void Update(Camiseta entity);
@@ -25,9 +27,9 @@ namespace SportSkin.Infrastructure.Repository.Interfaces
         Task<ICollection<Camiseta>> GetCamisetasAutografiadas();
         Task<ICollection<Camiseta>> GetCamisetasByVendedor(int idUsuarioVendedor);
         Task<ICollection<Camiseta>> GetCamisetasByTemporada(short temporada);
-        Task<ICollection<Camiseta>> GetCamisetasVendidas();
-        Task<ICollection<Camiseta>> GetCamisetasEnSubasta();
-        Task<ICollection<Camiseta>> GetCamisetasSinSubasta();
+        Task<ICollection<Camiseta>> GetCamisetasVendidas(int idUsuario);
+        Task<ICollection<Camiseta>> GetCamisetasEnSubasta(int idUsuario);
+        Task<ICollection<Camiseta>> GetCamisetasSinSubasta(int idUsuario);
 
     }
 }

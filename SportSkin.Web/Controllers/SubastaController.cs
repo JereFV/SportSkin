@@ -477,7 +477,7 @@ namespace SportSkin.Web.Controllers
                     .SendAsync("NuevaPuja", new
                     {
                         idUsuario = GetUsuarioSesionId(),
-                        nombreUsuario = usuarioSesionSplit[0] + usuarioSesionSplit[1], //Devuelve solo el nombre y primer apellido.
+                        nombreUsuario = $"{usuarioSesionSplit[0]} {usuarioSesionSplit[1]}", //Devuelve solo el nombre y primer apellido.
                         inicialesUsuario = usuarioSesionSplit[0][..1] + usuarioSesionSplit[1][..1],
                         monto = request.Monto,
                         montoFormateado = request.Monto.ToString("C0", new System.Globalization.CultureInfo("en-US")),

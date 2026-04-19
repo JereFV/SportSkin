@@ -55,9 +55,13 @@ namespace SportSkin.Infrastructure.Repository.Implementations
 
         public async Task<ICollection<Subasta>> ListAsync()
         {
+            //Estados válidos para mostrar en la sección general de subastas.
+            byte[] estadosValidosSubasta = [1, 2, 3];
+
             return await QueryBase()
                 .OrderByDescending(s => s.FechaInicio)
                 .AsNoTracking()
+                .Where(x => estadosValidosSubasta.Contains(x.IdEstadoSubasta))
                 .ToListAsync();
         }
 
@@ -121,9 +125,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         /* 
             Publica manualmente: Borrador(4) → En proceso(1).
             Solo si la fecha de inicio aún no ha pasado.
-        */
-
-        
+        */      
         public async Task PublicarAsync(int id)
         {
             var entity = await _context.Subasta.FindAsync(id)
@@ -145,8 +147,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         /*
             Cancela manualmente: estado activo → cancelada(5).
             Permitido si no ha iniciado O si no tiene pujas.
-        */
-        
+        */     
         public async Task CancelarAsync(int id)
         {
             var entity = await _context.Subasta
@@ -168,8 +169,6 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .ExecuteUpdateAsync(s => s.SetProperty(c => c.IdEstadoCamiseta, ESTADO_CAMISETA_DISPONIBLE));
         }
 
-
-
         /* --- Transiciones automáticas (Background Service) ---         
             Activa subastas Borrador(5) cuya FechaInicio ya llegó → En proceso(1).
             Retorna la cantidad de subastas activadas.
@@ -190,23 +189,25 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             await _context.SaveChangesAsync();
             return pendientes.Count;
         }
-        
+
 
         /*
             Cierra subastas En proceso(1) cuya FechaCierre ya pasó.
             Con pujas → Finalizada(4). Sin pujas → Cerrada(2).
             Retorna la cantidad de subastas cerradas.
         */
-        
+
         // En proceso(1) → Vendida(2) con ganador  |  Finalizada(3) sin pujas
         // Determina ganador, registra MontoCompra, FechaCompra, IdUsuarioComprador.
         // Devuelve la LISTA de subastas cerradas para que el BG Service
         // pueda notificar a cada grupo en SignalR.
         public async Task<ICollection<Subasta>> CerrarSubastasVencidasAsync()
         {
-            var ahora = DateTime.Now;
+            //Se resta un segundo a la hora actual para una visualización más fluida en la interfaz.
+            var ahora = DateTime.Now.AddSeconds(1);
+
             var vencidas = await _context.Subasta
-                .Include(s => s.Puja)
+                .Include(s => s.Puja)               
                 .Where(s => s.IdEstadoSubasta == ESTADO_EN_PROCESO
                          && s.FechaCierre <= ahora
                          && s.FechaCompra == null)
@@ -228,6 +229,10 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                     subasta.MontoCompra = pujaGanadora.Monto;
                     subasta.MontoComision = pujaGanadora.Monto * subasta.PorcentajeComision / 100;
                     subasta.FechaCompra = ahora;
+                    subasta.IdUsuarioCompradorNavigation = await _context.Set<Usuario>()
+                                                                         .Where(x => x.IdUsuario == subasta.IdUsuarioComprador)
+                                                                         .AsNoTracking()
+                                                                         .FirstOrDefaultAsync();
 
                     // Marcar la camiseta como vendida
                     await _context.Camiseta
@@ -272,21 +277,19 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .Select(s => (DateTime?)s.FechaInicio)
                 .MinAsync();
 
-            // Próximo cierre: FechaCierre de subastas en proceso
-            var proximoCierre = await _context.Subasta
+            // Próximo cierre: FechaCierre de subastas en proceso        
+            var proximoCierre = (await _context.Subasta
                 .Where(s => s.IdEstadoSubasta == ESTADO_EN_PROCESO
                          && s.FechaCierre > ahora
                          && s.FechaCompra == null)
                 .Select(s => (DateTime?)s.FechaCierre)
-                .MinAsync();
+                .MinAsync())?.AddSeconds(-3.5); //Adelanta tres segundos y medio la fecha de cierre para que los datos se reflejen más acorde al tiempo real.               
 
             // Devuelve la más próxima de las dos
             if (proximaActivacion == null) return proximoCierre;
             if (proximoCierre == null) return proximaActivacion;
             return proximaActivacion < proximoCierre ? proximaActivacion : proximoCierre;
         }
-
-        
 
         // ---- Validación de negocio ---
         //Se verifica si una camiseta tiene una subasta activa
@@ -306,7 +309,6 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .AnyAsync();
         }
 
-
         // Activas — sin FechaCompra y FechaCierre futura
         public async Task<ICollection<Subasta>> GetSubastasActivasAsync(
         DateTime? desde, DateTime? hasta)
@@ -315,7 +317,8 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             //var fechaActual = DateTime.ParseExact(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.fff", CultureInfo.InvariantCulture), ("yyyy/MM/dd HH:mm:ss.fff"), CultureInfo.InvariantCulture);
             var fechaPrueba = DateTime.Now;
             var query = QueryBase()
-                .Where(s => s.IdEstadoSubasta == 1 || s.IdEstadoSubasta == 6);
+                //.Where(s => s.IdEstadoSubasta == 1 || s.IdEstadoSubasta == 6);
+                .Where(s => s.IdEstadoSubasta == 1);
 
             // Aplica filtro de fecha solo si se proporcionó
             if (desde.HasValue)
@@ -337,8 +340,8 @@ namespace SportSkin.Infrastructure.Repository.Implementations
             var fechaActual = DateTime.Now;
             var query = QueryBase()
                 .Where(s => s.IdEstadoSubasta == 2   // Vendida
-                 || s.IdEstadoSubasta == 3   // Finalizada
-                 || s.IdEstadoSubasta == 5); // Cancelada
+                 || s.IdEstadoSubasta == 3);   // Finalizada
+                 //|| s.IdEstadoSubasta == 5); // Cancelada
 
             if (desde.HasValue)
                 query = query.Where(s => s.FechaCierre >= desde.Value);

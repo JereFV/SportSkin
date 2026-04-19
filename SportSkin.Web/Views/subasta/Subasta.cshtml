@@ -188,7 +188,7 @@
             else
             {
                 <div class="no-bids-msg" id="mensajeSinPujas">
-                    Aún no hay pujas. ¡Sé el primero en hacerlo!
+                    @(Model.Subasta?.IdEstadoSubasta == 1 ? "Aún no hay pujas. ¡Sé el primero en hacerlo!" : "Subasta finalizada sin pujas.")
                 </div>
             }
         </div>
@@ -360,7 +360,7 @@
                                             <span class="bid-username">${data.nombreUsuario}</span>
 
                                             <span class="badge text-bg-success" id="liderSubasta">
-                                                <i class="fa-solid fa-trophy" style="font-size:.8rem"></i>Líder
+                                                <i class="fa-solid fa-trophy" style="font-size:.8rem"></i> Líder
                                             </span>
                                         </div>
                                     </td>
@@ -446,6 +446,7 @@
             }
         });
 
+        //Método asincróno de pujas.
         function realizarPuja() {                    
             try {
                 const nombreCamiseta = "@Model.Subasta?.IdCamisetaNavigation?.Nombre";
@@ -504,5 +505,44 @@
                 console.log(err);
             }
         }
+
+        //Evento de refrescamiento de la interfaz al finalizar una subasta.
+        connection.on("SubastaCerrada", function(data) {
+            if (data.tieneGanador) {
+                document.getElementById("liderSubasta").innerHTML = '<i class="fa-solid fa-trophy" style="font-size:.8rem"></i> Ganador';
+
+                Swal.fire({
+                    icon: 'info',
+                    title: `¡La subasta ha sido ganada por el usuario: ${data.nombreGanador}!`,
+                    toast: true,
+                    position: 'top-end',
+                    showCloseButton: true,
+                    showConfirmButton: false,
+                    customClass: {
+                        closeButton: 'toast-close-button'
+                    }
+                });
+            }
+            else {
+                document.getElementById("mensajeSinPujas").textContent = "Subasta finalizada sin pujas.";
+
+                Swal.fire({
+                    icon: 'info',
+                    title: 'La subasta ha finalizada sin pujas.',
+                    toast: true,
+                    position: 'top-end',
+                    showCloseButton: true,
+                    showConfirmButton: false,
+                    customClass: {
+                        closeButton: 'toast-close-button'
+                    }
+                });
+            }
+                
+            //Cierra el modal de Pujar en caso de que alguien lo tenga abierto.
+            var modalInstance = bootstrap.Modal.getInstance(document.getElementById('miModal'));
+
+            modalInstance.hide();
+        });
     </script>
 }

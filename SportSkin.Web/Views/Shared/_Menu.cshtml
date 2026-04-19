@@ -1,4 +1,18 @@
-﻿<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+﻿@using Newtonsoft.Json.Linq
+
+@{
+    var sesionStr = Context.Session.GetString("UsuarioSesion");
+    var sesion = sesionStr != null ? JObject.Parse(sesionStr) : null;
+    var rol = sesion != null ? (int?)sesion["IdRolUsuario"] : null;
+    var nombre = sesion != null ? $"{sesion["Nombre"]} {sesion["Apellido1"]}" : "Invitado";
+
+    // Constantes de rol
+    var esAdmin = rol == 1;
+    var esVendedor = rol == 2;
+    var esComprador = rol == 3;
+}
+
+<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
     <div class="container-fluid px-1">
         <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="HomeIndex">
             <img src="~/images/SportSkinLogo.png"
@@ -7,76 +21,104 @@
                  class="me-2"
                  style="object-fit: contain;">
             <span>SportSkin</span>
-        </a>        
+        </a>
+
         <div class="collapse navbar-collapse" id="navbarColor01">
             <ul class="navbar-nav me-auto">
+
+                @* Inicio — todos *@
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Home" asp-action="HomeIndex"
-                       data-i18n="nav.home">
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Camiseta" asp-action="CamisetaIndex"
-                       data-i18n="nav.shirts"></a>
-                </li>
-                <li class="nav-item d-flex align-items-center dropdown">
-                    <a class="nav-link pe-1"
-                       asp-controller="Subasta" asp-action="SubastaIndex"
-                       data-i18n="nav.auctions"></a>
-                    <a class="nav-link ps-0 pe-2 dropdown-toggle dropdown-toggle-split"
-                       data-bs-toggle="dropdown" aria-expanded="false" href="#">
-                        <span class="visually-hidden">Toggle Dropdown</span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="dropdown-item" asp-controller="Subasta" asp-action="Activas">
-                                <i class="fa-solid fa-gavel me-1"></i>
-                                <span data-i18n="nav.activeAuctions"></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" asp-controller="Subasta" asp-action="Finalizadas">
-                                <i class="bi bi-check-circle me-1"></i>
-                                <span data-i18n="nav.finishedAuctions"></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" asp-controller="Subasta" asp-action="MisSubastas">
-                                <i class="bi bi-person me-1"></i>
-                                <span data-i18n="nav.myAuctions"></span>
-                            </a>
-                        </li>
-                    </ul>
+                       data-i18n="nav.home"> </a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Usuario" asp-action="UsuarioIndex"
-                       data-i18n="nav.users"></a>
-                </li>
-               <!--Ejemplo de dropdown con separación de elementos 
-                   <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Separated link</a>
-                    </div>
-                 </li>
-                 -->
+                @* Camisetas — Admin y Vendedor *@
+                @if (esAdmin || esVendedor)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Camiseta" asp-action="CamisetaIndex"
+                           data-i18n="nav.shirts"></a>
+                    </li>
+                }
+
+                @* Subastas — Admin y Vendedor ven todo, Comprador  Activas y Finalizadas *@
+                @if (esAdmin || esVendedor || esComprador)
+                {
+                    <li class="nav-item d-flex align-items-center dropdown">
+                        <a class="nav-link pe-1"
+                           asp-controller="Subasta" asp-action="SubastaIndex"
+                           data-i18n="nav.auctions"></a>
+                        <a class="nav-link ps-0 pe-2 dropdown-toggle dropdown-toggle-split"
+                           data-bs-toggle="dropdown" aria-expanded="false" href="#">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" asp-controller="Subasta" asp-action="Activas">
+                                    <i class="fa-solid fa-gavel me-1"></i>
+                                    <span data-i18n="nav.activeAuctions"></span>
+                                </a>
+                            </li>
+                            
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Subasta" asp-action="Finalizadas">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        <span data-i18n="nav.finishedAuctions"></span>
+                                    </a>
+                                </li>
+                            @if (esAdmin || esVendedor)
+                            {
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Subasta" asp-action="MisSubastas">
+                                        <i class="bi bi-person me-1"></i>
+                                        <span data-i18n="nav.myAuctions"> </span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                }
+
+                @* Usuarios — solo Admin *@
+                @if (esAdmin)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Usuario" asp-action="UsuarioIndex"
+                           data-i18n="nav.users"></a>
+                    </li>
+                }
+
+                @* Pagos — Admin ve todos, Comprador solo los suyos *@
+                @if (esAdmin || esComprador)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Pago" asp-action="PagoIndex">
+                            <i class="fa-solid fa-file-invoice-dollar me-1"></i>
+                            <span data-i18n="nav.payments"> </span>
+                        </a>
+                    </li>
+                }
+
             </ul>
+
             <ul class="navbar-nav ms-auto">
                 @* Selector de idioma *@
                 @await Html.PartialAsync("_LanguageSelector")
 
+                @* Usuario en sesión *@
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
-                       href="#" role="button" aria-haspopup="true" aria-expanded="false"
-                       data-i18n="nav.login"></a>
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                       data-bs-toggle="dropdown"
+                       href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i>
+                        <span>@nombre</span>
+                    </a>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href="#" data-i18n="nav.logout"> </a>
+                        <span class="dropdown-item-text text-muted small">
+                            @(esAdmin ? "Administrador" : esVendedor ? "Vendedor" : esComprador ? "Comprador" : "Invitado")
+                        </span>
                         <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#" data-i18n="nav.logout"> </a>
                         <a class="dropdown-item" href="#" data-i18n="nav.changePassword"> </a>
                     </div>
                 </li>

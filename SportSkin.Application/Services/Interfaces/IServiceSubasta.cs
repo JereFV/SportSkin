@@ -42,5 +42,6 @@ namespace SportSkin.Application.Services.Interfaces
 
         //Para el home
         Task<ICollection<SubastaDTO>> GetSubastasMasPopularesAsync(int top);
+
     }
 }

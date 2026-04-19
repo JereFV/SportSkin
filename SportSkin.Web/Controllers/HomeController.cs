@@ -32,7 +32,7 @@ namespace SportSkin.Web.Controllers
 
             //Estable el usuario como una variable de sesión estática, utilizando uno distinto según el navegador de la petición para simulación de concurrencia.
             if (Request.Headers.UserAgent.ToString().Contains("Edg"))        
-                usuarioSesion = new { IdUsuario = 4, Nombre = "Harold", Apellido1 = "Gonzalez", Apellido2 = "Perez", IdRolUsuario = 3 };
+                usuarioSesion = new { IdUsuario = 3, Nombre = "Carolina", Apellido1 = "Guerra", Apellido2 = "Nuñez", IdRolUsuario = 3 };
             else
                 usuarioSesion = new { IdUsuario = 1, Nombre = "Rodrigo", Apellido1 = "Herrera", Apellido2 = "Castillo", IdRolUsuario = 2 };
             

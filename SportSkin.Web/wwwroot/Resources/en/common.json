@@ -9,7 +9,8 @@
     "users": "Users",
     "login": "Login",
     "logout": "Log Out",
-    "changePassword": "Change Password"
+    "changePassword": "Change Password",
+    "payments": "Payments"
   },
   "footer": {
     "tagline": "\"The Skin of Sport\"",

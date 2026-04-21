@@ -184,11 +184,11 @@ else
                                         <span class="text-@urgencia fw-semibold">
                                             @if (tiempoRestante.TotalHours < 1)
                                             {
-                                                <span data-i18n="auctions:time.closesIn">Cierra en</span> @($"{(int)tiempoRestante.TotalMinutes}") <span data-i18n="auctions:time.min_other">min</span>
+                                                <span data-i18n="auctions:time.closesIn">Cierra en</span> @($"{(int)tiempoRestante.TotalMinutes}") <span data-i18n="auctions:time.min" data-i18n-options='{"count":@((int)tiempoRestante.TotalMinutes)}'>@((int)tiempoRestante.TotalMinutes != 1 ? "minutos" : "minuto")</span>
                                             }
                                             else if (tiempoRestante.TotalHours < 24)
                                             {
-                                                <span data-i18n="auctions:time.closesIn">Cierra en</span> @($"{(int)tiempoRestante.TotalHours}") <span data-i18n="auctions:time.hours">h</span>
+                                                <span data-i18n="auctions:time.closesIn">Cierra en</span> @($"{(int)tiempoRestante.TotalHours}") <span data-i18n="auctions:time.hours" data-i18n-options='{"count":@((int)tiempoRestante.TotalHours)}'>@((int)tiempoRestante.TotalHours != 1 ? "horas" : "hora")</span>
                                             }
                                             else
                                             {

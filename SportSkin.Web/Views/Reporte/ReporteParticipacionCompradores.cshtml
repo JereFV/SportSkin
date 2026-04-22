@@ -1,5 +1,9 @@
 ﻿@{
     ViewData["Title"] = "Reporte Participación de Compradores";
+
+    @* Fechas por defecto: último año *@
+    var hoy = DateTime.Now.ToString("yyyy-MM-dd");
+    var haceUnAnio = DateTime.Now.AddYears(-1).ToString("yyyy-MM-dd");
 }
 
 @section Styles {
@@ -9,6 +13,7 @@
             padding-bottom: 0.75rem;
             margin-bottom: 1.5rem;
         }
+
         .report-label-tag {
             font-size: 0.7rem;
             letter-spacing: 0.12em;
@@ -16,18 +21,30 @@
             color: #6c757d;
             font-weight: 500;
         }
+
         .stat-card {
             border-left: 3px solid transparent;
             border-radius: 0.5rem;
         }
-        .stat-card.primary   { border-left-color: #0d6efd; }
-        .stat-card.success   { border-left-color: #198754; }
-        .stat-card.secondary { border-left-color: #6c757d; }
+
+            .stat-card.primary {
+                border-left-color: #0d6efd;
+            }
+
+            .stat-card.success {
+                border-left-color: #198754;
+            }
+
+            .stat-card.secondary {
+                border-left-color: #6c757d;
+            }
+
         .stat-val {
             font-size: 1.75rem;
             font-weight: 500;
             line-height: 1;
         }
+
         .rank-badge {
             display: inline-flex;
             align-items: center;
@@ -38,10 +55,27 @@
             font-size: 0.7rem;
             font-weight: 600;
         }
-        .rank-1 { background: #fff3cd; color: #664d03; }
-        .rank-2 { background: #e9ecef; color: #495057; }
-        .rank-3 { background: #fde3cf; color: #7a2e0e; }
-        .rank-other { background: #f8f9fa; color: #6c757d; }
+
+        .rank-1 {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .rank-2 {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .rank-3 {
+            background: #fde3cf;
+            color: #7a2e0e;
+        }
+
+        .rank-other {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+
         .bar-track {
             height: 6px;
             background: #e9ecef;
@@ -49,30 +83,82 @@
             overflow: hidden;
             width: 100px;
         }
+
         .bar-fill {
             height: 100%;
             border-radius: 3px;
             background: #0d6efd;
             transition: width 0.4s ease;
         }
-        #r1-table th { white-space: nowrap; }
-        #r1-table td { vertical-align: middle; }
-        #r1-table tbody tr { animation: fadeRow 0.25s ease both; }
-        #r1-table tbody tr:nth-child(even) { background-color: #f8f9fa; }
-        #r1-table tbody tr:hover { background-color: #e8f0fe; }
-        @@keyframes fadeRow {
-            from { opacity: 0; transform: translateY(3px); }
-            to   { opacity: 1; transform: translateY(0); }
+
+        #r1-table th {
+            white-space: nowrap;
         }
-        .sortable { cursor: pointer; user-select: none; }
-        .sortable:hover { background-color: #495057; }
-        .empty-state { text-align: center; padding: 2.5rem; color: #6c757d; }
+
+        #r1-table td {
+            vertical-align: middle;
+        }
+
+        #r1-table tbody tr {
+            animation: fadeRow 0.25s ease both;
+        }
+
+            #r1-table tbody tr:nth-child(even) {
+                background-color: #f8f9fa;
+            }
+
+            #r1-table tbody tr:hover {
+                background-color: #e8f0fe;
+            }
+
+        @@keyframes fadeRow {
+            from {
+                opacity: 0;
+                transform: translateY(3px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+
+            .sortable:hover {
+                background-color: #495057;
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem;
+            color: #6c757d;
+        }
+        /* Input de fecha inválido */
+        input[type="date"].is-invalid-date {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220,53,69,.15);
+        }
+        /* Indicador del rango seleccionado */
+        #r1-range-info {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+
+            #r1-range-info.text-warning {
+                color: #fd7e14 !important;
+            }
     </style>
 }
 
+@* ── ENCABEZADO ── *@
 <div class="report-header-bar d-flex justify-content-between align-items-start flex-wrap gap-2">
     <div>
-        <p class="report-label-tag mb-1">Reporte - Sistema de Subastas SportSkin</p>
+        <p class="report-label-tag mb-1">Reporte — Sistema de Subastas SportSkin</p>
         <h1 class="h4 fw-semibold mb-0">
             <i class="bi bi-people-fill text-primary me-2"></i>
             Participación de <span class="text-primary">usuarios compradores</span>
@@ -89,14 +175,31 @@
 <div class="card border-0 bg-light mb-3">
     <div class="card-body py-2">
         <div class="d-flex flex-wrap align-items-end gap-3">
+
+            @* Fecha inicio *@
             <div>
-                <label class="form-label small text-muted mb-1" data-i18n="filters.from">Fecha inicio</label>
-                <input type="date" id="r1-desde" class="form-control form-control-sm" value="@DateTime.Now.AddYears(-1).ToString("yyyy-MM-dd")">
+                <label class="form-label small text-muted mb-1">
+                    <i class="bi bi-calendar3 me-1"></i>Fecha inicio
+                </label>
+                <input type="date" id="r1-desde"
+                       class="form-control form-control-sm"
+                       value="@haceUnAnio"
+                       max="@hoy">
+                <div id="r1-range-info" class="mt-1">&nbsp;</div>
             </div>
+
+            @* Fecha fin *@
             <div>
-                <label class="form-label small text-muted mb-1" data-i18n="filters.until">Fecha fin</label>
-                <input type="date" id="r1-hasta" class="form-control form-control-sm" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                <label class="form-label small text-muted mb-1">
+                    <i class="bi bi-calendar3-range me-1"></i>Fecha fin
+                </label>
+                <input type="date" id="r1-hasta"
+                       class="form-control form-control-sm"
+                       value="@hoy"
+                       max="@hoy">
             </div>
+
+            @* Ordenar por *@
             <div>
                 <label class="form-label small text-muted mb-1">Ordenar por</label>
                 <select id="r1-orden" class="form-select form-select-sm">
@@ -106,18 +209,24 @@
                     <option value="nombre">Nombre A–Z</option>
                 </select>
             </div>
+
+            @* Buscar *@
             <div>
                 <label class="form-label small text-muted mb-1">Buscar usuario</label>
-                <input type="text" id="r1-search" class="form-control form-control-sm" placeholder="Filtrar por nombre...">
+                <input type="text" id="r1-search"
+                       class="form-control form-control-sm"
+                       placeholder="Filtrar por nombre o correo...">
             </div>
-            <button class="btn btn-primary btn-sm" onclick="cargarReporte1()">
+
+            <button class="btn btn-primary btn-sm" id="r1-btn-aplicar" onclick="cargarReporte1()">
                 <i class="bi bi-search me-1"></i> Aplicar
             </button>
+
             <div class="ms-auto d-flex gap-2">
-                <button class="btn btn-outline-success btn-sm" onclick="exportarCSV()">
+                <button class="btn btn-outline-success btn-sm" onclick="exportarCSV()" id="r1-btn-csv" disabled>
                     <i class="bi bi-filetype-csv me-1"></i> CSV
                 </button>
-                <button class="btn btn-outline-danger btn-sm" onclick="exportarPDF()">
+                <button class="btn btn-outline-danger btn-sm" onclick="exportarPDF()" id="r1-btn-pdf" disabled>
                     <i class="bi bi-file-earmark-pdf me-1"></i> PDF
                 </button>
             </div>
@@ -126,7 +235,7 @@
 </div>
 
 @* ── MÉTRICAS RESUMEN ── *@
-<div class="row g-3 mb-3" id="r1-stats">
+<div class="row g-3 mb-3">
     <div class="col-sm-4">
         <div class="card stat-card primary border h-100">
             <div class="card-body py-2 px-3">
@@ -161,13 +270,23 @@
                 <thead class="table-dark">
                     <tr>
                         <th style="width:40px">#</th>
-                        <th class="sortable" data-col="nombre">Usuario <i class="bi bi-arrow-down-up ms-1 small"></i></th>
+                        <th class="sortable" data-col="nombre">
+                            Usuario <i class="bi bi-arrow-down-up ms-1 small"></i>
+                        </th>
                         <th>Correo</th>
-                        <th class="text-end sortable" data-col="subastas">Subastas <i class="bi bi-arrow-down-up ms-1 small"></i></th>
-                        <th class="text-end sortable" data-col="pujas">Pujas <i class="bi bi-arrow-down-up ms-1 small"></i></th>
-                        <th class="text-end sortable" data-col="tasa">Tasa éxito <i class="bi bi-arrow-down-up ms-1 small"></i></th>
+                        <th class="text-end sortable" data-col="subastas">
+                            Subastas <i class="bi bi-arrow-down-up ms-1 small"></i>
+                        </th>
+                        <th class="text-end sortable" data-col="pujas">
+                            Pujas <i class="bi bi-arrow-down-up ms-1 small"></i>
+                        </th>
+                        <th class="text-end sortable" data-col="tasa">
+                            Tasa éxito <i class="bi bi-arrow-down-up ms-1 small"></i>
+                        </th>
                         <th>Participación</th>
-                        <th class="sortable" data-col="ultima">Última actividad <i class="bi bi-arrow-down-up ms-1 small"></i></th>
+                        <th class="sortable" data-col="ultima">
+                            Última actividad <i class="bi bi-arrow-down-up ms-1 small"></i>
+                        </th>
                     </tr>
                 </thead>
                 <tbody id="r1-tbody">
@@ -192,35 +311,255 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script>
+
+        // ══════════════════════════════════════════════════════
+        // ESTADO
+        // ══════════════════════════════════════════════════════
         var datosActuales = [];
-        var maxSubastas = 1;
+        var maxSubastas   = 1;
+        var HOY_STR       = new Date().toISOString().split('T')[0];
 
-        document.getElementById('gen-date').textContent = new Date().toLocaleDateString('es-CR');
+        document.getElementById('gen-date').textContent =
+            new Date().toLocaleDateString('es-CR');
         document.getElementById('timestamp-footer').textContent =
-            'SportSkin — ' + new Date().toLocaleDateString('es-CR', { year: 'numeric', month: 'long', day: 'numeric' });
+            'SportSkin — ' + new Date().toLocaleDateString('es-CR',
+                { year: 'numeric', month: 'long', day: 'numeric' });
 
+        // ══════════════════════════════════════════════════════
+        // VALIDACIÓN — función central que devuelve true/false
+        // y lanza el SweetAlert correspondiente si hay error.
+        // ══════════════════════════════════════════════════════
+        function validarFiltros() {
+            var inputDesde = document.getElementById('r1-desde');
+            var inputHasta = document.getElementById('r1-hasta');
+            var desdeStr   = inputDesde.value;
+            var hastaStr   = inputHasta.value;
+
+            // Limpiar estados visuales previos
+            inputDesde.classList.remove('is-invalid-date');
+            inputHasta.classList.remove('is-invalid-date');
+
+            // 1. Ambos campos requeridos
+            if (!desdeStr || !hastaStr) {
+                Swal.fire({
+                    title: 'Campos requeridos',
+                    text: 'Debes seleccionar tanto la fecha de inicio como la fecha de fin.',
+                    icon: 'warning',
+                    confirmButtonColor: '#0d6efd',
+                    confirmButtonText: 'Entendido',
+                    customClass: { popup: 'shadow' }
+                });
+                if (!desdeStr) inputDesde.classList.add('is-invalid-date');
+                if (!hastaStr) inputHasta.classList.add('is-invalid-date');
+                return false;
+            }
+
+            var desde = new Date(desdeStr);
+            var hasta = new Date(hastaStr);
+            var hoy   = new Date(HOY_STR);
+
+            // 2. Fecha inicio no puede ser mayor al día de hoy
+            if (desde > hoy) {
+                Swal.fire({
+                    title: 'Fecha inválida',
+                    text: 'La fecha de inicio no puede ser posterior al día de hoy.',
+                    icon: 'error',
+                    confirmButtonColor: '#0d6efd',
+                    confirmButtonText: 'Corregir'
+                });
+                inputDesde.classList.add('is-invalid-date');
+                return false;
+            }
+
+            // 3. Fecha fin no puede ser mayor al día de hoy
+            if (hasta > hoy) {
+                Swal.fire({
+                    title: 'Fecha inválida',
+                    html: 'La fecha de fin no puede ser posterior al día de hoy.<br>' +
+                          '<small class="text-muted">Se ajustará automáticamente a hoy.</small>',
+                    icon: 'warning',
+                    confirmButtonColor: '#0d6efd',
+                    confirmButtonText: 'Aceptar ajuste'
+                }).then(function() {
+                    inputHasta.value = HOY_STR;
+                });
+                inputHasta.classList.add('is-invalid-date');
+                return false;
+            }
+
+            // 4. Fecha fin no puede ser anterior a fecha inicio
+            if (hasta < desde) {
+                Swal.fire({
+                    title: 'Rango incorrecto',
+                    html: 'La <strong>fecha de fin</strong> no puede ser anterior a la <strong>fecha de inicio</strong>.<br>' +
+                          '<span class="text-muted small">Verificá que el rango tenga sentido cronológico.</span>',
+                    icon: 'error',
+                    confirmButtonColor: '#0d6efd',
+                    confirmButtonText: 'Corregir'
+                });
+                inputHasta.classList.add('is-invalid-date');
+                return false;
+            }
+
+            // 5. Rango máximo de 1 año
+            var unAnioEnMs = 365 * 24 * 60 * 60 * 1000;
+            if ((hasta - desde) > unAnioEnMs) {
+                var fechaTope     = new Date(desde);
+                fechaTope.setFullYear(desde.getFullYear() + 1);
+                var fechaTopeStr  = fechaTope.toISOString().split('T')[0];
+                var fechaTopeText = fechaTope.toLocaleDateString('es-CR',
+                    { year: 'numeric', month: 'long', day: 'numeric' });
+
+                Swal.fire({
+                    title: 'Rango excedido',
+                    html: 'El periodo máximo permitido es de <strong>1 año</strong>.<br>' +
+                          'La fecha de fin se ajustará automáticamente a:<br>' +
+                          '<strong class="text-primary">' + fechaTopeText + '</strong>',
+                    icon: 'info',
+                    confirmButtonColor: '#0d6efd',
+                    confirmButtonText: 'Aceptar y continuar',
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancelar',
+                    cancelButtonColor: '#6c757d'
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        inputHasta.value = fechaTopeStr;
+                        // Ejecutar la carga con el rango ajustado
+                        ejecutarCarga(desdeStr, fechaTopeStr);
+                    }
+                });
+                return false; // Interrumpir flujo normal; se relanza desde el .then
+            }
+
+            return true;
+        }
+
+        // ══════════════════════════════════════════════════════
+        // ACTUALIZAR INDICADOR DE RANGO
+        // ══════════════════════════════════════════════════════
+        function actualizarInfoRango() {
+            var desdeStr = document.getElementById('r1-desde').value;
+            var hastaStr = document.getElementById('r1-hasta').value;
+            var info     = document.getElementById('r1-range-info');
+
+            if (!desdeStr || !hastaStr) { info.textContent = '\u00a0'; return; }
+
+            var desde = new Date(desdeStr);
+            var hasta = new Date(hastaStr);
+            if (hasta < desde) { info.textContent = '\u00a0'; return; }
+
+            var dias  = Math.round((hasta - desde) / (1000 * 60 * 60 * 24));
+            var meses = (dias / 30).toFixed(1);
+
+            info.textContent = dias + ' días (' + meses + ' meses)';
+            info.className   = dias > 300 ? 'mt-1 text-warning' : 'mt-1 text-muted';
+
+            // Cuando el usuario cambia "desde", limitar el máximo de "hasta"
+            var tope = new Date(desde);
+            tope.setFullYear(desde.getFullYear() + 1);
+            var topeStr = tope.toISOString().split('T')[0];
+            // No superar hoy ni el tope de 1 año
+            var maxStr = topeStr < HOY_STR ? topeStr : HOY_STR;
+            document.getElementById('r1-hasta').max = maxStr;
+        }
+
+        document.getElementById('r1-desde').addEventListener('change', function() {
+            // Al cambiar inicio, limpiar fin si queda fuera del nuevo rango
+            var desdeStr = this.value;
+            var hastaStr = document.getElementById('r1-hasta').value;
+            if (hastaStr && hastaStr < desdeStr) {
+                document.getElementById('r1-hasta').value = '';
+            }
+            actualizarInfoRango();
+        });
+
+        document.getElementById('r1-hasta').addEventListener('change', actualizarInfoRango);
+
+        // Inicializar indicador con valores por defecto
+        actualizarInfoRango();
+
+        // ══════════════════════════════════════════════════════
+        // CARGA DE DATOS
+        // ══════════════════════════════════════════════════════
+        function cargarReporte1() {
+            if (!validarFiltros()) return;
+            var desdeStr = document.getElementById('r1-desde').value;
+            var hastaStr = document.getElementById('r1-hasta').value;
+            ejecutarCarga(desdeStr, hastaStr);
+        }
+
+        function ejecutarCarga(desdeStr, hastaStr) {
+            var url = '/Reporte/GetParticipacionCompradores?desde=' + desdeStr + '&hasta=' + hastaStr;
+
+            document.getElementById('r1-tbody').innerHTML =
+                '<tr><td colspan="8" class="empty-state">' +
+                '<div class="spinner-border spinner-border-sm me-2 text-primary" role="status"></div>' +
+                'Cargando datos...</td></tr>';
+
+            document.getElementById('r1-btn-csv').disabled = true;
+            document.getElementById('r1-btn-pdf').disabled = true;
+
+            fetch(url)
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function(data) {
+                    datosActuales = data;
+                    ordenarYRenderizar(data);
+                    if (data.length) {
+                        document.getElementById('r1-btn-csv').disabled = false;
+                        document.getElementById('r1-btn-pdf').disabled = false;
+                    }
+                })
+                .catch(function() {
+                    document.getElementById('r1-tbody').innerHTML =
+                        '<tr><td colspan="8" class="empty-state text-danger">' +
+                        '<i class="bi bi-exclamation-triangle me-2"></i>' +
+                        'Error al cargar los datos. Intentá de nuevo.</td></tr>';
+                    Swal.fire({
+                        title: 'Error de carga',
+                        text: 'No fue posible obtener los datos del reporte. Verificá la conexión e intentá nuevamente.',
+                        icon: 'error',
+                        confirmButtonColor: '#0d6efd'
+                    });
+                });
+        }
+
+        // ══════════════════════════════════════════════════════
+        // RENDER
+        // ══════════════════════════════════════════════════════
         function rankBadge(i) {
-            if (i === 0) return '<span class="rank-badge rank-1">1°</span>';
-            if (i === 1) return '<span class="rank-badge rank-2">2°</span>';
-            if (i === 2) return '<span class="rank-badge rank-3">3°</span>';
+            if (i === 0) return '<span class="rank-badge rank-1">1\u00b0</span>';
+            if (i === 1) return '<span class="rank-badge rank-2">2\u00b0</span>';
+            if (i === 2) return '<span class="rank-badge rank-3">3\u00b0</span>';
             return '<span class="rank-badge rank-other">' + (i + 1) + '</span>';
         }
 
         function renderTabla(data) {
             var tbody = document.getElementById('r1-tbody');
             if (!data.length) {
-                tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="bi bi-exclamation-circle me-2"></i>No hay datos para el periodo seleccionado.</td></tr>';
+                tbody.innerHTML =
+                    '<tr><td colspan="8" class="empty-state">' +
+                    '<i class="bi bi-search me-2"></i>' +
+                    'No hay datos para el periodo seleccionado.</td></tr>';
+                document.getElementById('record-count').textContent = '0';
+                document.getElementById('s-usuarios').textContent  = '0';
+                document.getElementById('s-pujas').textContent     = '0';
+                document.getElementById('s-promedio').textContent  = '0';
                 return;
             }
 
             maxSubastas = Math.max.apply(null, data.map(function(d) { return d.cantidadSubastas; }));
 
             tbody.innerHTML = data.map(function(row, i) {
-                var barW = maxSubastas > 0 ? Math.round((row.cantidadSubastas / maxSubastas) * 100) : 0;
-                var tasaColor = row.tasaExito >= 60 ? 'text-success fw-semibold' : 'text-secondary';
+                var barW = maxSubastas > 0
+                    ? Math.round((row.cantidadSubastas / maxSubastas) * 100)
+                    : 0;
+                var tasaColor   = row.tasaExito >= 60 ? 'text-success fw-semibold' : 'text-secondary';
                 var ultimaTexto = row.ultimaActividad
                     ? new Date(row.ultimaActividad).toLocaleDateString('es-CR')
-                    : '—';
+                    : '\u2014';
 
                 return '<tr style="animation-delay:' + (i * 0.03) + 's">' +
                     '<td>' + rankBadge(i) + '</td>' +
@@ -228,16 +567,21 @@
                     '<td class="text-muted small">' + row.correo + '</td>' +
                     '<td class="text-end fw-semibold">' + row.cantidadSubastas + '</td>' +
                     '<td class="text-end">' + row.totalPujas + '</td>' +
-                    '<td class="text-end"><span class="' + tasaColor + '">' + row.tasaExito.toFixed(1) + '%</span></td>' +
-                    '<td><div class="d-flex align-items-center gap-2"><div class="bar-track"><div class="bar-fill" style="width:' + barW + '%"></div></div><span class="small text-muted">' + barW + '%</span></div></td>' +
+                    '<td class="text-end"><span class="' + tasaColor + '">' +
+                        row.tasaExito.toFixed(1) + '%</span></td>' +
+                    '<td><div class="d-flex align-items-center gap-2">' +
+                        '<div class="bar-track"><div class="bar-fill" style="width:' + barW + '%"></div></div>' +
+                        '<span class="small text-muted">' + barW + '%</span></div></td>' +
                     '<td class="text-muted small">' + ultimaTexto + '</td>' +
                     '</tr>';
             }).join('');
 
             document.getElementById('record-count').textContent = data.length;
-            document.getElementById('s-usuarios').textContent = data.length;
-            document.getElementById('s-pujas').textContent = data.reduce(function(a, r) { return a + r.totalPujas; }, 0).toLocaleString('es-CR');
-            document.getElementById('s-promedio').textContent = data.length
+            document.getElementById('s-usuarios').textContent   = data.length;
+            document.getElementById('s-pujas').textContent      =
+                data.reduce(function(a, r) { return a + r.totalPujas; }, 0)
+                    .toLocaleString('es-CR');
+            document.getElementById('s-promedio').textContent   = data.length
                 ? (data.reduce(function(a, r) { return a + r.cantidadSubastas; }, 0) / data.length).toFixed(1)
                 : '0';
         }
@@ -250,7 +594,8 @@
                 if (orden === 'tasa')   return b.tasaExito - a.tasaExito;
                 return b.cantidadSubastas - a.cantidadSubastas;
             });
-            var busqueda = (document.getElementById('r1-search').value || '').toLowerCase();
+
+            var busqueda = (document.getElementById('r1-search').value || '').toLowerCase().trim();
             if (busqueda) {
                 sorted = sorted.filter(function(r) {
                     return r.nombreCompleto.toLowerCase().includes(busqueda) ||
@@ -260,59 +605,6 @@
             renderTabla(sorted);
         }
 
-        function cargarReporte1() {
-            var desdeInput = document.getElementById('r1-desde');
-            var hastaInput = document.getElementById('r1-hasta');
-
-            var desde = new Date(desdeInput.value);
-            var hasta = new Date(hastaInput.value);
-            var unAnioEnMs = 365 * 24 * 60 * 60 * 1000;
-
-            // Validación: Rango mayor a 1 año
-            if ((hasta - desde) > unAnioEnMs) {
-                // Calculamos la fecha tope (Desde + 1 año)
-                var fechaTope = new Date(desde);
-                fechaTope.setFullYear(desde.getFullYear() + 1);
-
-                // Convertir a formato YYYY-MM-DD para el input
-                var fechaTopeStr = fechaTope.toISOString().split('T')[0];
-
-                Swal.fire({
-                    title: 'Rango excedido',
-                    text: 'El periodo máximo es de 1 año. Se ha ajustado la fecha final al ' + fechaTope.toLocaleDateString('es-CR'),
-                    icon: 'info',
-                    confirmButtonColor: '#0d6efd'
-                });
-
-                // Ajustamos el valor en el UI y en la variable
-                hastaInput.value = fechaTopeStr;
-                hasta = fechaTope;
-            }
-
-            // Validación: Fecha fin menor a inicio
-            if (hasta < desde) {
-                Swal.fire('Error en fechas', 'La fecha final no puede ser anterior a la inicial.', 'error');
-                return;
-            }
-
-            // Si pasa la validación, continúa con el proceso 
-            var url = '/Reporte/GetParticipacionCompradores?desde=' + desdeInput.value + '&hasta=' + hastaInput.value;
-
-            document.getElementById('r1-tbody').innerHTML =
-                '<tr><td colspan="8" class="empty-state"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando...</td></tr>';
-
-            fetch(url)
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    datosActuales = data;
-                    ordenarYRenderizar(data);
-                })
-                .catch(function() {
-                    document.getElementById('r1-tbody').innerHTML =
-                        '<tr><td colspan="8" class="empty-state text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Error al cargar los datos.</td></tr>';
-                });
-        }
-
         document.getElementById('r1-search').addEventListener('input', function() {
             if (datosActuales.length) ordenarYRenderizar(datosActuales);
         });
@@ -320,21 +612,40 @@
             if (datosActuales.length) ordenarYRenderizar(datosActuales);
         });
 
+        // Columnas ordenables por clic en encabezado
+        document.querySelectorAll('#r1-table th.sortable').forEach(function(th) {
+            th.addEventListener('click', function() {
+                var col = this.getAttribute('data-col');
+                if (col === 'nombre' || col === 'subastas' || col === 'pujas' || col === 'tasa') {
+                    document.getElementById('r1-orden').value = col;
+                    if (datosActuales.length) ordenarYRenderizar(datosActuales);
+                }
+            });
+        });
+
+        // ══════════════════════════════════════════════════════
+        // EXPORTAR
+        // ══════════════════════════════════════════════════════
         function exportarCSV() {
             if (!datosActuales.length) return;
-            var header = ['Rank','Usuario','Correo','Subastas','Total Pujas','Tasa Éxito %','Última Actividad'];
+            var header = ['Rank','Usuario','Correo','Subastas','Total Pujas','Tasa \u00c9xito %','\u00daltima Actividad'];
             var rows = datosActuales.map(function(r, i) {
-                return [i+1, r.nombreCompleto, r.correo, r.cantidadSubastas, r.totalPujas,
-                        r.tasaExito.toFixed(1)+'%',
-                        r.ultimaActividad ? new Date(r.ultimaActividad).toLocaleDateString('es-CR') : ''];
+                return [
+                    i + 1, r.nombreCompleto, r.correo,
+                    r.cantidadSubastas, r.totalPujas,
+                    r.tasaExito.toFixed(1) + '%',
+                    r.ultimaActividad
+                        ? new Date(r.ultimaActividad).toLocaleDateString('es-CR')
+                        : ''
+                ];
             });
-            var csv = [header].concat(rows).map(function(row) {
-                return row.map(function(v) { return '"' + v + '"'; }).join(',');
-            }).join('\n');
+            var csv = [header].concat(rows)
+                .map(function(row) { return row.map(function(v) { return '"' + v + '"'; }).join(','); })
+                .join('\n');
             var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
             var a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'reporte1-participacion-compradores.csv';
+            a.download = 'reporte-participacion-compradores.csv';
             a.click();
         }
 
@@ -344,41 +655,34 @@
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(14);
             doc.setTextColor(13, 110, 253);
-            doc.text('Reporte 1 — Participación de Usuarios Compradores', 14, 16);
+            doc.text('Reporte \u2014 Participaci\u00f3n de Usuarios Compradores', 14, 16);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(8);
             doc.setTextColor(108, 117, 125);
-            doc.text('SportSkin — Generado: ' + new Date().toLocaleString('es-CR'), 14, 22);
-            doc.text('Solo se consideran pujas válidas (no anuladas ni rechazadas)', 14, 27);
+            doc.text('SportSkin \u2014 Generado: ' + new Date().toLocaleString('es-CR'), 14, 22);
+            doc.text('Solo se consideran pujas v\u00e1lidas', 14, 27);
+            doc.text('Periodo: ' + document.getElementById('r1-desde').value +
+                     ' al ' + document.getElementById('r1-hasta').value, 14, 32);
 
-            var head = [['#','Usuario','Correo','Subastas','Total Pujas','Tasa Éxito','Última Actividad']];
+            var head = [['#','Usuario','Correo','Subastas','Total Pujas','Tasa \u00c9xito','\u00daltima Actividad']];
             var body = datosActuales.map(function(r, i) {
-                return [i+1, r.nombreCompleto, r.correo, r.cantidadSubastas, r.totalPujas,
-                        r.tasaExito.toFixed(1)+'%',
-                        r.ultimaActividad ? new Date(r.ultimaActividad).toLocaleDateString('es-CR') : ''];
+                return [
+                    i + 1, r.nombreCompleto, r.correo,
+                    r.cantidadSubastas, r.totalPujas,
+                    r.tasaExito.toFixed(1) + '%',
+                    r.ultimaActividad
+                        ? new Date(r.ultimaActividad).toLocaleDateString('es-CR')
+                        : ''
+                ];
             });
-
             doc.autoTable({
-                head: head, body: body, startY: 31,
-                styles: { font: 'helvetica', fontSize: 8, cellPadding: 3 },
+                head: head, body: body, startY: 36,
+                styles: { font: 'helvetica', fontSize: 8, cellPadding: 3, halign:'center' },
                 headStyles: { fillColor: [13, 110, 253], textColor: [255,255,255], fontStyle: 'bold' },
                 alternateRowStyles: { fillColor: [248, 249, 250] },
-                columnStyles: { 0: { cellWidth: 8 }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } }
+            
             });
-            doc.save('reporte1-participacion-compradores.pdf');
+            doc.save('reporte-participacion-compradores.pdf');
         }
-
-        @* Columnas ordenables por clic en encabezado *@
-        document.querySelectorAll('#r1-table th.sortable').forEach(function(th) {
-            th.addEventListener('click', function() {
-                var col = this.getAttribute('data-col');
-                var select = document.getElementById('r1-orden');
-                if (col === 'nombre' || col === 'subastas' || col === 'pujas' || col === 'tasa') {
-                    select.value = col;
-                    ordenarYRenderizar(datosActuales);
-                }
-            });
-        });
     </script>
 }
-

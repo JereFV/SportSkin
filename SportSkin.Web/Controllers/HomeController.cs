@@ -36,7 +36,7 @@ namespace SportSkin.Web.Controllers
             else if (Request.Headers.UserAgent.ToString().Contains("Firefox"))
                 usuarioSesion = new { IdUsuario = 1, Nombre = "Rodrigo", Apellido1 = "Herrera", Apellido2 = "Castillo", IdRolUsuario = 2 };
             else
-                usuarioSesion = new { IdUsuario = 4, Nombre = "Harold", Apellido1 = "Gonzalez", Apellido2 = "Perez", IdRolUsuario = 3 };
+                usuarioSesion = new { IdUsuario = 2, Nombre = "Jeremy", Apellido1 = "Fuentes", Apellido2 = "Venegas", IdRolUsuario = 1 };
 
             HttpContext.Session.SetString("UsuarioSesion", JsonSerializer.Serialize(usuarioSesion));
 

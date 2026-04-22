@@ -1,9 +1,12 @@
 ﻿@{
     ViewData["Title"] = "Reporte Actividad del Sistema";
+
+    @* Fechas por defecto: último año *@
+    var hoy = DateTime.Now.ToString("yyyy-MM-dd");
+    var haceUnAnio = new DateTime(DateTime.Now.Year - 1, 1, 1).ToString("yyyy-MM-dd");
 }
 
 @section Styles {
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <style>
         .report-header-bar {
             border-bottom: 2px solid var(--bs-primary);
@@ -141,12 +144,24 @@
         #r4-detail-tbody td {
             vertical-align: middle;
         }
-
-        .spinner-overlay {
-            text-align: center;
-            padding: 2rem;
-            color: #6c757d;
+        /* Input de fecha inválido */
+        input[type="date"].is-invalid-date {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220,53,69,.15);
         }
+        /* Indicador de rango */
+        #r4-range-info {
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+            #r4-range-info.warn {
+                color: #fd7e14 !important;
+            }
+
+            #r4-range-info.ok {
+                color: #6c757d !important;
+            }
 
         @@media (max-width: 768px) {
             .chart-row {
@@ -156,14 +171,17 @@
     </style>
 }
 
+@* ── ENCABEZADO ── *@
 <div class="report-header-bar d-flex justify-content-between align-items-start flex-wrap gap-2">
     <div>
-        <p class="report-label-tag mb-1">Reporte  — Sistema de Subastas SportSkin</p>
+        <p class="report-label-tag mb-1">Reporte — Sistema de Subastas SportSkin</p>
         <h1 class="h4 fw-semibold mb-0">
             <i class="bi bi-graph-up-arrow text-primary me-2"></i>
             Actividad del sistema <span class="text-primary">por periodo</span>
         </h1>
-        <p class="text-muted small mb-0">Comparativa de subastas creadas, pujas realizadas y subastas finalizadas</p>
+        <p class="text-muted small mb-0">
+            Comparativa de subastas creadas, pujas realizadas y subastas finalizadas
+        </p>
     </div>
     <div class="text-end text-muted small">
         Generado: <span id="r4-gen-date"></span>
@@ -174,22 +192,40 @@
 <div class="card border-0 bg-light mb-3">
     <div class="card-body py-2">
         <div class="d-flex flex-wrap align-items-end gap-3">
+
+            @* Fecha inicio *@
             <div>
-                <label class="form-label small text-muted mb-1" data-i18n="filters.from">Fecha inicio</label>
-                <input type="date" id="r4-desde" class="form-control form-control-sm" value="@(new DateTime(DateTime.Now.Year - 1, 1, 1).ToString("yyyy-MM-dd"))">
+                <label class="form-label small text-muted mb-1">
+                    <i class="bi bi-calendar3 me-1"></i>Fecha inicio
+                </label>
+                <input type="date" id="r4-desde"
+                       class="form-control form-control-sm"
+                       value="@haceUnAnio"
+                       max="@hoy">
+                <div id="r4-range-info" class="ok mt-1">&nbsp;</div>
             </div>
+
+            @* Fecha fin *@
             <div>
-                <label class="form-label small text-muted mb-1" data-i18n="filters.until">Fecha fin</label>
-                <input type="date" id="r4-hasta" class="form-control form-control-sm" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                <label class="form-label small text-muted mb-1">
+                    <i class="bi bi-calendar3-range me-1"></i>Fecha fin
+                </label>
+                <input type="date" id="r4-hasta"
+                       class="form-control form-control-sm"
+                       value="@hoy"
+                       max="@hoy">
             </div>
+
+            @* Granularidad *@
             <div>
                 <label class="form-label small text-muted mb-1">Granularidad</label>
-                <div class="toggle-group">
+                <div class="toggle-group" id="granularidad-group">
                     <button class="toggle-btn" onclick="setGranularidad('semanal', this)">Semanal</button>
                     <button class="toggle-btn active" onclick="setGranularidad('mensual', this)">Mensual</button>
                     <button class="toggle-btn" onclick="setGranularidad('trimestral', this)">Trimestral</button>
                 </div>
             </div>
+
             <button class="btn btn-primary btn-sm" onclick="cargarReporte4()">
                 <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
             </button>
@@ -202,7 +238,7 @@
     <div class="col-sm-4">
         <div class="metric-card blue p-3 h-100">
             <div class="metric-icon blue">
-                <i class="fa-solid fa-gavel text-primary me-2"></i>
+                <i class="fa-solid fa-gavel text-primary"></i>
             </div>
             <div class="small text-muted mb-1">Subastas creadas</div>
             <div class="metric-val text-primary" id="m-creadas">—</div>
@@ -236,7 +272,9 @@
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <div>
             <div class="fw-semibold small" id="r4-chart-title">Actividad general por mes</div>
-            <div class="text-muted" style="font-size:0.75rem">Comparativa de las tres métricas en el periodo seleccionado</div>
+            <div class="text-muted" style="font-size:0.75rem">
+                Comparativa de las tres métricas en el periodo seleccionado
+            </div>
         </div>
         <div class="d-flex gap-3 small text-muted">
             <span><span class="legend-dot me-1" style="background:#0d6efd"></span>Creadas</span>
@@ -245,9 +283,10 @@
         </div>
     </div>
     <div style="position: relative; width: 100%; height: 300px;">
-        <canvas id="r4-main-chart" role="img"
-                aria-label="Gráfico de barras agrupadas mostrando subastas creadas, pujas realizadas y subastas finalizadas por periodo.">
-            Actividad del sistema de subastas por periodo.
+        <canvas id="r4-main-chart"
+                role="img"
+                aria-label="Gráfico de barras agrupadas: subastas creadas, pujas y finalizadas por periodo.">
+            Actividad del sistema por periodo.
         </canvas>
     </div>
 </div>
@@ -258,9 +297,10 @@
         <div class="fw-semibold small mb-1">Tendencia de pujas</div>
         <div class="text-muted mb-2" style="font-size:0.75rem">Evolución de pujas en el periodo</div>
         <div style="position: relative; width: 100%; height: 200px;">
-            <canvas id="r4-line-chart" role="img"
-                    aria-label="Gráfico de línea mostrando la tendencia de pujas realizadas en el periodo seleccionado.">
-                Tendencia de pujas realizadas.
+            <canvas id="r4-line-chart"
+                    role="img"
+                    aria-label="Gráfico de línea: tendencia de pujas realizadas.">
+                Tendencia de pujas.
             </canvas>
         </div>
     </div>
@@ -268,8 +308,9 @@
         <div class="fw-semibold small mb-1">Tasa de finalización</div>
         <div class="text-muted mb-2" style="font-size:0.75rem">% de subastas creadas que finalizaron</div>
         <div style="position: relative; width: 100%; height: 200px;">
-            <canvas id="r4-donut-chart" role="img"
-                    aria-label="Gráfico de donut mostrando el porcentaje de subastas que finalizaron respecto al total creado.">
+            <canvas id="r4-donut-chart"
+                    role="img"
+                    aria-label="Gráfico de donut: porcentaje de subastas finalizadas.">
                 Porcentaje de subastas finalizadas.
             </canvas>
         </div>
@@ -296,7 +337,8 @@
                 <tbody id="r4-detail-tbody">
                     <tr>
                         <td colspan="4" class="text-center text-muted py-3">
-                            <i class="bi bi-hourglass-split me-2"></i>Aplicá los filtros para cargar el reporte.
+                            <i class="bi bi-hourglass-split me-2"></i>
+                            Aplicá los filtros para cargar el reporte.
                         </td>
                     </tr>
                 </tbody>
@@ -310,76 +352,210 @@
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
     <script>
+
+        // ══════════════════════════════════════════════════════
+        // ESTADO
+        // ══════════════════════════════════════════════════════
         var granularidad = 'mensual';
-        var r4Main = null;
-        var r4Line = null;
+        var r4Main  = null;
+        var r4Line  = null;
         var r4Donut = null;
+        var HOY_STR = new Date().toISOString().split('T')[0];
 
-        document.getElementById('r4-gen-date').textContent = new Date().toLocaleDateString('es-CR');
+        document.getElementById('r4-gen-date').textContent =
+            new Date().toLocaleDateString('es-CR');
         document.getElementById('r4-footer').textContent =
-            'SportSkin — ' + new Date().toLocaleDateString('es-CR', { year: 'numeric', month: 'long', day: 'numeric' });
+            'SportSkin \u2014 ' + new Date().toLocaleDateString('es-CR',
+                { year: 'numeric', month: 'long', day: 'numeric' });
 
+        // ══════════════════════════════════════════════════════
+        // GRANULARIDAD
+        // ══════════════════════════════════════════════════════
         function setGranularidad(g, btn) {
             granularidad = g;
-            document.querySelectorAll('.toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('.toggle-btn').forEach(function(b) {
+                b.classList.remove('active');
+            });
             btn.classList.add('active');
             var titulo = 'Actividad general por ';
-            if (g === 'mensual')     titulo += 'mes';
+            if (g === 'mensual')      titulo += 'mes';
             else if (g === 'semanal') titulo += 'semana';
             else                      titulo += 'trimestre';
             document.getElementById('r4-chart-title').textContent = titulo;
         }
 
-        function cargarReporte4() {
-            var desdeVal = document.getElementById('r4-desde').value;
-            var hastaVal = document.getElementById('r4-hasta').value;
+        // ══════════════════════════════════════════════════════
+        // ACTUALIZAR INDICADOR DE RANGO
+        // ══════════════════════════════════════════════════════
+        function actualizarInfoRango() {
+            var desdeStr = document.getElementById('r4-desde').value;
+            var hastaStr = document.getElementById('r4-hasta').value;
+            var info     = document.getElementById('r4-range-info');
 
-            if (!desdeVal || !hastaVal) return;
+            if (!desdeStr || !hastaStr) { info.textContent = '\u00a0'; return; }
 
-            var desde = new Date(desdeVal);
-            var hasta = new Date(hastaVal);
-            var unAnioEnMs = 365 * 24 * 60 * 60 * 1000;
+            var desde = new Date(desdeStr);
+            var hasta = new Date(hastaStr);
+            if (hasta < desde) { info.textContent = '\u00a0'; return; }
 
-            if ((hasta - desde) > unAnioEnMs) {
-                 var nuevaHasta = new Date(desde);
-                 nuevaHasta.setFullYear(desde.getFullYear() + 1);
-                 var nuevaHastaStr = nuevaHasta.toISOString().split('T')[0];
-                 
-                 Swal.fire({
-                          title: 'Optimización de Reporte',
-                          text: 'Para garantizar la velocidad, el sistema mostrará solo 1 año desde la fecha inicial elegida.',
-                          icon: 'warning',
-                          confirmButtonColor: '#0d6efd'
-                 });
-                                
+            var dias  = Math.round((hasta - desde) / (1000 * 60 * 60 * 24));
+            var meses = (dias / 30).toFixed(1);
 
-                  document.getElementById('r4-hasta').value = nuevaHastaStr;
-                  hastaVal = nuevaHastaStr; // Actualizamos la variable para el URL
+            info.textContent = dias + ' d\u00edas (' + meses + ' meses)';
+            info.className   = dias > 300 ? 'warn mt-1' : 'ok mt-1';
+
+            // Limitar el máximo de "hasta" a 1 año desde el inicio
+            var tope = new Date(desde);
+            tope.setFullYear(desde.getFullYear() + 1);
+            var topeStr = tope.toISOString().split('T')[0];
+            var maxStr  = topeStr < HOY_STR ? topeStr : HOY_STR;
+            document.getElementById('r4-hasta').max = maxStr;
+        }
+
+        document.getElementById('r4-desde').addEventListener('change', function() {
+            var hastaStr = document.getElementById('r4-hasta').value;
+            if (hastaStr && hastaStr < this.value) {
+                document.getElementById('r4-hasta').value = '';
+            }
+            actualizarInfoRango();
+        });
+
+        document.getElementById('r4-hasta').addEventListener('change', actualizarInfoRango);
+
+        actualizarInfoRango(); // Inicializar con valores por defecto
+
+        // ══════════════════════════════════════════════════════
+        // VALIDACIÓN — función central
+        // ══════════════════════════════════════════════════════
+        function validarFiltros() {
+            var inputDesde = document.getElementById('r4-desde');
+            var inputHasta = document.getElementById('r4-hasta');
+            var desdeStr   = inputDesde.value;
+            var hastaStr   = inputHasta.value;
+
+            inputDesde.classList.remove('is-invalid-date');
+            inputHasta.classList.remove('is-invalid-date');
+
+            // 1. Ambos campos requeridos
+            if (!desdeStr || !hastaStr) {
+                Swal.fire({
+                    title: 'Campos requeridos',
+                    text: 'Debés seleccionar tanto la fecha de inicio como la fecha de fin para generar el reporte.',
+                    icon: 'warning',
+                    confirmButtonColor: '#0d6efd',
+                    confirmButtonText: 'Entendido'
+                });
+                if (!desdeStr) inputDesde.classList.add('is-invalid-date');
+                if (!hastaStr) inputHasta.classList.add('is-invalid-date');
+                return false;
             }
 
+            var desde = new Date(desdeStr);
+            var hasta = new Date(hastaStr);
+            var hoy   = new Date(HOY_STR);
+
+            // 2. Fecha inicio posterior a hoy
+            if (desde > hoy) {
+                Swal.fire({
+                    title: 'Fecha inválida',
+                    text: 'La fecha de inicio no puede ser posterior al día de hoy.',
+                    icon: 'error',
+                    confirmButtonColor: '#0d6efd',
+                    confirmButtonText: 'Corregir'
+                });
+                inputDesde.classList.add('is-invalid-date');
+                return false;
+            }
+
+            // 3. Fecha fin posterior a hoy
+            if (hasta > hoy) {
+                Swal.fire({
+                    title: 'Fecha inválida',
+                    html: 'La fecha de fin no puede ser posterior al d\u00eda de hoy.<br>' +
+                          '<small class="text-muted">Se ajustar\u00e1 autom\u00e1ticamente a hoy.</small>',
+                    icon: 'warning',
+                    confirmButtonColor: '#0d6efd',
+                    confirmButtonText: 'Aceptar ajuste'
+                }).then(function() {
+                    inputHasta.value = HOY_STR;
+                    actualizarInfoRango();
+                });
+                inputHasta.classList.add('is-invalid-date');
+                return false;
+            }
+
+            // 4. Fecha fin anterior a fecha inicio
             if (hasta < desde) {
-                var nuevaHasta = new Date(desde);
-                nuevaHasta.setFullYear(desde.getFullYear() + 1);
-                var nuevaHastaStr = nuevaHasta.toISOString().split('T')[0];
-
-            
-                    Swal.fire('Error en fechas', 'La fecha final no puede ser anterior a la inicial.', 'error');
-                    document.getElementById('r4-hasta').value = nuevaHastaStr;
-                    hastaVal = nuevaHastaStr;
-                    return;
-
-                
+                Swal.fire({
+                    title: 'Rango incorrecto',
+                    html: 'La <strong>fecha de fin</strong> no puede ser anterior a la ' +
+                          '<strong>fecha de inicio</strong>.<br>' +
+                          '<span class="text-muted small">Verific\u00e1 que el rango tenga sentido cronol\u00f3gico.</span>',
+                    icon: 'error',
+                    confirmButtonColor: '#0d6efd',
+                    confirmButtonText: 'Corregir'
+                });
+                inputHasta.classList.add('is-invalid-date');
+                return false;
             }
 
-            var url = '/Reporte/GetActividadSistema?desde=' + desdeVal +
-                      '&hasta=' + hastaVal + '&granularidad=' + granularidad;
+            // 5. Rango máximo 1 año
+            var unAnioEnMs = 365 * 24 * 60 * 60 * 1000;
+            if ((hasta - desde) > unAnioEnMs) {
+                var fechaTope     = new Date(desde);
+                fechaTope.setFullYear(desde.getFullYear() + 1);
+                var fechaTopeStr  = fechaTope.toISOString().split('T')[0];
+                var fechaTopeText = fechaTope.toLocaleDateString('es-CR',
+                    { year: 'numeric', month: 'long', day: 'numeric' });
+
+                Swal.fire({
+                    title: 'Rango excedido',
+                    html: 'El periodo m\u00e1ximo permitido es de <strong>1 a\u00f1o</strong>.<br>' +
+                          'La fecha de fin se ajustar\u00e1 autom\u00e1ticamente a:<br>' +
+                          '<strong class="text-primary">' + fechaTopeText + '</strong>',
+                    icon: 'info',
+                    confirmButtonColor: '#0d6efd',
+                    confirmButtonText: 'Aceptar y continuar',
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancelar',
+                    cancelButtonColor: '#6c757d'
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        inputHasta.value = fechaTopeStr;
+                        actualizarInfoRango();
+                        ejecutarCarga(desdeStr, fechaTopeStr);
+                    }
+                });
+                return false;
+            }
+
+            return true;
+        }
+
+        // ══════════════════════════════════════════════════════
+        // CARGA
+        // ══════════════════════════════════════════════════════
+        function cargarReporte4() {
+            if (!validarFiltros()) return;
+            var desdeStr = document.getElementById('r4-desde').value;
+            var hastaStr = document.getElementById('r4-hasta').value;
+            ejecutarCarga(desdeStr, hastaStr);
+        }
+
+        function ejecutarCarga(desdeStr, hastaStr) {
+            var url = '/Reporte/GetActividadSistema?desde=' + desdeStr +
+                      '&hasta=' + hastaStr + '&granularidad=' + granularidad;
 
             document.getElementById('r4-detail-tbody').innerHTML =
                 '<tr><td colspan="4" class="text-center text-muted py-3">' +
-                '<div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando...</td></tr>';
+                '<div class="spinner-border spinner-border-sm me-2 text-primary" role="status"></div>' +
+                'Cargando datos...</td></tr>';
 
             fetch(url)
-                .then(function(r) { return r.json(); })
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
                 .then(function(data) {
                     actualizarMetricas(data);
                     construirGraficos(data);
@@ -388,10 +564,20 @@
                 .catch(function() {
                     document.getElementById('r4-detail-tbody').innerHTML =
                         '<tr><td colspan="4" class="text-center text-danger py-3">' +
-                        '<i class="bi bi-exclamation-triangle me-2"></i>Error al cargar los datos.</td></tr>';
+                        '<i class="bi bi-exclamation-triangle me-2"></i>' +
+                        'Error al cargar los datos.</td></tr>';
+                    Swal.fire({
+                        title: 'Error de carga',
+                        text: 'No fue posible obtener los datos del reporte. Verific\u00e1 la conexi\u00f3n e intent\u00e1 nuevamente.',
+                        icon: 'error',
+                        confirmButtonColor: '#0d6efd'
+                    });
                 });
         }
 
+        // ══════════════════════════════════════════════════════
+        // ACTUALIZAR MÉTRICAS
+        // ══════════════════════════════════════════════════════
         function actualizarMetricas(data) {
             document.getElementById('m-creadas').textContent =
                 (data.totalSubastasCreadas || 0).toLocaleString('es-CR');
@@ -401,37 +587,47 @@
                 (data.totalSubastasFinalizadas || 0).toLocaleString('es-CR');
         }
 
+        // ══════════════════════════════════════════════════════
+        // GRÁFICOS
+        // ══════════════════════════════════════════════════════
         function construirGraficos(data) {
-            var periodos = data.periodos || [];
+            var periodos    = data.periodos || [];
             var labels      = periodos.map(function(p) { return p.label; });
             var creadas     = periodos.map(function(p) { return p.subastasCreadas; });
             var pujas       = periodos.map(function(p) { return p.pujasRealizadas; });
             var finalizadas = periodos.map(function(p) { return p.subastasFinalizadas; });
 
-            @* ── Gráfico de barras principal ── *@
+            @* Barras agrupadas *@
             if (r4Main) r4Main.destroy();
             r4Main = new Chart(document.getElementById('r4-main-chart'), {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Creadas',     data: creadas,     backgroundColor: 'rgba(13,110,253,0.80)',  borderRadius: 4, borderSkipped: false },
-                        { label: 'Pujas',       data: pujas,       backgroundColor: 'rgba(253,126,20,0.80)', borderRadius: 4, borderSkipped: false },
-                        { label: 'Finalizadas', data: finalizadas, backgroundColor: 'rgba(25,135,84,0.80)',  borderRadius: 4, borderSkipped: false }
+                        { label: 'Creadas',     data: creadas,
+                          backgroundColor: 'rgba(13,110,253,0.80)',  borderRadius: 4, borderSkipped: false },
+                        { label: 'Pujas',       data: pujas,
+                          backgroundColor: 'rgba(253,126,20,0.80)', borderRadius: 4, borderSkipped: false },
+                        { label: 'Finalizadas', data: finalizadas,
+                          backgroundColor: 'rgba(25,135,84,0.80)',  borderRadius: 4, borderSkipped: false }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6c757d' } },
-                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 11 }, color: '#6c757d' } }
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' },
+                             ticks: { font: { size: 11 }, color: '#6c757d' } }
                     }
                 }
             });
 
-            @* ── Línea de tendencia de pujas ── *@
+            @* Línea de tendencia *@
             if (r4Line) r4Line.destroy();
             r4Line = new Chart(document.getElementById('r4-line-chart'), {
                 type: 'line',
@@ -442,26 +638,23 @@
                         data: pujas,
                         borderColor: '#fd7e14',
                         backgroundColor: 'rgba(253,126,20,0.08)',
-                        fill: true,
-                        tension: 0.4,
+                        fill: true, tension: 0.4,
                         pointBackgroundColor: '#fd7e14',
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        borderWidth: 2
+                        pointRadius: 4, pointHoverRadius: 6, borderWidth: 2
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#6c757d' } },
-                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 }, color: '#6c757d' } }
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' },
+                             ticks: { font: { size: 10 }, color: '#6c757d' } }
                     }
                 }
             });
 
-            @* ── Donut de tasa de finalización ── *@
+            @* Donut finalización *@
             if (r4Donut) r4Donut.destroy();
             var totalCreadas = creadas.reduce(function(a, b) { return a + b; }, 0);
             var totalFin     = finalizadas.reduce(function(a, b) { return a + b; }, 0);
@@ -474,26 +667,25 @@
                     datasets: [{
                         data: [pct, 100 - pct],
                         backgroundColor: ['#198754', '#e9ecef'],
-                        borderWidth: 0,
-                        hoverOffset: 4
+                        borderWidth: 0, hoverOffset: 4
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '72%',
+                    responsive: true, maintainAspectRatio: false, cutout: '72%',
                     plugins: {
                         legend: { display: false },
-                        tooltip: { callbacks: { label: function(ctx) { return ' ' + ctx.label + ': ' + ctx.parsed + '%'; } } }
+                        tooltip: { callbacks: { label: function(ctx) {
+                            return ' ' + ctx.label + ': ' + ctx.parsed + '%';
+                        }}}
                     }
                 },
                 plugins: [{
                     id: 'centerText',
                     afterDraw: function(chart) {
                         var ctx2 = chart.ctx;
-                        var ca = chart.chartArea;
-                        var cx = (ca.left + ca.right) / 2;
-                        var cy = (ca.top + ca.bottom) / 2;
+                        var ca   = chart.chartArea;
+                        var cx   = (ca.left + ca.right) / 2;
+                        var cy   = (ca.top + ca.bottom) / 2;
                         ctx2.save();
                         ctx2.font = '500 26px sans-serif';
                         ctx2.fillStyle = '#212529';
@@ -502,18 +694,23 @@
                         ctx2.fillText(pct + '%', cx, cy - 4);
                         ctx2.font = '400 10px sans-serif';
                         ctx2.fillStyle = '#6c757d';
-                        ctx2.fillText('finalización', cx, cy + 16);
+                        ctx2.fillText('finalizaci\u00f3n', cx, cy + 16);
                         ctx2.restore();
                     }
                 }]
             });
         }
 
+        // ══════════════════════════════════════════════════════
+        // TABLA DETALLE
+        // ══════════════════════════════════════════════════════
         function construirTablaDetalle(data) {
             var periodos = data.periodos || [];
-            var tbody = document.getElementById('r4-detail-tbody');
+            var tbody    = document.getElementById('r4-detail-tbody');
             if (!periodos.length) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Sin datos para el periodo.</td></tr>';
+                tbody.innerHTML =
+                    '<tr><td colspan="4" class="text-center text-muted py-3">' +
+                    'Sin datos para el periodo.</td></tr>';
                 return;
             }
             tbody.innerHTML = periodos.map(function(p) {
@@ -526,7 +723,7 @@
             }).join('');
         }
 
-        @* Cargar con valores por defecto al entrar a la página *@
+        @* Cargar al entrar con valores por defecto *@
         cargarReporte4();
     </script>
 }

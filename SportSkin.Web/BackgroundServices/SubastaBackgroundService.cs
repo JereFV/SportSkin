@@ -168,7 +168,7 @@ namespace SportSkin.Web.BackgroundServices
                         // Cargar el usuario ganador para mostrar su nombre
                         var ganadorNav = subasta.IdUsuarioCompradorNavigation;
                         nombreGanador = ganadorNav != null
-                            ? $"{ganadorNav.Nombre} {ganadorNav.Apellido1}".Trim()
+                            ? $"{ganadorNav.Nombre} {ganadorNav.Apellido1} {ganadorNav.Apellido2}".Trim()
                             : $"Usuario #{subasta.IdUsuarioComprador}";
                     }
 
@@ -177,12 +177,8 @@ namespace SportSkin.Web.BackgroundServices
                         .Group($"subasta-{subasta.IdSubasta}")
                         .SendAsync("SubastaCerrada", new
                         {
-                            tieneGanador,
-                            idGanador = subasta.IdUsuarioComprador,
-                            nombreGanador,
-                            montoFinal = subasta.MontoCompra,
-                            fechaCierre = subasta.FechaCompra?.ToString("dd/MM/yyyy HH:mm")
-                                           ?? DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                            tieneGanador,                           
+                            nombreGanador                           
                         });
 
                     _logger.LogInformation(

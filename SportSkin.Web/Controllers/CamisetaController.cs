@@ -30,7 +30,7 @@ namespace SportSkin.Web.Controllers
         }
 
         // GET: Camiseta
-        public async Task<IActionResult> CamisetaIndex(string? filtro)
+        public async Task<IActionResult> CamisetaIndex(int idUsuario, string? filtro)
         {
             ICollection<CamisetaDTO> lista;
             ICollection<CategoriaCamisetaDTO> categoriasCamiseta = await _serviceCategoriaCamiseta.ListAsync();
@@ -38,10 +38,10 @@ namespace SportSkin.Web.Controllers
 
             lista = filtro switch
             {
-                "vendidos" => await _serviceCamiseta.GetCamisetasVendidas(),
-                "ensubasta" => await _serviceCamiseta.GetCamisetasEnSubasta(),
-                "sinsubasta" => await _serviceCamiseta.GetCamisetasSinSubasta(),
-                _ => await _serviceCamiseta.ListAsync()
+                "vendidos" => await _serviceCamiseta.GetCamisetasVendidas(idUsuario),
+                "ensubasta" => await _serviceCamiseta.GetCamisetasEnSubasta(idUsuario),
+                "sinsubasta" => await _serviceCamiseta.GetCamisetasSinSubasta(idUsuario),
+                _ => await _serviceCamiseta.ListAsyncByUser(idUsuario)
             };
 
             //Lectura del usuario en un objeto dinámico de tipo JObject.

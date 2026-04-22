@@ -36,7 +36,7 @@
                 @if (esAdmin || esVendedor)
                 {
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Camiseta" asp-action="CamisetaIndex"
+                        <a class="nav-link" asp-controller="Camiseta" asp-route-idUsuario="@sesion?["IdUsuario"]" asp-action="CamisetaIndex"
                            data-i18n="nav.shirts"></a>
                     </li>
                 }

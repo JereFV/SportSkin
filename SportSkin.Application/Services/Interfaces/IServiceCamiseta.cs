@@ -12,6 +12,7 @@ namespace SportSkin.Application.Services.Interfaces
     public interface IServiceCamiseta
     {
         Task<ICollection<CamisetaDTO>> ListAsync();
+        Task<ICollection<CamisetaDTO>> ListAsyncByUser(int idUsuario);
         Task<CamisetaDTO> FindByIdAsync(int id);
         Task AddAsync(CamisetaDTO dto, ICollection<IFormFile> imagenes);
         Task UpdateAsync(CamisetaDTO dto, ICollection<IFormFile> imagenes, List<int> idsImagenesEliminadas);
@@ -23,9 +24,9 @@ namespace SportSkin.Application.Services.Interfaces
         Task<ICollection<CamisetaDTO>> GetCamisetasAutografiadas();
         Task<ICollection<CamisetaDTO>> GetCamisetasByVendedor(int idUsuarioVendedor);
         Task<ICollection<CamisetaDTO>> GetCamisetasByTemporada(short temporada);
-        Task<ICollection<CamisetaDTO>> GetCamisetasVendidas();
-        Task<ICollection<CamisetaDTO>> GetCamisetasEnSubasta();
-        Task<ICollection<CamisetaDTO>> GetCamisetasSinSubasta();
+        Task<ICollection<CamisetaDTO>> GetCamisetasVendidas(int idUsuario);
+        Task<ICollection<CamisetaDTO>> GetCamisetasEnSubasta(int idUsuario);
+        Task<ICollection<CamisetaDTO>> GetCamisetasSinSubasta(int idUsuario);
         Task ChangeStateAsync(int id);
     }
 }

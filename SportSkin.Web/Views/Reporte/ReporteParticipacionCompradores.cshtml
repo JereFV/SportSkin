@@ -1,0 +1,384 @@
+﻿@{
+    ViewData["Title"] = "Reporte Participación de Compradores";
+}
+
+@section Styles {
+    <style>
+        .report-header-bar {
+            border-bottom: 2px solid var(--bs-primary);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .report-label-tag {
+            font-size: 0.7rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        .stat-card {
+            border-left: 3px solid transparent;
+            border-radius: 0.5rem;
+        }
+        .stat-card.primary   { border-left-color: #0d6efd; }
+        .stat-card.success   { border-left-color: #198754; }
+        .stat-card.secondary { border-left-color: #6c757d; }
+        .stat-val {
+            font-size: 1.75rem;
+            font-weight: 500;
+            line-height: 1;
+        }
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .rank-1 { background: #fff3cd; color: #664d03; }
+        .rank-2 { background: #e9ecef; color: #495057; }
+        .rank-3 { background: #fde3cf; color: #7a2e0e; }
+        .rank-other { background: #f8f9fa; color: #6c757d; }
+        .bar-track {
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            width: 100px;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: #0d6efd;
+            transition: width 0.4s ease;
+        }
+        #r1-table th { white-space: nowrap; }
+        #r1-table td { vertical-align: middle; }
+        #r1-table tbody tr { animation: fadeRow 0.25s ease both; }
+        #r1-table tbody tr:nth-child(even) { background-color: #f8f9fa; }
+        #r1-table tbody tr:hover { background-color: #e8f0fe; }
+        @@keyframes fadeRow {
+            from { opacity: 0; transform: translateY(3px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .sortable { cursor: pointer; user-select: none; }
+        .sortable:hover { background-color: #495057; }
+        .empty-state { text-align: center; padding: 2.5rem; color: #6c757d; }
+    </style>
+}
+
+<div class="report-header-bar d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <div>
+        <p class="report-label-tag mb-1">Reporte - Sistema de Subastas SportSkin</p>
+        <h1 class="h4 fw-semibold mb-0">
+            <i class="bi bi-people-fill text-primary me-2"></i>
+            Participación de <span class="text-primary">usuarios compradores</span>
+        </h1>
+        <p class="text-muted small mb-0">Solo se consideran pujas válidas (no anuladas ni rechazadas)</p>
+    </div>
+    <div class="text-end text-muted small">
+        <div>Generado: <span id="gen-date"></span></div>
+        <div>Registros: <span id="record-count">—</span></div>
+    </div>
+</div>
+
+@* ── FILTROS ── *@
+<div class="card border-0 bg-light mb-3">
+    <div class="card-body py-2">
+        <div class="d-flex flex-wrap align-items-end gap-3">
+            <div>
+                <label class="form-label small text-muted mb-1" data-i18n="filters.from">Fecha inicio</label>
+                <input type="date" id="r1-desde" class="form-control form-control-sm" value="@DateTime.Now.AddYears(-1).ToString("yyyy-MM-dd")">
+            </div>
+            <div>
+                <label class="form-label small text-muted mb-1" data-i18n="filters.until">Fecha fin</label>
+                <input type="date" id="r1-hasta" class="form-control form-control-sm" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+            </div>
+            <div>
+                <label class="form-label small text-muted mb-1">Ordenar por</label>
+                <select id="r1-orden" class="form-select form-select-sm">
+                    <option value="subastas">Mayor participación</option>
+                    <option value="pujas">Más pujas</option>
+                    <option value="tasa">Mayor tasa de éxito</option>
+                    <option value="nombre">Nombre A–Z</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label small text-muted mb-1">Buscar usuario</label>
+                <input type="text" id="r1-search" class="form-control form-control-sm" placeholder="Filtrar por nombre...">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="cargarReporte1()">
+                <i class="bi bi-search me-1"></i> Aplicar
+            </button>
+            <div class="ms-auto d-flex gap-2">
+                <button class="btn btn-outline-success btn-sm" onclick="exportarCSV()">
+                    <i class="bi bi-filetype-csv me-1"></i> CSV
+                </button>
+                <button class="btn btn-outline-danger btn-sm" onclick="exportarPDF()">
+                    <i class="bi bi-file-earmark-pdf me-1"></i> PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ── MÉTRICAS RESUMEN ── *@
+<div class="row g-3 mb-3" id="r1-stats">
+    <div class="col-sm-4">
+        <div class="card stat-card primary border h-100">
+            <div class="card-body py-2 px-3">
+                <div class="small text-muted">Total compradores</div>
+                <div class="stat-val text-primary" id="s-usuarios">—</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card stat-card secondary border h-100">
+            <div class="card-body py-2 px-3">
+                <div class="small text-muted">Total pujas válidas</div>
+                <div class="stat-val" id="s-pujas">—</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card stat-card success border h-100">
+            <div class="card-body py-2 px-3">
+                <div class="small text-muted">Promedio subastas / usuario</div>
+                <div class="stat-val text-success" id="s-promedio">—</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ── TABLA ── *@
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="r1-table">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:40px">#</th>
+                        <th class="sortable" data-col="nombre">Usuario <i class="bi bi-arrow-down-up ms-1 small"></i></th>
+                        <th>Correo</th>
+                        <th class="text-end sortable" data-col="subastas">Subastas <i class="bi bi-arrow-down-up ms-1 small"></i></th>
+                        <th class="text-end sortable" data-col="pujas">Pujas <i class="bi bi-arrow-down-up ms-1 small"></i></th>
+                        <th class="text-end sortable" data-col="tasa">Tasa éxito <i class="bi bi-arrow-down-up ms-1 small"></i></th>
+                        <th>Participación</th>
+                        <th class="sortable" data-col="ultima">Última actividad <i class="bi bi-arrow-down-up ms-1 small"></i></th>
+                    </tr>
+                </thead>
+                <tbody id="r1-tbody">
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <i class="bi bi-hourglass-split me-2"></i>
+                            Aplicá los filtros para cargar el reporte.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between mt-2 text-muted small">
+    <span>Solo se consideran pujas válidas</span>
+    <span id="timestamp-footer"></span>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        var datosActuales = [];
+        var maxSubastas = 1;
+
+        document.getElementById('gen-date').textContent = new Date().toLocaleDateString('es-CR');
+        document.getElementById('timestamp-footer').textContent =
+            'SportSkin — ' + new Date().toLocaleDateString('es-CR', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        function rankBadge(i) {
+            if (i === 0) return '<span class="rank-badge rank-1">1°</span>';
+            if (i === 1) return '<span class="rank-badge rank-2">2°</span>';
+            if (i === 2) return '<span class="rank-badge rank-3">3°</span>';
+            return '<span class="rank-badge rank-other">' + (i + 1) + '</span>';
+        }
+
+        function renderTabla(data) {
+            var tbody = document.getElementById('r1-tbody');
+            if (!data.length) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="bi bi-exclamation-circle me-2"></i>No hay datos para el periodo seleccionado.</td></tr>';
+                return;
+            }
+
+            maxSubastas = Math.max.apply(null, data.map(function(d) { return d.cantidadSubastas; }));
+
+            tbody.innerHTML = data.map(function(row, i) {
+                var barW = maxSubastas > 0 ? Math.round((row.cantidadSubastas / maxSubastas) * 100) : 0;
+                var tasaColor = row.tasaExito >= 60 ? 'text-success fw-semibold' : 'text-secondary';
+                var ultimaTexto = row.ultimaActividad
+                    ? new Date(row.ultimaActividad).toLocaleDateString('es-CR')
+                    : '—';
+
+                return '<tr style="animation-delay:' + (i * 0.03) + 's">' +
+                    '<td>' + rankBadge(i) + '</td>' +
+                    '<td class="fw-semibold">' + row.nombreCompleto + '</td>' +
+                    '<td class="text-muted small">' + row.correo + '</td>' +
+                    '<td class="text-end fw-semibold">' + row.cantidadSubastas + '</td>' +
+                    '<td class="text-end">' + row.totalPujas + '</td>' +
+                    '<td class="text-end"><span class="' + tasaColor + '">' + row.tasaExito.toFixed(1) + '%</span></td>' +
+                    '<td><div class="d-flex align-items-center gap-2"><div class="bar-track"><div class="bar-fill" style="width:' + barW + '%"></div></div><span class="small text-muted">' + barW + '%</span></div></td>' +
+                    '<td class="text-muted small">' + ultimaTexto + '</td>' +
+                    '</tr>';
+            }).join('');
+
+            document.getElementById('record-count').textContent = data.length;
+            document.getElementById('s-usuarios').textContent = data.length;
+            document.getElementById('s-pujas').textContent = data.reduce(function(a, r) { return a + r.totalPujas; }, 0).toLocaleString('es-CR');
+            document.getElementById('s-promedio').textContent = data.length
+                ? (data.reduce(function(a, r) { return a + r.cantidadSubastas; }, 0) / data.length).toFixed(1)
+                : '0';
+        }
+
+        function ordenarYRenderizar(data) {
+            var orden = document.getElementById('r1-orden').value;
+            var sorted = data.slice().sort(function(a, b) {
+                if (orden === 'nombre') return a.nombreCompleto.localeCompare(b.nombreCompleto);
+                if (orden === 'pujas')  return b.totalPujas - a.totalPujas;
+                if (orden === 'tasa')   return b.tasaExito - a.tasaExito;
+                return b.cantidadSubastas - a.cantidadSubastas;
+            });
+            var busqueda = (document.getElementById('r1-search').value || '').toLowerCase();
+            if (busqueda) {
+                sorted = sorted.filter(function(r) {
+                    return r.nombreCompleto.toLowerCase().includes(busqueda) ||
+                           r.correo.toLowerCase().includes(busqueda);
+                });
+            }
+            renderTabla(sorted);
+        }
+
+        function cargarReporte1() {
+            var desdeInput = document.getElementById('r1-desde');
+            var hastaInput = document.getElementById('r1-hasta');
+
+            var desde = new Date(desdeInput.value);
+            var hasta = new Date(hastaInput.value);
+            var unAnioEnMs = 365 * 24 * 60 * 60 * 1000;
+
+            // Validación: Rango mayor a 1 año
+            if ((hasta - desde) > unAnioEnMs) {
+                // Calculamos la fecha tope (Desde + 1 año)
+                var fechaTope = new Date(desde);
+                fechaTope.setFullYear(desde.getFullYear() + 1);
+
+                // Convertir a formato YYYY-MM-DD para el input
+                var fechaTopeStr = fechaTope.toISOString().split('T')[0];
+
+                Swal.fire({
+                    title: 'Rango excedido',
+                    text: 'El periodo máximo es de 1 año. Se ha ajustado la fecha final al ' + fechaTope.toLocaleDateString('es-CR'),
+                    icon: 'info',
+                    confirmButtonColor: '#0d6efd'
+                });
+
+                // Ajustamos el valor en el UI y en la variable
+                hastaInput.value = fechaTopeStr;
+                hasta = fechaTope;
+            }
+
+            // Validación: Fecha fin menor a inicio
+            if (hasta < desde) {
+                Swal.fire('Error en fechas', 'La fecha final no puede ser anterior a la inicial.', 'error');
+                return;
+            }
+
+            // Si pasa la validación, continúa con el proceso 
+            var url = '/Reporte/GetParticipacionCompradores?desde=' + desdeInput.value + '&hasta=' + hastaInput.value;
+
+            document.getElementById('r1-tbody').innerHTML =
+                '<tr><td colspan="8" class="empty-state"><div class="spinner-border spinner-border-sm me-2" role="status"></div>Cargando...</td></tr>';
+
+            fetch(url)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    datosActuales = data;
+                    ordenarYRenderizar(data);
+                })
+                .catch(function() {
+                    document.getElementById('r1-tbody').innerHTML =
+                        '<tr><td colspan="8" class="empty-state text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Error al cargar los datos.</td></tr>';
+                });
+        }
+
+        document.getElementById('r1-search').addEventListener('input', function() {
+            if (datosActuales.length) ordenarYRenderizar(datosActuales);
+        });
+        document.getElementById('r1-orden').addEventListener('change', function() {
+            if (datosActuales.length) ordenarYRenderizar(datosActuales);
+        });
+
+        function exportarCSV() {
+            if (!datosActuales.length) return;
+            var header = ['Rank','Usuario','Correo','Subastas','Total Pujas','Tasa Éxito %','Última Actividad'];
+            var rows = datosActuales.map(function(r, i) {
+                return [i+1, r.nombreCompleto, r.correo, r.cantidadSubastas, r.totalPujas,
+                        r.tasaExito.toFixed(1)+'%',
+                        r.ultimaActividad ? new Date(r.ultimaActividad).toLocaleDateString('es-CR') : ''];
+            });
+            var csv = [header].concat(rows).map(function(row) {
+                return row.map(function(v) { return '"' + v + '"'; }).join(',');
+            }).join('\n');
+            var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'reporte1-participacion-compradores.csv';
+            a.click();
+        }
+
+        function exportarPDF() {
+            if (!datosActuales.length) return;
+            var doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.setTextColor(13, 110, 253);
+            doc.text('Reporte 1 — Participación de Usuarios Compradores', 14, 16);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(108, 117, 125);
+            doc.text('SportSkin — Generado: ' + new Date().toLocaleString('es-CR'), 14, 22);
+            doc.text('Solo se consideran pujas válidas (no anuladas ni rechazadas)', 14, 27);
+
+            var head = [['#','Usuario','Correo','Subastas','Total Pujas','Tasa Éxito','Última Actividad']];
+            var body = datosActuales.map(function(r, i) {
+                return [i+1, r.nombreCompleto, r.correo, r.cantidadSubastas, r.totalPujas,
+                        r.tasaExito.toFixed(1)+'%',
+                        r.ultimaActividad ? new Date(r.ultimaActividad).toLocaleDateString('es-CR') : ''];
+            });
+
+            doc.autoTable({
+                head: head, body: body, startY: 31,
+                styles: { font: 'helvetica', fontSize: 8, cellPadding: 3 },
+                headStyles: { fillColor: [13, 110, 253], textColor: [255,255,255], fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: [248, 249, 250] },
+                columnStyles: { 0: { cellWidth: 8 }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } }
+            });
+            doc.save('reporte1-participacion-compradores.pdf');
+        }
+
+        @* Columnas ordenables por clic en encabezado *@
+        document.querySelectorAll('#r1-table th.sortable').forEach(function(th) {
+            th.addEventListener('click', function() {
+                var col = this.getAttribute('data-col');
+                var select = document.getElementById('r1-orden');
+                if (col === 'nombre' || col === 'subastas' || col === 'pujas' || col === 'tasa') {
+                    select.value = col;
+                    ordenarYRenderizar(datosActuales);
+                }
+            });
+        });
+    </script>
+}
+

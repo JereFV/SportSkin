@@ -98,6 +98,28 @@
                     </li>
                 }
 
+                @* Reportes — solo Admin *@                
+                @if (esAdmin)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span data-i18n="nav.reports"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" asp-controller="Reporte" asp-action="ReporteParticipacionCompradores">
+                                    <i class="bi bi-people me-1"></i> Participación de Compradores
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-controller="Reporte" asp-action="ReporteActividadSistema">
+                                    <i class="bi bi-graph-up-arrow me-1"></i> Actividad del sistema
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+
             </ul>
 
             <ul class="navbar-nav ms-auto">

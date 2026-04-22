@@ -10,7 +10,8 @@
     "login": "Login",
     "logout": "Cerrar Sesión",
     "changePassword": "Cambiar Contraseña",
-    "payments": "Pagos"
+    "payments": "Pagos",
+    "reports": "Reportes"
   },
   "footer": {
     "tagline": "\"La piel del deporte\"",

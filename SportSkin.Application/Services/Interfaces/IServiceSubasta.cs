@@ -43,5 +43,11 @@ namespace SportSkin.Application.Services.Interfaces
         //Para el home
         Task<ICollection<SubastaDTO>> GetSubastasMasPopularesAsync(int top);
 
+
+        Task<ICollection<ReporteParticipacionCompradorDTO>> GetParticipacionCompradoresAsync(
+            DateTime? desde, DateTime? hasta);
+
+        Task<ReporteActividadSistemaDTO> GetActividadSistemaAsync(
+            DateTime desde, DateTime hasta, string granularidad);
     }
 }

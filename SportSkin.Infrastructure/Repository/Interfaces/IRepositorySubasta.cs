@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace SportSkin.Infrastructure.Repository.Interfaces
 {
     public interface IRepositorySubasta
@@ -40,6 +41,14 @@ namespace SportSkin.Infrastructure.Repository.Interfaces
 
         //Para el home
         Task<ICollection<Subasta>> GetSubastasMasPopularesAsync(int top);
+
+
+        // Reporte 1 — retorna Puja (entidad), el Service proyecta al DTO
+        Task<ICollection<Puja>> GetPujasPorCompradorAsync(DateTime? desde, DateTime? hasta);
+
+        // Reporte 4 — retorna entidades crudas, el Service agrupa y proyecta
+        Task<ICollection<Subasta>> GetSubastasPorPeriodoAsync(DateTime desde, DateTime hasta);
+        Task<ICollection<Puja>> GetPujasPorPeriodoAsync(DateTime desde, DateTime hasta);
 
     }
 }

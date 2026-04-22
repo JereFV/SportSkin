@@ -34,8 +34,9 @@ namespace SportSkin.Web.Controllers
             if (Request.Headers.UserAgent.ToString().Contains("Edg"))        
                 usuarioSesion = new { IdUsuario = 3, Nombre = "Carolina", Apellido1 = "Guerra", Apellido2 = "Nuñez", IdRolUsuario = 3 };
             else
-                usuarioSesion = new { IdUsuario = 1, Nombre = "Rodrigo", Apellido1 = "Herrera", Apellido2 = "Castillo", IdRolUsuario = 2 };
-            
+                usuarioSesion = new { IdUsuario = 3, Nombre = "Jeremy", Apellido1 = "Fuentes", Apellido2 = "Venegas", IdRolUsuario = 1 };
+                //usuarioSesion = new { IdUsuario = 1, Nombre = "Rodrigo", Apellido1 = "Herrera", Apellido2 = "Castillo", IdRolUsuario = 2 };
+
             HttpContext.Session.SetString("UsuarioSesion", JsonSerializer.Serialize(usuarioSesion));
 
             var populares = await _serviceSubasta.GetSubastasMasPopularesAsync(3);

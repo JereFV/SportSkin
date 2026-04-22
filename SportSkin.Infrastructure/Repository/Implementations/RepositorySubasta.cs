@@ -382,7 +382,45 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .AsNoTracking()
                 .ToListAsync();
         }
-                
+
+        // Reporte 1: todas las pujas del periodo con sus navegaciones
+        public async Task<ICollection<Puja>> GetPujasPorCompradorAsync(
+            DateTime? desde, DateTime? hasta)
+        {
+            var query = _context.Puja
+                .Include(p => p.IdUsuarioPujaNavigation)
+                .Include(p => p.IdSubastaNavigation)
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (desde.HasValue)
+                query = query.Where(p => p.Fecha >= desde.Value);
+            if (hasta.HasValue)
+                query = query.Where(p => p.Fecha <= hasta.Value.AddDays(1));
+
+            return await query.ToListAsync();
+        }
+
+        // Reporte 4: subastas creadas en el periodo
+        public async Task<ICollection<Subasta>> GetSubastasPorPeriodoAsync(
+            DateTime desde, DateTime hasta)
+        {
+            return await _context.Subasta
+                .Where(s => s.FechaInicio >= desde && s.FechaInicio < hasta.AddDays(1))
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        // Reporte 4: pujas en el periodo
+        public async Task<ICollection<Puja>> GetPujasPorPeriodoAsync(
+            DateTime desde, DateTime hasta)
+        {
+            return await _context.Puja
+                .Where(p => p.Fecha >= desde && p.Fecha < hasta.AddDays(1))
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
 
     }
 }

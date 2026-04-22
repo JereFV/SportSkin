@@ -197,7 +197,138 @@ namespace SportSkin.Application.Services.Implementations
             return _mapper.Map<ICollection<SubastaDTO>>(list);
         }
 
-       
+        public async Task<ICollection<ReporteParticipacionCompradorDTO>> GetParticipacionCompradoresAsync(
+     DateTime? desde, DateTime? hasta)
+        {
+            var pujas = await _repositorySubasta.GetPujasPorCompradorAsync(desde, hasta);
+
+            var resultado = pujas
+                .GroupBy(p => p.IdUsuarioPuja)
+                .Select(g =>
+                {
+                    var usuario = g.First().IdUsuarioPujaNavigation;
+                    var nombreCompleto = usuario != null
+                        ? $"{usuario.Nombre} {usuario.Apellido1} {usuario.Apellido2}".Trim()
+                        : $"Usuario #{g.Key}";
+
+                    var subastasUnicas = g.Select(p => p.IdSubasta).Distinct().ToList();
+
+                    int pujasGanadoras = subastasUnicas.Count(idSub =>
+                    {
+                        var pujasDeEsaSubasta = pujas.Where(p => p.IdSubasta == idSub).ToList();
+                        if (!pujasDeEsaSubasta.Any()) return false;
+                        var maxMonto = pujasDeEsaSubasta.Max(p => p.Monto);
+                        return pujasDeEsaSubasta.Any(p => p.IdUsuarioPuja == g.Key && p.Monto == maxMonto);
+                    });
+
+                    return new ReporteParticipacionCompradorDTO
+                    {
+                        IdUsuario = g.Key,
+                        NombreCompleto = nombreCompleto,
+                        Correo = usuario?.Correo ?? string.Empty,
+                        CantidadSubastas = subastasUnicas.Count,
+                        TotalPujas = g.Count(),
+                        PujasGanadoras = pujasGanadoras,
+                        UltimaActividad = g.Max(p => p.Fecha)
+                    };
+                })
+                .OrderByDescending(r => r.CantidadSubastas)
+                .ThenByDescending(r => r.TotalPujas)
+                .ToList();
+
+            return resultado;
+        }
+
+        public async Task<ReporteActividadSistemaDTO> GetActividadSistemaAsync(
+            DateTime desde, DateTime hasta, string granularidad)
+        {
+            var subastas = await _repositorySubasta.GetSubastasPorPeriodoAsync(desde, hasta);
+            var pujas = await _repositorySubasta.GetPujasPorPeriodoAsync(desde, hasta);
+
+            // Subastas finalizadas = FechaCierre dentro del rango
+            var finalizadas = subastas.Where(s => s.FechaCierre <= hasta).ToList();
+
+            return new ReporteActividadSistemaDTO
+            {
+                TotalSubastasCreadas = subastas.Count,
+                TotalPujasRealizadas = pujas.Count,
+                TotalSubastasFinalizadas = finalizadas.Count,
+                Periodos = granularidad.ToLower() switch
+                {
+                    "semanal" => AgruparPorSemana(subastas.ToList(), finalizadas, pujas.ToList(), desde, hasta),
+                    "trimestral" => AgruparPorTrimestre(subastas.ToList(), finalizadas, pujas.ToList(), desde, hasta),
+                    _ => AgruparPorMes(subastas.ToList(), finalizadas, pujas.ToList(), desde, hasta)
+                }
+            };
+        }
+
+        private static List<PeriodoActividadDTO> AgruparPorMes(
+            List<Subasta> creadas, List<Subasta> finalizadas, List<Puja> pujas,
+            DateTime desde, DateTime hasta)
+        {
+            var periodos = new List<PeriodoActividadDTO>();
+            var cursor = new DateTime(desde.Year, desde.Month, 1);
+            while (cursor <= hasta)
+            {
+                var sig = cursor.AddMonths(1);
+                periodos.Add(new PeriodoActividadDTO
+                {
+                    Label = cursor.ToString("MMM yyyy", new System.Globalization.CultureInfo("es-CR")),
+                    SubastasCreadas = creadas.Count(s => s.FechaInicio >= cursor && s.FechaInicio < sig),
+                    PujasRealizadas = pujas.Count(p => p.Fecha >= cursor && p.Fecha < sig),
+                    SubastasFinalizadas = finalizadas.Count(s => s.FechaCierre >= cursor && s.FechaCierre < sig)
+                });
+                cursor = sig;
+            }
+            return periodos;
+        }
+
+        private static List<PeriodoActividadDTO> AgruparPorSemana(
+            List<Subasta> creadas, List<Subasta> finalizadas, List<Puja> pujas,
+            DateTime desde, DateTime hasta)
+        {
+            var periodos = new List<PeriodoActividadDTO>();
+            var diaSemana = (int)desde.DayOfWeek == 0 ? 7 : (int)desde.DayOfWeek;
+            var cursor = desde.Date.AddDays(-(diaSemana - 1));
+            int num = 1;
+            while (cursor <= hasta)
+            {
+                var sig = cursor.AddDays(7);
+                periodos.Add(new PeriodoActividadDTO
+                {
+                    Label = $"Sem {num} ({cursor:dd/MM})",
+                    SubastasCreadas = creadas.Count(s => s.FechaInicio >= cursor && s.FechaInicio < sig),
+                    PujasRealizadas = pujas.Count(p => p.Fecha >= cursor && p.Fecha < sig),
+                    SubastasFinalizadas = finalizadas.Count(s => s.FechaCierre >= cursor && s.FechaCierre < sig)
+                });
+                cursor = sig;
+                num++;
+            }
+            return periodos;
+        }
+
+        private static List<PeriodoActividadDTO> AgruparPorTrimestre(
+            List<Subasta> creadas, List<Subasta> finalizadas, List<Puja> pujas,
+            DateTime desde, DateTime hasta)
+        {
+            var periodos = new List<PeriodoActividadDTO>();
+            var mesInicio = ((desde.Month - 1) / 3) * 3 + 1;
+            var cursor = new DateTime(desde.Year, mesInicio, 1);
+            while (cursor <= hasta)
+            {
+                var sig = cursor.AddMonths(3);
+                var q = ((cursor.Month - 1) / 3) + 1;
+                periodos.Add(new PeriodoActividadDTO
+                {
+                    Label = $"Q{q} {cursor.Year}",
+                    SubastasCreadas = creadas.Count(s => s.FechaInicio >= cursor && s.FechaInicio < sig),
+                    PujasRealizadas = pujas.Count(p => p.Fecha >= cursor && p.Fecha < sig),
+                    SubastasFinalizadas = finalizadas.Count(s => s.FechaCierre >= cursor && s.FechaCierre < sig)
+                });
+                cursor = sig;
+            }
+            return periodos;
+        }
 
     }
 }

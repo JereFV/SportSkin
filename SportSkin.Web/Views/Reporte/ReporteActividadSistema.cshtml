@@ -3,7 +3,7 @@
 
     @* Fechas por defecto: último año *@
     var hoy = DateTime.Now.ToString("yyyy-MM-dd");
-    var haceUnAnio = new DateTime(DateTime.Now.Year - 1, 1, 1).ToString("yyyy-MM-dd");
+    var haceUnAnio = DateTime.Now.AddDays(-365).ToString("yyyy-MM-dd");
 }
 
 @section Styles {
@@ -394,11 +394,11 @@
 
             if (!desdeStr || !hastaStr) { info.textContent = '\u00a0'; return; }
 
-            var desde = new Date(desdeStr);
-            var hasta = new Date(hastaStr);
+            var desde = new Date(desdeStr + 'T00:00:00');
+            var hasta = new Date(hastaStr + 'T00:00:00');
             if (hasta < desde) { info.textContent = '\u00a0'; return; }
 
-            var dias  = Math.round((hasta - desde) / (1000 * 60 * 60 * 24));
+            var dias = Math.round((hasta - desde) / (1000 * 60 * 60 * 24));
             var meses = (dias / 30).toFixed(1);
 
             info.textContent = dias + ' d\u00edas (' + meses + ' meses)';
@@ -450,9 +450,9 @@
                 return false;
             }
 
-            var desde = new Date(desdeStr);
-            var hasta = new Date(hastaStr);
-            var hoy   = new Date(HOY_STR);
+            var desde = new Date(desdeStr + 'T00:00:00');
+            var hasta = new Date(hastaStr + 'T00:00:00');
+            var hoy   = new Date(HOY_STR   + 'T00:00:00');
 
             // 2. Fecha inicio posterior a hoy
             if (desde > hoy) {

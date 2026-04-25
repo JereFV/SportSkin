@@ -142,16 +142,7 @@
             border-color: #dc3545 !important;
             box-shadow: 0 0 0 0.2rem rgba(220,53,69,.15);
         }
-        /* Indicador del rango seleccionado */
-        #r1-range-info {
-            font-size: 0.75rem;
-            color: #6c757d;
-            margin-top: 4px;
-        }
 
-            #r1-range-info.text-warning {
-                color: #fd7e14 !important;
-            }
     </style>
 }
 
@@ -185,7 +176,6 @@
                        class="form-control form-control-sm"
                        value="@haceUnAnio"
                        max="@hoy">
-                <div id="r1-range-info" class="mt-1">&nbsp;</div>
             </div>
 
             @* Fecha fin *@
@@ -220,6 +210,9 @@
 
             <button class="btn btn-primary btn-sm" id="r1-btn-aplicar" onclick="cargarReporte1()">
                 <i class="bi bi-search me-1"></i> Aplicar
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="restablecerFiltros()">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Restablecer
             </button>
 
             <div class="ms-auto d-flex gap-2">
@@ -327,7 +320,7 @@
 
         // ══════════════════════════════════════════════════════
         // VALIDACIÓN — función central que devuelve true/false
-        // y lanza el SweetAlert correspondiente si hay error.
+        // y lanza el SweetAlert  si hay error.
         // ══════════════════════════════════════════════════════
         function validarFiltros() {
             var inputDesde = document.getElementById('r1-desde');
@@ -440,7 +433,7 @@
         function actualizarInfoRango() {
             var desdeStr = document.getElementById('r1-desde').value;
             var hastaStr = document.getElementById('r1-hasta').value;
-            var info     = document.getElementById('r1-range-info');
+
 
             if (!desdeStr || !hastaStr) { info.textContent = '\u00a0'; return; }
 
@@ -451,8 +444,6 @@
             var dias  = Math.round((hasta - desde) / (1000 * 60 * 60 * 24));
             var meses = (dias / 30).toFixed(1);
 
-            info.textContent = dias + ' días (' + meses + ' meses)';
-            info.className   = dias > 300 ? 'mt-1 text-warning' : 'mt-1 text-muted';
 
             // Cuando el usuario cambia "desde", limitar el máximo de "hasta"
             var tope = new Date(desde);
@@ -622,6 +613,30 @@
                 }
             });
         });
+
+
+                function restablecerFiltros() {
+            // Calcular fechas con JavaScript puro
+            var hoy = new Date();
+            var haceUnAnio = new Date();
+            haceUnAnio.setFullYear(hoy.getFullYear() - 1);
+
+            // Formatear a yyyy-MM-dd (formato que esperan los inputs type="date")
+            var hoyStr = hoy.toISOString().split('T')[0];
+            var haceUnAnioStr = haceUnAnio.toISOString().split('T')[0];
+
+            document.getElementById('r1-desde').value  = haceUnAnioStr;
+            document.getElementById('r1-hasta').value  = hoyStr;
+            document.getElementById('r1-orden').value  = 'subastas';
+            document.getElementById('r1-search').value = '';
+
+            // Limpiar marcas de error
+            document.getElementById('r1-desde').classList.remove('is-invalid-date');
+            document.getElementById('r1-hasta').classList.remove('is-invalid-date');
+
+            // Recargar con los valores por defecto
+            ejecutarCarga(haceUnAnioStr, hoyStr);
+        }
 
         // ══════════════════════════════════════════════════════
         // EXPORTAR

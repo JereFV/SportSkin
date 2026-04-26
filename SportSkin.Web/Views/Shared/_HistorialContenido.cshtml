@@ -1,0 +1,338 @@
+@* @* Views/Shared/_HistorialContenido.cshtml
+   Devuelto por HistorialController.GetHistorial() como PartialView.
+   Se inyecta en #historialContenido dentro de _ModalHistorial.cshtml
+*@
+@model SportSkin.Models.ViewModels.MiHistorialVM
+
+@{
+    bool esComprador = Model.Rol == "Comprador";
+    bool esVendedor  = Model.Rol == "Vendedor";
+}
+
+{{!-- Tabs --}}
+<ul class="nav nav-tabs px-3 pt-3" id="historialTabs" role="tablist">
+
+    @if (esComprador)
+    {
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab"
+                    data-bs-target="#hTab-pujas" type="button">
+                <i class="fa-solid fa-gavel me-1"></i>Mis Pujas
+                <span class="badge bg-secondary ms-1">@Model.Pujas.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab"
+                    data-bs-target="#hTab-compras" type="button">
+                <i class="bi bi-bag-check me-1"></i>Mis Compras
+                <span class="badge bg-secondary ms-1">@Model.Compras.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab"
+                    data-bs-target="#hTab-pagos" type="button">
+                <i class="bi bi-credit-card me-1"></i>Mis Pagos
+                <span class="badge bg-secondary ms-1">@Model.Pagos.Count</span>
+            </button>
+        </li>
+    }
+
+    @if (esVendedor)
+    {
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab"
+                    data-bs-target="#hTab-subastas" type="button">
+                <i class="bi bi-hammer me-1"></i>Mis Subastas
+                <span class="badge bg-secondary ms-1">@Model.Subastas.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab"
+                    data-bs-target="#hTab-ventas" type="button">
+                <i class="bi bi-graph-up-arrow me-1"></i>Mis Ventas
+                <span class="badge bg-secondary ms-1">@Model.Ventas.Count</span>
+            </button>
+        </li>
+    }
+
+    <li class="nav-item ms-auto d-flex align-items-center pe-1">
+        <button class="btn btn-sm btn-outline-secondary" id="btnRefrescarHistorial"
+                title="Recargar historial">
+            <i class="bi bi-arrow-clockwise"></i>
+        </button>
+    </li>
+</ul>
+
+{{!-- Contenido de tabs --}}
+<div class="tab-content p-3" id="historialTabsContent">
+
+    @* ── COMPRADOR ─────────────────────────────────────────────────── *@
+    @if (esComprador)
+    {
+        @* {{!-- Pujas --}} *@
+        <div class="tab-pane fade show active" id="hTab-pujas" role="tabpanel">
+            @if (!Model.Pujas.Any())
+            {
+                <partial name="_HistorialVacio" model="@("No has realizado ninguna puja todavía.")" />
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle small" id="tblPujas">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Camiseta</th>
+                                <th>Mi Puja</th>
+                                <th>Fecha</th>
+                                <th>Subasta</th>
+                                <th>Resultado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in Model.Pujas)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="@p.ImagenCamiseta" alt="@p.NombreCamiseta"
+                                                 class="rounded" style="width:40px;height:40px;object-fit:cover;">
+                                            <span class="fw-semibold">@p.NombreCamiseta</span>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-success">&#8353;@p.Monto.ToString("N2")</td>
+                                    <td>@p.FechaPuja.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        @if (p.EstadoSubasta == "Activa")
+                                        {
+                                            <span class="badge bg-success">Activa</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Finalizada</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (p.EstadoSubasta == "Activa")
+                                        {
+                                            <span class="text-muted">En curso...</span>
+                                        }
+                                        else if (p.EsGanador)
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-trophy-fill me-1"></i>Ganador
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-light text-dark border">No ganada</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        @* {{!-- Compras --}} *@
+        <div class="tab-pane fade" id="hTab-compras" role="tabpanel">
+            @if (!Model.Compras.Any())
+            {
+                <partial name="_HistorialVacio" model="@("No tienes compras registradas.")" />
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle small" id="tblCompras">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Camiseta</th>
+                                <th>Monto</th>
+                                <th>Fecha</th>
+                                <th>Vendedor</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in Model.Compras)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="@c.ImagenCamiseta" alt="@c.NombreCamiseta"
+                                                 class="rounded" style="width:40px;height:40px;object-fit:cover;">
+                                            <span class="fw-semibold">@c.NombreCamiseta</span>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-success">&#8353;@c.MontoTotal.ToString("N2")</td>
+                                    <td>@c.FechaCompra.ToString("dd/MM/yyyy")</td>
+                                    <td>@c.NombreVendedor</td>
+                                    <td>
+                                        <span class="badge @(c.EstadoPago == "Completado" ? "bg-success" : "bg-warning text-dark")">
+                                            @c.EstadoPago
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        @* {{!-- Pagos --}} *@
+        <div class="tab-pane fade" id="hTab-pagos" role="tabpanel">
+            @if (!Model.Pagos.Any())
+            {
+                <partial name="_HistorialVacio" model="@("No hay pagos registrados.")" />
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle small" id="tblPagos">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Referencia</th>
+                                <th>Camiseta</th>
+                                <th>Monto</th>
+                                <th>Método</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var pg in Model.Pagos)
+                            {
+                                <tr>
+                                    <td><code class="small">@pg.NumeroReferencia</code></td>
+                                    <td>@pg.NombreCamiseta</td>
+                                    <td class="fw-bold">&#8353;@pg.Monto.ToString("N2")</td>
+                                    <td><i class="bi bi-credit-card me-1"></i>@pg.MetodoPago</td>
+                                    <td>@pg.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        <span class="badge @(pg.Estado == "Completado" ? "bg-success" : "bg-warning text-dark")">
+                                            @pg.Estado
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+
+    @* ── VENDEDOR ──────────────────────────────────────────────────── *@
+    @if (esVendedor)
+    {
+        @* {{!-- Subastas --}} *@
+        <div class="tab-pane fade show active" id="hTab-subastas" role="tabpanel">
+            @if (!Model.Subastas.Any())
+            {
+                <partial name="_HistorialVacio" model="@("No has creado subastas todavía.")" />
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle small" id="tblSubastas">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Camiseta</th>
+                                <th>P. Inicial</th>
+                                <th>P. Final</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                                <th>Pujas</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in Model.Subastas)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="@s.ImagenCamiseta" alt="@s.NombreCamiseta"
+                                                 class="rounded" style="width:40px;height:40px;object-fit:cover;">
+                                            <span class="fw-semibold">@s.NombreCamiseta</span>
+                                        </div>
+                                    </td>
+                                    <td>&#8353;@s.PrecioInicial.ToString("N2")</td>
+                                    <td class="fw-bold text-success">
+                                        @(s.PrecioFinal.HasValue ? "&#8353;" + s.PrecioFinal.Value.ToString("N2") : "—")
+                                    </td>
+                                    <td>@s.FechaInicio.ToString("dd/MM/yyyy")</td>
+                                    <td>@s.FechaFin.ToString("dd/MM/yyyy")</td>
+                                    <td><span class="badge bg-secondary">@s.TotalPujas</span></td>
+                                    <td>
+                                        @{
+                                            var badgeClass = s.Estado == "Activa"     ? "bg-success"
+                                                           : s.Estado == "Finalizada" ? "bg-secondary"
+                                                           : "bg-light text-dark border";
+                                            var iconClass  = s.Estado == "Activa"     ? "bi-circle-fill"
+                                                           : s.Estado == "Finalizada" ? "bi-check-circle"
+                                                           : "bi-dash-circle";
+                                        }
+                                        <span class="badge @badgeClass">
+                                            <i class="bi @iconClass me-1"></i>@s.Estado
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        @* {{!-- Ventas --}} *@
+        <div class="tab-pane fade" id="hTab-ventas" role="tabpanel">
+            @if (!Model.Ventas.Any())
+            {
+                <partial name="_HistorialVacio" model="@("No tienes ventas registradas aún.")" />
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle small" id="tblVentas">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Camiseta</th>
+                                <th>Monto</th>
+                                <th>Fecha</th>
+                                <th>Comprador</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var v in Model.Ventas)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="@v.ImagenCamiseta" alt="@v.NombreCamiseta"
+                                                 class="rounded" style="width:40px;height:40px;object-fit:cover;">
+                                            <span class="fw-semibold">@v.NombreCamiseta</span>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-success">&#8353;@v.MontoTotal.ToString("N2")</td>
+                                    <td>@v.FechaVenta.ToString("dd/MM/yyyy")</td>
+                                    <td>@v.NombreComprador</td>
+                                    <td>
+                                        <span class="badge @(v.EstadoPago == "Completado" ? "bg-success" : "bg-warning text-dark")">
+                                            @v.EstadoPago
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+
+</div>
+ 

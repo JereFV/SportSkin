@@ -1,6 +1,7 @@
 using Libreria.Web.Middleware;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Serilog;
 using Serilog.Events;
 using SportSkin.Application.DTOs;
@@ -104,6 +105,7 @@ builder.Services.AddTransient<IRepositoryPuja, RepositoryPuja>();
 builder.Services.AddTransient<IRepositoryPago, RepositoryPago>();
 builder.Services.AddTransient<IRepositoryMetodoPago, RepositoryMetodoPago>();
 builder.Services.AddTransient<IRepositoryPreguntaRecuperacionUsuario, RepositoryPreguntaRecuperacionUsuario>();
+//builder.Services.AddScoped<IHistoryRepository, HistorialRepository>();
 //Controlador de transacciones en una unidad de trabajo.
 builder.Services.AddScoped<IUnitOfWork, UnitofWork>();
 
@@ -121,6 +123,10 @@ builder.Services.AddTransient<IServicePuja, ServicePuja>();
 builder.Services.AddTransient<IServicePago, ServicePago>();
 builder.Services.AddTransient<IServiceMetodoPago, ServiceMetodoPago>();
 builder.Services.AddTransient<IServicePreguntaRecuperacionUsuario, ServicePreguntaRecuperacionUsuario>();
+
+
+//builder.Services.AddScoped<IHistorialService, HistorialService>();
+
 
 //Background Service
 builder.Services.AddSingleton<SubastaBackgroundService>();

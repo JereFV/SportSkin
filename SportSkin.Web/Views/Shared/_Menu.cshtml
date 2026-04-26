@@ -51,14 +51,12 @@
                                 <span data-i18n="nav.activeAuctions"></span>
                             </a>
                         </li>
-
                         <li>
                             <a class="dropdown-item" asp-controller="Subasta" asp-action="Finalizadas">
                                 <i class="bi bi-check-circle me-1"></i>
                                 <span data-i18n="nav.finishedAuctions"></span>
                             </a>
                         </li>
-
                         @if (rol == "Vendedor")
                         {
                             <li>
@@ -69,7 +67,7 @@
                             </li>
                         }
                     </ul>
-                </li>             
+                </li>
 
                 @* Usuarios — solo Admin *@
                 @if (rol == "Administrador")
@@ -84,13 +82,13 @@
                 @if (rol == "Comprador")
                 {
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Pago" asp-action="PagoIndex">                            
+                        <a class="nav-link" asp-controller="Pago" asp-action="PagoIndex">
                             <span data-i18n="nav.payments"> </span>
                         </a>
                     </li>
                 }
 
-                @* Reportes — solo Admin *@                
+                @* Reportes — solo Admin *@
                 @if (rol == "Administrador")
                 {
                     <li class="nav-item dropdown">
@@ -119,7 +117,7 @@
 
                 @* Usuario en sesión *@
                 <li class="nav-item">
-                    <a class="nav-link d-flex align-items-center gap-2 @(User?.Identity?.IsAuthenticated == true ? "dropdown-toggle" : "")" 
+                    <a class="nav-link d-flex align-items-center gap-2 @(User?.Identity?.IsAuthenticated == true ? "dropdown-toggle" : "")"
                        data-bs-toggle="@(User?.Identity?.IsAuthenticated == true ? "dropdown" : "modal")" data-bs-target="#modalLogin"
                        href="#" role="button" aria-haspopup="true" aria-expanded="false">
                         <i class="bi bi-person-circle"></i>
@@ -129,26 +127,36 @@
                     @if (User?.Identity?.IsAuthenticated == true)
                     {
                         <div class="dropdown-menu dropdown-menu-end">
-                            <span class="dropdown-item-text text-muted small">
-                                @(rol)
-                            </span>
+                            <span class="dropdown-item-text text-muted small">@(rol)</span>
                             <div class="dropdown-divider"></div>
+
                             <a class="dropdown-item" id="btnMiPerfil">Mi Perfil</a>
+
                             <a class="dropdown-item" href="#" data-i18n="nav.changePassword" id="btnCambiarClave"
                                data-id="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value"
                                data-nombre="@User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value"></a>
-                            <a class="dropdown-item" asp-controller="Login" asp-action="LogOut" data-i18n="nav.logout" id="btnLogout"></a>
+
+                            @* Mi Historial — Comprador y Vendedor *@
+                            @if (rol == "Comprador" || rol == "Vendedor")
+                            {
+                                <a class="dropdown-item" href="#"
+                                   data-bs-toggle="modal" data-bs-target="#modalMiHistorial">
+                                    <i class="bi bi-clock-history me-1"></i> Mi Historial
+                                </a>
+                            }
+
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" asp-controller="Login" asp-action="LogOut"
+                               data-i18n="nav.logout" id="btnLogout"></a>
                         </div>
-                    }                   
+                    }
                 </li>
             </ul>
-
         </div>
     </div>
 </nav>
 
 <script>
-    //Al cerrar sesión, almacena una notificación en una variable de sesión para ser mostrada luego del refrescamiento.
     document.getElementById("btnLogout")?.addEventListener("click", async function () {
         sessionStorage.setItem("mensajeCambioSesion", JSON.stringify({
             icon: "success",
@@ -156,13 +164,12 @@
         }));
     });
 
-    //Evento de invocación al modal de edición de datos del usuario.
     document.getElementById("btnMiPerfil")?.addEventListener("click", async function (e) {
-        e.preventDefault();        
+        e.preventDefault();
 
-        const response  = await fetch("/Usuario/GetPerfilUsuario");
+        const response = await fetch("/Usuario/GetPerfilUsuario");
         const data = await response.json();
-        
+
         document.getElementById("editIdUsuario").value      = data.idUsuario;
         document.getElementById("editNombre").value         = data.nombre;
         document.getElementById("editApellido1").value      = data.apellido1;
@@ -171,29 +178,25 @@
         document.getElementById("editTelefono").value       = data.telefono;
         document.getElementById("editRol").value            = data.rol;
         document.getElementById("editFechaCreacion").value  = data.fechaCreacion;
-        //Bandera de activación del modal en modo perfil.
         document.getElementById("esVistaPerfil").value = "true";
         document.getElementById("labelEditarUsuario").innerText = "Mi Perfil";
 
-        //Configuración del icono del título.
         const iconoLabel = document.getElementById("iconoLabelEditarUsuario");
-
         iconoLabel.classList.remove("fa-pen-to-square");
         iconoLabel.classList.add("fa-user");
 
         new bootstrap.Modal(document.getElementById("modalEditarUsuario")).show();
     });
 
-     document.getElementById("btnCambiarClave")?.addEventListener("click", async function (e) {
+    document.getElementById("btnCambiarClave")?.addEventListener("click", async function (e) {
         document.getElementById('passIdUsuario').value = this.dataset.id;
-        document.getElementById('passNombreUsuario').textContent =  this.dataset.nombre;
+        document.getElementById('passNombreUsuario').textContent = this.dataset.nombre;
         document.getElementById('passNueva').value = '';
         document.getElementById('passConfirmar').value = '';
         document.getElementById('errPassNueva').textContent = '';
         document.getElementById('errPassConfirmar').textContent = '';
-        //Invocación desde el menú de navegación.
         document.getElementById('esOpcionNav').value = "true";
 
         new bootstrap.Modal(document.getElementById('modalCambiarContrasena')).show();
-     });
+    });
 </script>

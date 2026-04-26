@@ -107,6 +107,14 @@
     <partial name="_EditarUsuario" />
     <partial name="_CambiarContrasenna" />
 
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
+        var rolLayout = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+        if (rolLayout == "Comprador" || rolLayout == "Vendedor")
+        {
+            <partial name="_ModalHistorial" />
+        }
+    }
     <script>
         //Función encargada de mostrar un mensaje de inicio o cierre de sesión a partir de una variable auxiliar en sessionStorage.
         (function () {

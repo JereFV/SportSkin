@@ -1,0 +1,120 @@
+@* Views/Shared/_ModalHistorial.cshtml
+   Inyectar en _Layout.cshtml justo antes del cierre de </body>:
+       @if (User.Identity.IsAuthenticated)
+       {
+           var rol = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+           if (rol == "Comprador" || rol == "Vendedor")
+           {
+               @await Html.PartialAsync("_ModalHistorial")
+           }
+       }
+*@
+
+<div class="modal fade modal-xl" id="modalMiHistorial" tabindex="-1"
+     aria-labelledby="modalMiHistorialLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-fullscreen-lg-down">
+        <div class="modal-content">
+
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title d-flex align-items-center gap-2" id="modalMiHistorialLabel">
+                    <i class="bi bi-clock-history"></i>
+                    Mi Historial
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body p-0" id="historialModalBody">
+                {{!-- El contenido se carga dinámicamente vía fetch --}}
+                <div id="historialLoading" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Cargando tu historial...</p>
+                </div>
+                <div id="historialContenido" class="d-none p-3"></div>
+                <div id="historialError" class="d-none text-center py-5 text-danger">
+                    <i class="bi bi-exclamation-triangle fs-2 d-block mb-2"></i>
+                    <p>Ocurrió un error al cargar el historial. Intenta nuevamente.</p>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    let cargado = false;
+
+    const modal = document.getElementById('modalMiHistorial');
+    if (!modal) return;
+
+    modal.addEventListener('show.bs.modal', async function () {
+        // Solo carga una vez por sesión de página; se resetea con btnRefrescarHistorial
+        if (cargado) return;
+
+        mostrarEstado('loading');
+
+        try {
+            const resp = await fetch('/Historial/GetHistorial');
+            if (!resp.ok) throw new Error(resp.status);
+
+            const html = await resp.text();
+            document.getElementById('historialContenido').innerHTML = html;
+            mostrarEstado('contenido');
+            cargado = true;
+
+            // Inicializar DataTables en el contenido recién inyectado
+            inicializarTablas();
+        } catch {
+            mostrarEstado('error');
+        }
+    });
+
+    // Botón para recargar manualmente (opcional, definido en _HistorialContenido)
+    document.addEventListener('click', function (e) {
+        if (e.target && e.target.id === 'btnRefrescarHistorial') {
+            cargado = false;
+            // Disparar la carga nuevamente
+            modal.dispatchEvent(new Event('show.bs.modal'));
+        }
+    });
+
+    function mostrarEstado(estado) {
+        document.getElementById('historialLoading').classList.toggle('d-none', estado !== 'loading');
+        document.getElementById('historialContenido').classList.toggle('d-none', estado !== 'contenido');
+        document.getElementById('historialError').classList.toggle('d-none', estado !== 'error');
+    }
+
+    function inicializarTablas() {
+        const ids = ['tblPujas', 'tblCompras', 'tblPagos', 'tblSubastas', 'tblVentas'];
+        ids.forEach(function (id) {
+            const el = document.getElementById(id);
+            if (el && !$.fn.dataTable.isDataTable('#' + id)) {
+                new DataTable('#' + id, {
+                    language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-MX.json' },
+                    pageLength: 8,
+                    order: []
+                });
+            }
+        });
+
+        // Re-ajustar columnas al cambiar de tab
+        document.querySelectorAll('#historialTabs [data-bs-toggle="tab"]').forEach(function (btn) {
+            btn.addEventListener('shown.bs.tab', function () {
+                ids.forEach(function (id) {
+                    if ($.fn.dataTable.isDataTable('#' + id)) {
+                        $('#' + id).DataTable().columns.adjust();
+                    }
+                });
+            });
+        });
+    }
+})();
+</script>

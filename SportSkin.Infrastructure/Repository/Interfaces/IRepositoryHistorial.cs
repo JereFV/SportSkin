@@ -12,7 +12,7 @@ namespace SportSkin.Infrastructure.Repository.Interfaces
     {
         Task<List<Puja>> GetPujasByUsuarioAsync(int idUsuario);
         Task<List<Subasta>> GetSubastasByUsuarioAsync(int idUsuario);
-        //Task<List<Pago>> GetPagosByUsuarioAsync(int idUsuario);
+        Task<List<Pago>> GetPagosByUsuarioAsync(int idUsuario);
 
         // Para el cálculo de ganador: monto máximo por subasta finalizada
         Task<Dictionary<int, decimal>> GetMaxMontoSubastasFinalizadasAsync(int idUsuario);

@@ -1,15 +1,9 @@
 ﻿@using Newtonsoft.Json.Linq
+@using System.Security.Claims
 
 @{
-    var sesionStr = Context.Session.GetString("UsuarioSesion");
-    var sesion = sesionStr != null ? JObject.Parse(sesionStr) : null;
-    var rol = sesion != null ? (int?)sesion["IdRolUsuario"] : null;
-    var nombre = sesion != null ? $"{sesion["Nombre"]} {sesion["Apellido1"]}" : "Invitado";
-
-    // Constantes de rol
-    var esAdmin = rol == 1;
-    var esVendedor = rol == 2;
-    var esComprador = rol == 3;
+    string rol = User.FindFirst(ClaimTypes.Role)?.Value ?? "Invitado";
+    int idUsuario = int.Parse(@User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 }
 
 <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
@@ -32,55 +26,53 @@
                        data-i18n="nav.home"> </a>
                 </li>
 
-                @* Camisetas — Admin y Vendedor *@
-                @if (esAdmin || esVendedor)
+                @* Camisetas — Vendedor *@
+                @if (rol == "Vendedor")
                 {
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Camiseta" asp-route-idUsuario="@sesion?["IdUsuario"]" asp-action="CamisetaIndex"
+                        <a class="nav-link" asp-controller="Camiseta" asp-route-idUsuario="@idUsuario" asp-action="CamisetaIndex"
                            data-i18n="nav.shirts"></a>
                     </li>
                 }
 
-                @* Subastas — Admin y Vendedor ven todo, Comprador  Activas y Finalizadas *@
-                @if (esAdmin || esVendedor || esComprador)
-                {
-                    <li class="nav-item d-flex align-items-center dropdown">
-                        <a class="nav-link pe-1"
-                           asp-controller="Subasta" asp-action="SubastaIndex"
-                           data-i18n="nav.auctions"></a>
-                        <a class="nav-link ps-0 pe-2 dropdown-toggle dropdown-toggle-split"
-                           data-bs-toggle="dropdown" aria-expanded="false" href="#">
-                            <span class="visually-hidden">Toggle Dropdown</span>
-                        </a>
-                        <ul class="dropdown-menu">
+                @* Subastas — Visible por todos los roles e invitados. *@
+                <li class="nav-item d-flex align-items-center dropdown">
+                    <a class="nav-link pe-1"
+                       asp-controller="Subasta" asp-action="SubastaIndex"
+                       data-i18n="nav.auctions"></a>
+                    <a class="nav-link ps-0 pe-2 dropdown-toggle dropdown-toggle-split"
+                       data-bs-toggle="dropdown" aria-expanded="false" href="#">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" asp-controller="Subasta" asp-action="Activas">
+                                <i class="fa-solid fa-gavel me-1"></i>
+                                <span data-i18n="nav.activeAuctions"></span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item" asp-controller="Subasta" asp-action="Finalizadas">
+                                <i class="bi bi-check-circle me-1"></i>
+                                <span data-i18n="nav.finishedAuctions"></span>
+                            </a>
+                        </li>
+
+                        @if (rol == "Vendedor")
+                        {
                             <li>
-                                <a class="dropdown-item" asp-controller="Subasta" asp-action="Activas">
-                                    <i class="fa-solid fa-gavel me-1"></i>
-                                    <span data-i18n="nav.activeAuctions"></span>
+                                <a class="dropdown-item" asp-controller="Subasta" asp-action="MisSubastas">
+                                    <i class="bi bi-person me-1"></i>
+                                    <span data-i18n="nav.myAuctions"> </span>
                                 </a>
                             </li>
-                            
-                                <li>
-                                    <a class="dropdown-item" asp-controller="Subasta" asp-action="Finalizadas">
-                                        <i class="bi bi-check-circle me-1"></i>
-                                        <span data-i18n="nav.finishedAuctions"></span>
-                                    </a>
-                                </li>
-                            @if (esAdmin || esVendedor)
-                            {
-                                <li>
-                                    <a class="dropdown-item" asp-controller="Subasta" asp-action="MisSubastas">
-                                        <i class="bi bi-person me-1"></i>
-                                        <span data-i18n="nav.myAuctions"> </span>
-                                    </a>
-                                </li>
-                            }
-                        </ul>
-                    </li>
-                }
+                        }
+                    </ul>
+                </li>             
 
                 @* Usuarios — solo Admin *@
-                @if (esAdmin)
+                @if (rol == "Administrador")
                 {
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Usuario" asp-action="UsuarioIndex"
@@ -89,7 +81,7 @@
                 }
 
                 @* Pagos — Admin ve todos, Comprador solo los suyos *@
-                @if (esAdmin || esComprador)
+                @if (rol == "Comprador")
                 {
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Pago" asp-action="PagoIndex">                            
@@ -99,7 +91,7 @@
                 }
 
                 @* Reportes — solo Admin *@                
-                @if (esAdmin)
+                @if (rol == "Administrador")
                 {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -127,24 +119,67 @@
                 @await Html.PartialAsync("_LanguageSelector")
 
                 @* Usuario en sesión *@
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2"
-                       data-bs-toggle="dropdown"
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center gap-2 @(User?.Identity?.IsAuthenticated == true ? "dropdown-toggle" : "")" 
+                       data-bs-toggle="@(User?.Identity?.IsAuthenticated == true ? "dropdown" : "modal")" data-bs-target="#modalLogin"
                        href="#" role="button" aria-haspopup="true" aria-expanded="false">
                         <i class="bi bi-person-circle"></i>
-                        <span>@nombre</span>
+                        <span>@(User?.Identity?.Name ?? "Invitado")</span>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-end">
-                        <span class="dropdown-item-text text-muted small">
-                            @(esAdmin ? "Administrador" : esVendedor ? "Vendedor" : esComprador ? "Comprador" : "Invitado")
-                        </span>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#" data-i18n="nav.logout"> </a>
-                        <a class="dropdown-item" href="#" data-i18n="nav.changePassword"> </a>
-                    </div>
+
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <span class="dropdown-item-text text-muted small">
+                                @(rol)
+                            </span>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" id="btnMiPerfil">Mi Perfil</a>
+                            <a class="dropdown-item" href="#" data-i18n="nav.changePassword"> </a>
+                            <a class="dropdown-item" asp-controller="Login" asp-action="LogOut" data-i18n="nav.logout" id="btnLogout"></a>
+                        </div>
+                    }                   
                 </li>
             </ul>
 
         </div>
     </div>
 </nav>
+
+<script>
+    //Al cerrar sesión, almacena una notificación en una variable de sesión para ser mostrada luego del refrescamiento.
+    document.getElementById("btnLogout")?.addEventListener("click", async function () {
+        sessionStorage.setItem("mensajeCambioSesion", JSON.stringify({
+            icon: "success",
+            title: "La sesión ha sido cerrada satisfactoriamente."
+        }));
+    });
+
+    //Evento de invocación al modal de edición de datos del usuario.
+    document.getElementById("btnMiPerfil")?.addEventListener("click", async function (e) {
+        e.preventDefault();        
+
+        const response  = await fetch("/Usuario/GetPerfilUsuario");
+        const data = await response.json();
+        
+        document.getElementById("editIdUsuario").value      = data.idUsuario;
+        document.getElementById("editNombre").value         = data.nombre;
+        document.getElementById("editApellido1").value      = data.apellido1;
+        document.getElementById("editApellido2").value      = data.apellido2;
+        document.getElementById("editCorreo").value         = data.correo;
+        document.getElementById("editTelefono").value       = data.telefono;
+        document.getElementById("editRol").value            = data.rol;
+        document.getElementById("editFechaCreacion").value  = data.fechaCreacion;
+        //Bandera de activación del modal en modo perfil.
+        document.getElementById("esVistaPerfil").value = "true";
+        document.getElementById("labelEditarUsuario").innerText = "Mi Perfil";
+
+        //Configuración del icono del título.
+        const iconoLabel = document.getElementById("iconoLabelEditarUsuario");
+
+        iconoLabel.classList.remove("fa-pen-to-square");
+        iconoLabel.classList.add("fa-user");
+
+        new bootstrap.Modal(document.getElementById("modalEditarUsuario")).show();
+    });
+</script>

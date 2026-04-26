@@ -1,4 +1,5 @@
 ﻿using Libreria.Web.Util;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp;
 using Newtonsoft.Json.Linq;
@@ -29,7 +30,7 @@ namespace SportSkin.Web.Controllers
             _serviceTrayectoriaJugador = serviceTrayectoriaJugador;
         }
 
-        // GET: Camiseta
+        [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> CamisetaIndex(int idUsuario, string? filtro)
         {
             ICollection<CamisetaDTO> lista;
@@ -64,7 +65,7 @@ namespace SportSkin.Web.Controllers
             return View(camisetaViewModel);
         }
 
-        // GET: Camiseta/Details/5
+        [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> CamisetaDetails(int id)
         {
             var camiseta = await _serviceCamiseta.FindByIdAsync(id);
@@ -87,6 +88,7 @@ namespace SportSkin.Web.Controllers
         // POST: Camiseta/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> CamisetaCreate(CreacionCamisetaViewModel model)
         {          
             try
@@ -165,6 +167,7 @@ namespace SportSkin.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> CamisetaEdit(int id)
         {
             CamisetaDTO camiseta = await _serviceCamiseta.FindByIdAsync(id);
@@ -205,6 +208,7 @@ namespace SportSkin.Web.Controllers
         // POST: Camiseta/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> CamisetaEdit(CreacionCamisetaViewModel model, List<int> IdsImagenesEliminadas)
         {
             try
@@ -272,15 +276,15 @@ namespace SportSkin.Web.Controllers
             }
         }
 
-        // GET: Camiseta/Delete/5
-        public async Task<IActionResult> Delete(int id)
-        {
-            var camiseta = await _serviceCamiseta.FindByIdAsync(id);
-            if (camiseta == null)
-                return NotFound();
+        // GET: Camiseta/Delete/5      
+        //public async Task<IActionResult> Delete(int id)
+        //{
+        //    var camiseta = await _serviceCamiseta.FindByIdAsync(id);
+        //    if (camiseta == null)
+        //        return NotFound();
 
-            return View(camiseta);
-        }
+        //    return View(camiseta);
+        //}
 
         // POST: Camiseta/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -350,6 +354,7 @@ namespace SportSkin.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> ChangeState(int id)
         {
             try

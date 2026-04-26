@@ -24,5 +24,9 @@ namespace SportSkin.Infrastructure.Repository.Interfaces
         Task<int> CountSubastasByVendedorAsync(int idUsuario);
         Task<int> CountSubastasActivasByVendedorAsync(int idUsuario);
         Task<int> CountSubastasVendidasByVendedorAsync(int idUsuario);
+        
+        Task<Usuario?> LoginAsync(string user, string password);
+
+        Task<Usuario?> FindByUserAsync(string usuario);
     }
 }

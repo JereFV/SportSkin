@@ -1,4 +1,5 @@
 ﻿using Libreria.Web.Util;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using SportSkin.Application.Services.Interfaces;
@@ -17,8 +18,9 @@ namespace SportSkin.Web.Controllers
             _servicePago = servicePago;
             _serviceMetodoPago = serviceMetodoPago;
         }
-               
+
         // GET: Pago/PagoIndex
+        [Authorize(Roles = "Administrador,Comprador")]
         public async Task<IActionResult> PagoIndex()
         {
             var sesionStr = HttpContext.Session.GetString("UsuarioSesion");
@@ -106,6 +108,7 @@ namespace SportSkin.Web.Controllers
         // POST: Pago/Registrar
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Comprador")]
         public async Task<IActionResult> Registrar(int idSubasta, byte idMetodoPago)
         {
             try
@@ -133,6 +136,7 @@ namespace SportSkin.Web.Controllers
         // POST: Pago/Confirmar
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Comprador")]
         public async Task<IActionResult> Confirmar(string idFactura)
         {
             try

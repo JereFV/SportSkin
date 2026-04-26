@@ -1,4 +1,5 @@
 using Libreria.Web.Middleware;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -102,6 +103,7 @@ builder.Services.AddScoped<IRepositoryJugador, RepositoryJugador>();
 builder.Services.AddTransient<IRepositoryPuja, RepositoryPuja>();
 builder.Services.AddTransient<IRepositoryPago, RepositoryPago>();
 builder.Services.AddTransient<IRepositoryMetodoPago, RepositoryMetodoPago>();
+builder.Services.AddTransient<IRepositoryPreguntaRecuperacionUsuario, RepositoryPreguntaRecuperacionUsuario>();
 //Controlador de transacciones en una unidad de trabajo.
 builder.Services.AddScoped<IUnitOfWork, UnitofWork>();
 
@@ -118,6 +120,7 @@ builder.Services.AddTransient<IImageStorage, ImageStorage>();
 builder.Services.AddTransient<IServicePuja, ServicePuja>();
 builder.Services.AddTransient<IServicePago, ServicePago>();
 builder.Services.AddTransient<IServiceMetodoPago, ServiceMetodoPago>();
+builder.Services.AddTransient<IServicePreguntaRecuperacionUsuario, ServicePreguntaRecuperacionUsuario>();
 
 //Background Service
 builder.Services.AddSingleton<SubastaBackgroundService>();
@@ -158,6 +161,7 @@ builder.Services.AddAutoMapper(config =>
     config.AddProfile<EstadoFacturaProfile>();
     config.AddProfile<MetodoPagoProfile>();
     config.AddProfile<ZonaEnvioProfile>();
+    config.AddProfile<PreguntaRecuperacionUsuarioProfile>();
 });
 
 // =======================
@@ -186,13 +190,25 @@ builder.Services.AddDbContext<SportSkinContext>(options =>
         options.EnableSensitiveDataLogging();
 });
 
-//Configuración de sesión.
+//Añadir caché. (requerido por la sesión)
 builder.Services.AddDistributedMemoryCache();
+
+//Configuración de sesión.
 builder.Services.AddSession(options => {
-    //options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.Name = "SportSkin.Session";
 });
+
+//Configuración de cookie como método de autenticación.
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options => {
+        //options.LoginPath = "/Login/Index";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+        options.AccessDeniedPath = "/Login/Forbidden";
+    });
 
 var app = builder.Build();
 

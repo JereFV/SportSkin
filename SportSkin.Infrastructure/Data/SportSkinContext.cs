@@ -40,6 +40,8 @@ public partial class SportSkinContext : DbContext
 
     public virtual DbSet<ParametroSubasta> ParametroSubasta { get; set; }
 
+    public virtual DbSet<PreguntaRecuperacionUsuario> PreguntaRecuperacionUsuario { get; set; }
+
     public virtual DbSet<Puja> Puja { get; set; }
 
     public virtual DbSet<RolUsuario> RolUsuario { get; set; }
@@ -283,11 +285,19 @@ public partial class SportSkinContext : DbContext
                 .IsUnicode(false);
         });
 
+        modelBuilder.Entity<PreguntaRecuperacionUsuario>(entity =>
+        {
+            entity.HasKey(e => e.IdPregunta).HasName("PK__Pregunta__754EC09E7980FFEC");
+
+            entity.Property(e => e.Pregunta)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<Puja>(entity =>
         {
-            entity.HasKey(e => new { e.IdPuja, e.IdSubasta });
+            entity.HasKey(e => e.IdPuja);
 
-            entity.Property(e => e.IdPuja).ValueGeneratedOnAdd();
             entity.Property(e => e.Fecha).HasColumnType("datetime");
 
             entity.HasOne(d => d.IdSubastaNavigation).WithMany(p => p.Puja)
@@ -315,7 +325,6 @@ public partial class SportSkinContext : DbContext
         {
             entity.HasKey(e => e.IdSubasta);
 
-            entity.Property(e => e.IdSubasta).ValueGeneratedOnAdd();
             entity.Property(e => e.FechaCierre).HasColumnType("datetime");
             entity.Property(e => e.FechaCompra).HasColumnType("datetime");
             entity.Property(e => e.FechaInicio).HasColumnType("datetime");
@@ -369,6 +378,9 @@ public partial class SportSkinContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(30)
                 .IsUnicode(false);
+            entity.Property(e => e.RespuestaPreguntaRecuperacion)
+                .HasMaxLength(50)
+                .IsUnicode(false);
             entity.Property(e => e.Telefono)
                 .HasMaxLength(25)
                 .IsUnicode(false);
@@ -376,6 +388,10 @@ public partial class SportSkinContext : DbContext
                 .HasMaxLength(15)
                 .IsUnicode(false)
                 .HasColumnName("Usuario");
+
+            entity.HasOne(d => d.IdPreguntaRecuperacionNavigation).WithMany(p => p.Usuario)
+                .HasForeignKey(d => d.IdPreguntaRecuperacion)
+                .HasConstraintName("FK_PreguntaRecuperacion_Usuario");
 
             entity.HasOne(d => d.IdRolUsuarioNavigation).WithMany(p => p.Usuario)
                 .HasForeignKey(d => d.IdRolUsuario)

@@ -1,4 +1,5 @@
-﻿@model SportSkin.Web.ViewModels.InterfazSubastaViewModel
+﻿@using System.Security.Claims
+@model SportSkin.Web.ViewModels.InterfazSubastaViewModel
 
 @{
     ViewData["Title"] = "Subasta - " + Model.Subasta.IdCamisetaNavigation?.Nombre;
@@ -198,7 +199,7 @@
 @* Botón de invocación al modal de Pujar.
    Habilitado únicamente para usuarios con el rol de Comprador.
 *@
-<button class="fab-pujar @(Model.IdRolUsuarioSesion != 3 ? "fab-disabled" : "")" 
+<button class="fab-pujar @(User.FindFirst(ClaimTypes.Role)?.Value != "Comprador" ? "fab-disabled" : "")"
         id="fabPujar"
         data-bs-toggle="modal" data-bs-target="#modalPujar"
         title="Pujar">

@@ -5,8 +5,6 @@ namespace SportSkin.Infrastructure.Models;
 
 public partial class Puja
 {
-    public int IdPuja { get; set; }
-
     public int IdSubasta { get; set; }
 
     public int Monto { get; set; }
@@ -14,6 +12,8 @@ public partial class Puja
     public DateTime Fecha { get; set; }
 
     public int IdUsuarioPuja { get; set; }
+
+    public int IdPuja { get; set; }
 
     public virtual Subasta IdSubastaNavigation { get; set; } = null!;
 

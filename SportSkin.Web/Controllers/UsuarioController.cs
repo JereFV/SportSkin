@@ -1,11 +1,15 @@
 ﻿using Libreria.Web.Util;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json.Linq;
 using SportSkin.Application.DTOs;
+using SportSkin.Application.Services.Implementations;
 using SportSkin.Application.Services.Interfaces;
+using SportSkin.Infrastructure.Models;
 using SportSkin.Web.ViewModels;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -13,11 +17,13 @@ namespace SportSkin.Web.Controllers
 {
     public class UsuarioController : Controller
     {
-        private readonly IServiceUsuario _service;
+        private readonly IServiceUsuario _serviceUsuario;
+        private readonly IServicePreguntaRecuperacionUsuario _servicePreguntaRecuperacion;
 
-        public UsuarioController(IServiceUsuario service)
+        public UsuarioController(IServiceUsuario service, IServicePreguntaRecuperacionUsuario servicePreguntaRecuperacion)
         {
-            _service = service;
+            _serviceUsuario = service;
+            _servicePreguntaRecuperacion = servicePreguntaRecuperacion;
         }
 
         //Obtiene usuario en sesión
@@ -29,11 +35,12 @@ namespace SportSkin.Web.Controllers
         }
 
         // GET: UsuarioController
+        [Authorize(Roles = "Administrador")]
         public async Task<ActionResult> UsuarioIndex()
         {
             try
             {
-                var usuarios = await _service.ListAsync();
+                var usuarios = await _serviceUsuario.ListAsync();
                 var usuariosView = new List<ListadoUsuariosViewModel>();
 
                 if (usuarios != null)
@@ -52,7 +59,7 @@ namespace SportSkin.Web.Controllers
                         usuariosView.Add(usuarioView);
                     }
                 }
-                var roles = await _service.GetRolesAsync();
+                var roles = await _serviceUsuario.GetRolesAsync();
                 ViewBag.CrearUsuarioVM = new CrearUsuarioViewModel
                 {
                     Roles = roles.Select(r => new SelectListItem
@@ -71,16 +78,16 @@ namespace SportSkin.Web.Controllers
             }        
         }
 
-        // GET: UsuarioController/Details/
+        // GET: UsuarioController/Details/       
         public async Task<IActionResult> UsuarioDetails(int id)
         {
-            var usuario = await _service.FindByIdAsync(id);
+            var usuario = await _serviceUsuario.FindByIdAsync(id);
             if (usuario == null)
                 return NotFound();
 
             if (usuario.IdRolUsuario == 2) // Vendedor
             {
-                var stats = await _service.GetEstadisticasVendedorAsync(id);
+                var stats = await _serviceUsuario.GetEstadisticasVendedorAsync(id);
                 ViewBag.TotalSubastas = stats.total;
                 ViewBag.SubastasActivas = stats.activas;
                 ViewBag.SubastasVendidas = stats.vendidas;
@@ -90,17 +97,12 @@ namespace SportSkin.Web.Controllers
             return View(usuario);
         }
 
-        // GET: UsuarioController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
         // ─────────────────────────────────────────────────────────────
         // POST: /Usuario/Crear
         // ─────────────────────────────────────────────────────────────
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Crear(CrearUsuarioViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -124,7 +126,7 @@ namespace SportSkin.Web.Controllers
                     Estado = true
                 };
 
-                await _service.AddAsync(dto);
+                await _serviceUsuario.AddAsync(dto);
 
                 TempData["Notificacion"] = JsonSerializer.Serialize(new
                 {
@@ -158,10 +160,11 @@ namespace SportSkin.Web.Controllers
 
             return RedirectToAction(nameof(UsuarioIndex));
         }
+
         //Re construye la vista sobre todo se utiliza en casos donde una validación no se cumple
         private async Task<IActionResult> ReconstruirVistaCrear(CrearUsuarioViewModel vm)
         {
-            var usuarios = await _service.ListAsync();
+            var usuarios = await _serviceUsuario.ListAsync();
             var listView = usuarios.Select(u => new ListadoUsuariosViewModel
             {
                 IdUsuario = u.IdUsuario,
@@ -170,7 +173,7 @@ namespace SportSkin.Web.Controllers
                 Estado = u.Estado ? "Activo" : "Inactivo"
             }).ToList();
 
-            var roles = await _service.GetRolesAsync();
+            var roles = await _serviceUsuario.GetRolesAsync();
             vm.Roles = roles.Select(r => new SelectListItem
             {
                 Value = r.IdRolUsuario.ToString(),
@@ -186,7 +189,7 @@ namespace SportSkin.Web.Controllers
         private async Task<IActionResult> ReconstruirVistaEditar(EditarUsuarioViewModel vm)
         {
             // Cargamos la lista de la tabla para que el fondo no se vea vacío
-            var usuarios = await _service.ListAsync();
+            var usuarios = await _serviceUsuario.ListAsync();
             var listView = usuarios.Select(u => new ListadoUsuariosViewModel
             {
                 IdUsuario = u.IdUsuario,
@@ -196,7 +199,7 @@ namespace SportSkin.Web.Controllers
             }).ToList();
 
             // Necesitamos recargar también el ViewModel de "Crear" porque el Index lo espera
-            var roles = await _service.GetRolesAsync();
+            var roles = await _serviceUsuario.GetRolesAsync();
             ViewBag.CrearUsuarioVM = new CrearUsuarioViewModel
             {
                 Roles = roles.Select(r => new SelectListItem
@@ -212,11 +215,13 @@ namespace SportSkin.Web.Controllers
 
             return View("UsuarioIndex", listView);
         }
+
         // GET: /Usuario/GetDatosEditar/5  (AJAX — llena el modal editar)
         [HttpGet]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> GetDatosEditar(int id)
         {
-            var usuario = await _service.FindByIdAsync(id);
+            var usuario = await _serviceUsuario.FindByIdAsync(id);
             if (usuario == null)
                 return NotFound();
 
@@ -232,13 +237,6 @@ namespace SportSkin.Web.Controllers
                 fechaCreacion = usuario.FechaCreacion.ToString("dd/MM/yyyy")
             });
         }
-
-        // GET: UsuarioController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
          
         // POST: /Usuario/Editar         
         [HttpPost]
@@ -262,7 +260,7 @@ namespace SportSkin.Web.Controllers
                     Telefono = vm.Telefono
                 };
 
-                await _service.UpdateAsync(vm.IdUsuario, dto);
+                await _serviceUsuario.UpdateAsync(vm.IdUsuario, dto);
 
                 TempData["Notificacion"] = JsonSerializer.Serialize(new
                 {
@@ -291,18 +289,21 @@ namespace SportSkin.Web.Controllers
                 });
             }
 
-            return RedirectToAction(nameof(UsuarioIndex));
+            if (vm.EsPerfil)
+                return RedirectToAction("HomeIndex", "Home");
+            else
+                return RedirectToAction(nameof(UsuarioIndex));
         }
-
 
         // POST: /Usuario/ChangeStateAsync/        
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> ChangeState(int id)
         {
             try
             {
-                await _service.ChangeStateAsync(id);
+                await _serviceUsuario.ChangeStateAsync(id);
 
                 TempData["Notificacion"] = JsonSerializer.Serialize(new
                 {
@@ -326,6 +327,7 @@ namespace SportSkin.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> CambiarContrasenna(CambiarContrasennaViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -341,7 +343,7 @@ namespace SportSkin.Web.Controllers
 
             try
             {
-                await _service.ChangePasswordAsync(vm.IdUsuario, vm.NuevaContrasenna);
+                await _serviceUsuario.ChangePasswordAsync(vm.IdUsuario, vm.NuevaContrasenna);
 
                 TempData["Notificacion"] = JsonSerializer.Serialize(new
                 {
@@ -372,25 +374,127 @@ namespace SportSkin.Web.Controllers
             return RedirectToAction(nameof(UsuarioIndex));
         }
 
-        // GET: UsuarioController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: UsuarioController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        [HttpGet]
+        public async Task<IActionResult> ListPreguntasRecuperacion()
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                var preguntas = await _servicePreguntaRecuperacion.ListAsync();
+
+                return Ok(preguntas);
             }
-            catch
+            catch (Exception)
             {
-                return View();
+                ViewBag.Exception = SweetAlertHelper.CrearNotificacion("Registro Usuario", "Ha ocurrido un error al intentar obtener el listado de preguntas de recuperación seleccionables para un nuevo usuario.", SweetAlertMessageType.error);
+                return BadRequest();
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Registrar([FromBody]UsuarioDTO dto)
+        {            
+            try
+            {               
+                await _serviceUsuario.AddAsync(dto);
+
+                return Json(new
+                {
+                    statusCode = "success",
+                    message = $"¡El usuario {dto.Usuario1} ha sido registrado satisfactoriamente!"
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Json(new
+                {
+                    statusCode = "warning",
+                    message = ex.Message
+                });
+            }
+            catch (Exception)
+            {
+                return Json(new
+                {
+                    statusCode = "error",
+                    message = "Ha ocurrido un error inesperado al intentar registrar el usuario. Por favor intente nuevamente más tarde."
+                });
+            }           
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetByUserName(string usuario)
+        {
+            try
+            {
+                var usuarioBuscado = await _serviceUsuario.FindByUserAsync(usuario);
+
+                if (usuarioBuscado == null)
+                    return Json(new
+                    {
+                        statusCode = "warning",
+                        message = "El usuario digitado no se encuentra registrado en el sistema. Por favor digite otro valor."
+                    });
+
+                return Json(new
+                {
+                    statusCode = "success",
+                    usuario = usuarioBuscado
+                });
+            }
+            catch (Exception)
+            {
+                return Json(new
+                {
+                    statusCode = "error",
+                    message = "Ha ocurrido un error inesperado al intentar verificar la identidad del usuario digitado. Por favor intente nuevamente más tarde."
+                });
+            }
+        }
+
+        [HttpPost]       
+        public async Task<IActionResult> RecuperarContrasenna([FromBody]UsuarioDTO dto)
+        {        
+            try
+            {
+                await _serviceUsuario.ChangePasswordAsync(dto.IdUsuario, dto.Contrasenna);
+
+                return Json(new
+                {
+                    statusCode = "success",
+                    message = "¡Contraseña actualizada satisfactoriamente!"
+                });
+            }          
+            catch (Exception)
+            {
+                return Json(new
+                {
+                    statusCode = "error",
+                    message = "Ha ocurrido un error inesperado al intentar actualizar su contraseña. Por favor intente de nuevo más tarde."
+                });
+            }        
+        }
+
+        //Obtiene los datos del usuario en sesión.
+        public async Task<IActionResult> GetPerfilUsuario()
+        {
+            var idUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+
+            var usuario = await _serviceUsuario.FindByIdAsync(idUsuario);
+
+            if (usuario == null)
+                return NotFound();
+
+            return Json(new
+            {
+                idUsuario = usuario.IdUsuario,
+                nombre = usuario.Nombre,
+                apellido1 = usuario.Apellido1,
+                apellido2 = usuario.Apellido2 ?? string.Empty,
+                correo = usuario.Correo,
+                telefono = usuario.Telefono,
+                rol = usuario.RolUsuarioNavigation?.Nombre ?? "-",
+                fechaCreacion = usuario.FechaCreacion.ToString("dd/MM/yyyy")
+            });
         }
     }
 }

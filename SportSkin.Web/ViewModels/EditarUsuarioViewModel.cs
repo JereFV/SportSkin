@@ -34,5 +34,7 @@ namespace SportSkin.Web.ViewModels
         // Solo para mostrar, NO editable
         public string? Rol { get; set; }
         public DateTime FechaCreacion { get; set; }
+
+        public bool EsPerfil { get; set; }
     }
 }

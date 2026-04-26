@@ -1,4 +1,5 @@
 ﻿using Libreria.Web.Util;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.SignalR;
@@ -10,6 +11,7 @@ using SportSkin.Infrastructure.Models;
 using SportSkin.Web.BackgroundServices;
 using SportSkin.Web.Hubs;
 using SportSkin.Web.ViewModels;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace SportSkin.Web.Controllers
@@ -109,9 +111,10 @@ namespace SportSkin.Web.Controllers
 
         // GET: Subasta/MisSubastas        
         // Subastas del vendedor en sesión + ViewModel para modal de creación
+        [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> MisSubastas()
         {
-            int idVendedor = GetUsuarioSesionId();
+            int idVendedor = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 
             var vm = new MisSubastasViewModel
             {
@@ -143,6 +146,7 @@ namespace SportSkin.Web.Controllers
         }
 
         // GET: Subasta/Details/5
+        [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> Detalle(int id)
         {
             var subasta = await _serviceSubasta.FindByIdAsync(id);
@@ -170,6 +174,7 @@ namespace SportSkin.Web.Controllers
         // ────────────────────────────────────────────────────────────
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> Crear(CrearSubastaViewModel vm)
         {
             // Validación de fecha: no está cubierta por DataAnnotations
@@ -229,6 +234,7 @@ namespace SportSkin.Web.Controllers
         // GET: /Subasta/GetDatosEditar/5  (AJAX — llena modal de edición)
         // ─────────────────────────────────────────────────────────────
         [HttpGet]
+        [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> GetDatosEditar(int id)
         {
             var subasta = await _serviceSubasta.FindByIdAsync(id);
@@ -265,6 +271,7 @@ namespace SportSkin.Web.Controllers
         // POST: /Subasta/Editar
         // ─────────────────────────────────────────────────────────────
         [HttpPost]
+        [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> Editar(EditarSubastaViewModel vm)
         {
             if (vm.FechaCierre <= vm.FechaInicio)
@@ -330,6 +337,7 @@ namespace SportSkin.Web.Controllers
         // POST: /Subasta/Publicar/5
         // ─────────────────────────────────────────────────────────────
         [HttpPost]
+        [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> Publicar(int id)
         {
             try
@@ -395,6 +403,7 @@ namespace SportSkin.Web.Controllers
         // POST: /Subasta/Cancelar/5
         // ─────────────────────────────────────────────────────────────
         [HttpPost]
+        [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> Cancelar(int id)
         {
             try
@@ -458,7 +467,8 @@ namespace SportSkin.Web.Controllers
             return View(interfazSubastaViewModel);
         }
 
-        [HttpPost]        
+        [HttpPost]
+        [Authorize(Roles = "Comprador")]
         public async Task<IActionResult> Pujar([FromBody]PujaDTO request)
         {
             try
@@ -498,7 +508,6 @@ namespace SportSkin.Web.Controllers
                     message = "Ha ocurrido un error al intentar registrar la puja ingresada. Por favor intente de nuevo más tarde."
                 });        
             }         
-        }
-               
+        }             
     }
 }

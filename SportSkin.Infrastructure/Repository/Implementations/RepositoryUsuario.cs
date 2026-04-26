@@ -28,6 +28,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
 
             return usuarios;
         }
+
         public async Task<Usuario?> FindByIdAsync(int id)
         {
             return await _context.Usuario
@@ -35,7 +36,7 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .Include(u => u.Camiseta)
                     .ThenInclude(c => c.Subasta)
                 .Include(u => u.Puja)
-                .Include(u => u.Subasta)
+                .Include(u => u.Subasta)                
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.IdUsuario == id);
         }
@@ -46,13 +47,13 @@ namespace SportSkin.Infrastructure.Repository.Implementations
         {
             entity.Estado = true;
             entity.FechaCreacion = DateTime.Now;
-            entity.FechaModificacion = DateTime.Now;
+            //entity.FechaModificacion = DateTime.Now;
 
             _context.Usuario.Add(entity);
             await _context.SaveChangesAsync();
+
             return entity.IdUsuario;
         }
-
 
         /* Actualiza únicamente los campos de perfil editables del usuario:
             Nombre, Apellido1, Apellido2, Correo y Telefono.
@@ -152,6 +153,23 @@ namespace SportSkin.Infrastructure.Repository.Implementations
                 .Include(s => s.IdCamisetaNavigation)
                 .CountAsync(s => s.IdCamisetaNavigation.IdUsuarioVendedor == idUsuario
                               && s.FechaCompra != null);
+        }
+
+        public async Task<Usuario?> LoginAsync(string user, string password)
+        {
+            return await _context.Set<Usuario>()
+                                 .Where(x => x.Usuario1 == user && x.Contrasenna == password)
+                                 .Include(x => x.IdRolUsuarioNavigation)
+                                 .AsNoTracking()
+                                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<Usuario?> FindByUserAsync(string usuario)
+        {
+            return await _context.Usuario                
+                                .Include(u => u.IdPreguntaRecuperacionNavigation)
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(u => u.Usuario1 == usuario);
         }
     }
 }

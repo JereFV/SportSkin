@@ -58,11 +58,20 @@ namespace SportSkin.Application.DTOs
         [StringLength(100, MinimumLength = 6, ErrorMessage = "{0} debe tener entre {2} y {1} caracteres")]
         public string Contrasenna { get; set; } = string.Empty;
 
+        public byte? IdPreguntaRecuperacion { get; set; }
+
+        public string? RespuestaPreguntaRecuperacion { get; set; }
+
         // Navegación
         [DisplayName("Rol")]
         public RolUsuarioDTO RolUsuarioNavigation { get; set; } = new();
+
         public List<SubastaDTO> Subasta { get; set; } = new();  // subastas como vendedor
+
         public List<PujaDTO> Puja { get; set; } = new(); //subastas como comprador
+
         public List<CamisetaDTO> Camiseta { get; set; } = new();
+
+        public PreguntaRecuperacionUsuarioDTO? PreguntaRecuperacionNavigation { get; set; } = new();
     }
 }

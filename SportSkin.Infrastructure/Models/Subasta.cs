@@ -5,8 +5,6 @@ namespace SportSkin.Infrastructure.Models;
 
 public partial class Subasta
 {
-    public int IdSubasta { get; set; }
-
     public DateTime FechaInicio { get; set; }
 
     public DateTime FechaCierre { get; set; }
@@ -30,6 +28,8 @@ public partial class Subasta
     public byte IdEstadoSubasta { get; set; }
 
     public int? IdUsuarioComprador { get; set; }
+
+    public int IdSubasta { get; set; }
 
     public virtual ICollection<DatosEnvio> DatosEnvio { get; set; } = new List<DatosEnvio>();
 

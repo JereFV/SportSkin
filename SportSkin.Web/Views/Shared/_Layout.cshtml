@@ -22,7 +22,8 @@
     <link href="https://unpkg.com/filepond@4/dist/filepond.css" rel="stylesheet" />
     <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet" />
     <!--Estilos propios-->
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />    
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -100,5 +101,34 @@
 
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <!--Vista parcial de Inicio de Sesión-->
+    <partial name="_Login"/>
+    <partial name="_EditarUsuario" />
+
+    <script>
+        //Función encargada de mostrar un mensaje de inicio o cierre de sesión a partir de una variable auxiliar en sessionStorage.
+        (function () {
+            const mensajeSesion = sessionStorage.getItem("mensajeCambioSesion");
+
+            if (!mensajeSesion)
+                return;
+
+            const mensajeSesionObject = JSON.parse(mensajeSesion);
+            sessionStorage.removeItem("mensajeCambioSesion");
+            
+            Swal.fire({
+                icon: mensajeSesionObject.icon,
+                title: mensajeSesionObject.title,
+                toast: true,
+                position: "top-end",
+                timer: 4000,
+                timerProgressBar: true,
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: { closeButton: "toast-close-button" }
+            });
+        })();
+    </script>
 </body>
 </html>

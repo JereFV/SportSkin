@@ -1,0 +1,714 @@
+﻿<div class="modal fade" id="modalLogin" tabindex="-1" aria-labelledby="modalLoginLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered auth-modal-dialog">
+        <div class="modal-content auth-modal-content">
+
+            @* Header *@
+            <div class="auth-modal-header">
+                <div class="auth-brand">
+                    <i class="fa-solid fa-shirt auth-brand-icon"></i>
+                    <span class="auth-brand-name">SportSkin</span>
+                </div>
+
+                <button type="button"
+                        class="auth-close-btn"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            @* Formulario de inicio de sesión *@
+            <div class="auth-panel" id="panelLogin">
+                <div class="auth-panel-title">Iniciar sesión</div>
+
+                <p class="auth-panel-subtitle">Bienvenido de vuelta</p>
+
+                <form id="formLogin" novalidate>
+                    <div class="auth-field">
+                        <label class="auth-label" for="loginUsuario">Usuario</label>
+
+                        <div class="auth-input-wrap">
+                            <i class="fa-regular fa-user auth-input-icon"></i>
+                            <input type="text" id="loginUsuario" class="auth-input"
+                                   placeholder="Tu nombre de usuario" autocomplete="username"
+                                   required />
+                        </div>
+                        <div class="auth-invalid-feedback">El usuario es requerido.</div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="loginContrasena">Contraseña</label>
+
+                        <div class="auth-input-wrap">
+                            <i class="fa-solid fa-lock auth-input-icon"></i>
+                            <input type="password" id="loginContrasena" class="auth-input"
+                                   placeholder="••••••••" autocomplete="current-password"
+                                   required />
+
+                            <button type="button" class="auth-toggle-pass" data-target="loginContrasena" tabindex="-1">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="auth-invalid-feedback">La contraseña es requerida.</div>
+                    </div>
+                </form>
+
+                <button class="auth-btn-primary" id="btnLogin">
+                    <span class="auth-btn-text">Ingresar</span>
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                </button>
+
+                <div class="auth-divider"><span>o</span></div>
+
+                <button class="auth-btn-link" id="btnIrRecuperar">
+                    <i class="fa-solid fa-key me-1"></i> Olvidé mi contraseña
+                </button>
+
+                <div class="auth-footer-note">
+                    ¿No tienes una cuenta?
+                    <button class="auth-btn-link auth-btn-link-inline" id="btnIrRegistro">Registrarse</button>
+                </div>
+            </div>
+
+            @* Formulario de registro *@
+            <div class="auth-panel d-none" id="panelRegistro">
+                <div class="auth-panel-title">Crear cuenta</div>
+
+                <p class="auth-panel-subtitle">Completa tus datos para registrarte</p>            
+
+                <form id="formRegistro" novalidate>
+                    <div class="auth-row-2">
+                        <div class="auth-field">
+                            <label class="auth-label" for="regNombre">Nombre</label>
+
+                            <div class="auth-input-wrap">
+                                <i class="fa-solid fa-user auth-input-icon"></i>
+                                <input type="text" id="regNombre" class="auth-input"
+                                       required />
+                            </div>
+                            <div class="auth-invalid-feedback">El nombre es requerido.</div>
+                        </div>
+
+                        <div class="auth-field">
+                            <label class="auth-label" for="regAp1">Primer apellido</label>
+
+                            <div class="auth-input-wrap">
+                                <i class="fa-solid fa-user auth-input-icon"></i>
+                                <input type="text" id="regAp1" class="auth-input"
+                                       required />
+                            </div>
+                            <div class="auth-invalid-feedback">El primer apellido es requerido.</div>
+                        </div>
+                    </div>
+
+                    <div class="auth-row-2">
+                        <div class="auth-field">
+                            <label class="auth-label" for="regAp2">Segundo apellido</label>
+
+                            <div class="auth-input-wrap">
+                                <i class="fa-solid fa-user auth-input-icon"></i>
+                                <input type="text" id="regAp2" class="auth-input" placeholder="Mora" required/>
+                            </div>
+                            <div class="auth-invalid-feedback">El segundo apellido es requerido.</div>
+                        </div>
+
+                        <div class="auth-field">
+                            <label class="auth-label" for="regTelefono">Teléfono</label>
+
+                            <div class="auth-input-wrap">
+                                <i class="fa-solid fa-phone auth-input-icon"></i>
+                                <input type="tel" id="regTelefono" class="auth-input" placeholder="88888888"
+                                       pattern="[0-9]{8}" required />
+                            </div>
+                            <div class="auth-invalid-feedback">Ingrese un número de teléfono de 8 dígitos.</div>
+                        </div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="regCorreo">Correo electrónico</label>
+
+                        <div class="auth-input-wrap">
+                            <i class="fa-regular fa-envelope auth-input-icon"></i>
+                            <input type="email" id="regCorreo" class="auth-input" placeholder="correo@ejemplo.com"
+                                   required />
+                        </div>
+                        <div class="auth-invalid-feedback">Ingrese un correo electrónico válido.</div>
+                    </div>
+
+                    @* Rol en el sistema *@
+                    <div class="auth-field">
+                        <label class="auth-label">Rol en la plataforma</label>
+
+                        <div class="auth-rol-group">
+                            <label class="auth-rol-option">
+                                <input type="radio" name="regRol" value="3" checked>
+                                <span class="auth-rol-card">
+                                    <i class="fa-solid fa-bag-shopping"></i>
+                                    <span class="auth-rol-label">Comprador</span>
+                                    <span class="auth-rol-desc">Participar en subastas</span>
+                                </span>
+                            </label>
+
+                            <label class="auth-rol-option">
+                                <input type="radio" name="regRol" value="2">
+                                <span class="auth-rol-card">
+                                    <i class="fa-solid fa-tag"></i>
+                                    <span class="auth-rol-label">Vendedor</span>
+                                    <span class="auth-rol-desc">Publicar subastas</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    @* Credenciales *@
+                    <div class="auth-row-2">
+                        <div class="auth-field">
+                            <label class="auth-label" for="regUsuario">Usuario</label>
+
+                            <div class="auth-input-wrap">
+                                <i class="fa-solid fa-at auth-input-icon"></i>
+                                <input type="text" id="regUsuario" class="auth-input"
+                                       placeholder="mi_usuario" autocomplete="username"
+                                       required minlength="6" />
+                            </div>
+                            <div class="auth-invalid-feedback">El usuario debe tener al menos 6 caracteres.</div>
+                        </div>
+
+                        <div class="auth-field">
+                            <label class="auth-label" for="regContrasena">Contraseña</label>
+
+                            <div class="auth-input-wrap">
+                                <i class="fa-solid fa-lock auth-input-icon"></i>
+                                <input type="password" id="regContrasena" class="auth-input"
+                                       placeholder="••••••••" autocomplete="new-password"
+                                       required minlength="6" />
+                                <button type="button" class="auth-toggle-pass" data-target="regContrasena" tabindex="-1">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="auth-invalid-feedback">La contraseña debe tener al menos 8 caracteres.</div>
+                        </div>
+                    </div>
+
+                    @* Pregunta de seguridad *@
+                    <div class="auth-field">
+                        <label class="auth-label" for="regPregunta">Pregunta de seguridad</label>
+
+                        <div class="auth-input-wrap">
+                            <i class="fa-solid fa-shield-halved auth-input-icon"></i>
+                            <select id="regPregunta" class="auth-input auth-select"
+                                    required>
+                                <option value="" disabled selected>Selecciona una pregunta</option>                                
+                            </select>
+                        </div>
+                        <div class="auth-invalid-feedback">Debe seleccionar una pregunta de seguridad.</div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="regRespuesta">Respuesta de seguridad</label>
+
+                        <div class="auth-input-wrap">
+                            <i class="fa-solid fa-comment-dots auth-input-icon"></i>
+                            <input type="text" id="regRespuesta" class="auth-input"
+                                   placeholder="Tu respuesta" autocomplete="off"
+                                   required />
+                        </div>
+                        <div class="auth-invalid-feedback">La respuesta de seguridad es requerida.</div>
+                        <span class="auth-field-hint">Esta respuesta se usará para recuperar tu contraseña.</span>
+                    </div>
+                </form>
+
+                <button class="auth-btn-primary" id="btnRegistrar">
+                    <span class="auth-btn-text">Crear cuenta</span>
+                    <i class="fa-solid fa-user-plus"></i>
+                </button>
+
+                <div class="auth-footer-note">
+                    ¿Ya tienes una cuenta?
+                    <button class="auth-btn-link auth-btn-link-inline" id="btnVolverLogin">Iniciar sesión</button>
+                </div>
+            </div>
+
+            @* Formulario de recuperación de contraseña*@
+            <div class="auth-panel d-none" id="panelRecuperar">
+                <div class="auth-panel-title">Recuperar contraseña</div>
+                <p class="auth-panel-subtitle">Verifica tu identidad para restablecer el acceso</p>
+
+                <div id="recAlert" class="auth-alert auth-alert-danger d-none"></div>
+                <div id="recSuccess" class="auth-alert auth-alert-success d-none"></div>
+
+                @* Validación de usuario y pregunta de seguridad. *@
+                <div id="recPaso1">
+                    <div class="auth-field">
+                        <label class="auth-label" for="recUsuario">Usuario</label>
+
+                        <div class="auth-input-wrap">
+                            <i class="fa-regular fa-user auth-input-icon"></i>
+                            <input type="text" id="recUsuario" class="auth-input"
+                                   placeholder="Tu nombre de usuario"
+                                   required />
+                        </div>
+                        <div class="auth-invalid-feedback" id="recUsuarioFeedback">El usuario es obligatorio.</div>
+                    </div>
+
+                    <div class="auth-field" id="recPreguntaWrap" style="display:none">
+                        <label class="auth-label">Pregunta de seguridad</label>
+
+                        <div class="auth-pregunta-display" id="recPreguntaTexto"></div>
+                    </div>
+
+                    <div class="auth-field" id="recRespuestaWrap" style="display:none">
+                        <label class="auth-label" for="recRespuesta">Respuesta</label>
+
+                        <div class="auth-input-wrap">
+                            <i class="fa-solid fa-comment-dots auth-input-icon"></i>
+                            <input type="text" id="recRespuesta" class="auth-input"
+                                   placeholder="Tu respuesta de seguridad" autocomplete="off"
+                                   required />
+                        </div>
+                        <div class="auth-invalid-feedback" id="recRespuestaFeedback">La respuesta es obligatoria.</div>
+                    </div>
+
+                    <button class="auth-btn-secondary" id="btnBuscarUsuario">
+                        <span class="auth-btn-text">Buscar usuario</span>
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+
+                    <button class="auth-btn-primary d-none" id="btnVerificarRespuesta">
+                        <span class="auth-btn-text">Verificar respuesta</span>
+                        <i class="fa-solid fa-shield-check"></i>
+                    </button>
+                </div>
+
+                @* Sección de establecimiento de nueva contraseña. *@
+                <div id="recPaso2" class="d-none">
+                    <div class="auth-alert auth-alert-success mb-3">
+                        <i class="fa-solid fa-circle-check me-2"></i>
+                        Identidad verificada. Ahora puedes establecer una nueva contraseña.
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="recNuevaPass">Nueva contraseña</label>
+
+                        <div class="auth-input-wrap">
+                            <i class="fa-solid fa-lock auth-input-icon"></i>
+                            <input type="password" id="recNuevaPass" class="auth-input"
+                                   placeholder="••••••••" autocomplete="new-password"
+                                   required minlength="8" />
+                            <button type="button" class="auth-toggle-pass" data-target="recNuevaPass" tabindex="-1">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="auth-invalid-feedback" id="recNuevaPassFeedback">Debe tener al menos 8 caracteres.</div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="recConfirmPass">Confirmar contraseña</label>
+
+                        <div class="auth-input-wrap">
+                            <i class="fa-solid fa-lock auth-input-icon"></i>
+                            <input type="password" id="recConfirmPass" class="auth-input"
+                                   placeholder="••••••••" autocomplete="new-password"
+                                   required minlength="8" />
+                            <button type="button" class="auth-toggle-pass" data-target="recConfirmPass" tabindex="-1">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="auth-invalid-feedback" id="recConfirmPassFeedback">Las contraseñas no coinciden.</div>
+                    </div>
+
+                    <button class="auth-btn-primary" id="btnCambiarPass">
+                        <span class="auth-btn-text">Guardar nueva contraseña</span>
+                        <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                </div>
+
+                <div class="auth-footer-note mt-3">
+                    <button class="auth-btn-link auth-btn-link-inline" id="btnVolverLoginRec">
+                        <i class="fa-solid fa-arrow-left me-1"></i>Volver al inicio de sesión
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ── JS del modal ──────────────────────────────────────────────────── *@
+<script>
+    $(document).ready(function() {
+        //Cargado de valores en el campo de selección de pregunta de recuperación durante el registro.
+        fetch("/Usuario/ListPreguntasRecuperacion")
+                .then(response => response.json())
+                .then(json => {
+                     let selectPregunta = document.getElementById("regPregunta");    
+   
+                    //Agrega cada una de los valores devueltos por el controlador como opción en el select de preguntas de recuperación.
+                    json.forEach((item) => {
+                        selectPregunta.add(new Option(item.pregunta, item.idPregunta));
+                    });                 
+                }).catch((error) => {
+                    console.error(error)
+                });
+    });
+
+    //Variable auxiliar para almacenar el usuario buscado durante la recuperación de contraseña.
+    let usuarioBuscado = {};
+
+    // Objeto auxiliar para administrar los paneles o formularios.
+    const panels = {
+        login:     document.getElementById("panelLogin"),
+        registro:  document.getElementById("panelRegistro"),
+        recuperar: document.getElementById("panelRecuperar"),
+    };
+
+    //Muestra el panel especificado y oculta los demás.
+    function showPanel(name) {
+        Object.values(panels).forEach(p => p.classList.add("d-none"));
+        panels[name].classList.remove("d-none");
+
+        clearValidation();
+    }
+
+    // Limpia todas las clases de validación y oculta los mensajes de error.
+    function clearValidation() {
+        document.querySelectorAll(".auth-was-validated").forEach(f => f.classList.remove("auth-was-validated"));
+        document.querySelectorAll(".auth-input-invalid").forEach(i => i.classList.remove("auth-input-invalid"));
+        document.querySelectorAll(".auth-input-valid").forEach(i => i.classList.remove("auth-input-valid"));
+        document.querySelectorAll(".auth-invalid-feedback").forEach(el => el.style.display = "");
+    }
+
+    // Eventos de navegación entre formularios.
+    document.getElementById("btnIrRegistro").addEventListener("click", () => showPanel("registro"));
+    document.getElementById("btnIrRecuperar").addEventListener("click", () => showPanel("recuperar"));
+    document.getElementById("btnVolverLogin").addEventListener("click", () => showPanel("login"));
+    document.getElementById("btnVolverLoginRec").addEventListener("click", () => showPanel("login"));
+
+    // Limpieza y restablecimiento de campos a sus valores iniciales al abrir el modal.
+    document.getElementById("modalLogin").addEventListener("show.bs.modal", () => {
+        showPanel("login");
+        usuarioBuscado = {};
+
+        document.getElementById("recPaso2").classList.add("d-none");
+        document.getElementById("recPaso1").querySelectorAll("[style]").forEach(el => el.style.display = "none");
+        document.getElementById("btnVerificarRespuesta").classList.add("d-none");
+        document.getElementById("btnBuscarUsuario").classList.remove("d-none");        
+    });
+
+    // Evento de control del comportamiento de los toggle de contraseña.
+    document.querySelectorAll(".auth-toggle-pass").forEach(btn => {
+        btn.addEventListener("click", function () {
+            const input = document.getElementById(this.dataset.target);
+            const icon  = this.querySelector("i");
+            const isPass = input.type === "password";
+            // if (!input)
+            //     return;
+
+            //Si el tipo de campo actual es de contraseña lo cambia a texto y viceversa. Lo mismo sucede con el tipo de icono a mostrar.
+            input.type   = isPass ? "text" : "password";
+            icon.className = isPass ? "fa-regular fa-eye-slash" : "fa-regular fa-eye";
+        });
+    });
+
+    // Inicio de sesión.
+    document.getElementById("btnLogin").addEventListener("click", async function () {
+        //Activa las validaciones y las muestra sobre los campos inválidos.
+        const form = document.getElementById("formLogin");
+        form.classList.add("auth-was-validated");
+
+        if (!form.checkValidity()) return;
+
+        const Usuario    = document.getElementById("loginUsuario").value;
+        const Clave = document.getElementById("loginContrasena").value;
+
+        try {
+            const response  = await fetch("/Login/Login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ Usuario, Clave })
+            });
+
+            const data = await response.json();
+
+            if (data.statusCode == "success") {
+                //Creación de variable de sesión auxiliar que contiene el mensaje de bienvenida a mostrar luego del recargado.
+                sessionStorage.setItem("mensajeCambioSesion", JSON.stringify({
+                    icon: "success",
+                    title: data.message
+                }));
+
+                window.location.reload();
+
+                return;
+            }
+
+            Swal.fire({
+                icon: data.statusCode,
+                title: data.message,
+                toast: true,
+                position: 'top-end',
+                timer: 4000,
+                timerProgressBar: true,
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    closeButton: 'toast-close-button'
+                }
+            });
+        } catch (error) {
+            console.log(error);
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Ha ocurrido un error inesperado al intentar realizar el inicio de sesión. Por favor intente de nuevo más tarde.',
+                toast: true,
+                position: 'top-end',
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    closeButton: 'toast-close-button'
+                }
+            });
+        }
+    });
+
+    // Registro de usuarios.
+    document.getElementById("btnRegistrar").addEventListener("click", async function () {       
+        //Activa las validaciones y las muestra sobre los campos inválidos.
+        const formReg = document.getElementById("formRegistro");
+        formReg.classList.add("auth-was-validated");
+
+        if (!formReg.checkValidity()) 
+            return;
+            
+        try {
+            const request = 
+            {
+                Nombre: document.getElementById("regNombre").value,
+                Apellido1: document.getElementById("regAp1").value.trim(),
+                Apellido2: document.getElementById("regAp2").value.trim(),
+                IdRolUsuario: document.querySelector("input[name='regRol']:checked")?.value,
+                Telefono: document.getElementById("regTelefono").value,
+                Correo: document.getElementById("regCorreo").value,
+                Usuario1: document.getElementById("regUsuario").value,
+                Contrasenna: document.getElementById("regContrasena").value,
+                IdPreguntaRecuperacion: document.getElementById("regPregunta").value,
+                RespuestaPreguntaRecuperacion: document.getElementById("regRespuesta").value
+            }
+
+            const response  = await fetch("/Usuario/Registrar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(request)
+            });
+
+            const data = await response.json();
+
+            //Al haber sido un registro exitoso, muestra el formulario de inicio de sesión.
+            if (data.statusCode == "success")             
+                showPanel("login");       
+
+            Swal.fire({
+                icon: data.statusCode,
+                title: data.message,
+                toast: true,
+                position: 'top-end',
+                timer: 4000,
+                timerProgressBar: true,
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    closeButton: 'toast-close-button'
+                }
+            });           
+        } catch {
+            Swal.fire({
+                icon: "error",
+                title: "Ha ocurrido un error inesperado al intentar registrar el usuario. Por favor intente nuevamente más tarde.",
+                toast: true,
+                position: 'top-end',
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    closeButton: 'toast-close-button'
+                }
+            });
+        }
+    });
+
+    // Búsqueda de usuario para obtener la pregunta de recuperación de contraseña.
+    document.getElementById("btnBuscarUsuario").addEventListener("click", async function () {
+        const usuario = document.getElementById("recUsuario").value.trim();
+        const inputUsuario = document.getElementById("recUsuario");
+
+        if (!usuario) {
+            inputUsuario.classList.add("auth-input-invalid");
+            document.getElementById("recUsuarioFeedback").style.display = "block";
+
+            return;
+        }
+
+        inputUsuario.classList.remove("auth-input-invalid");
+        document.getElementById("recUsuarioFeedback").style.display = "none";
+
+        try {
+            const response  = await fetch(`/Usuario/GetByUserName?usuario=${encodeURIComponent(usuario)}`);
+            const data = await response.json();
+
+            if (data.statusCode == "success") {
+                usuarioBuscado = data.usuario;
+
+                document.getElementById("recPreguntaTexto").textContent = usuarioBuscado.preguntaRecuperacionNavigation.pregunta;
+                document.getElementById("recPreguntaWrap").style.display  = "";
+                document.getElementById("recRespuestaWrap").style.display = "";
+                document.getElementById("btnBuscarUsuario").classList.add("d-none");
+                document.getElementById("btnVerificarRespuesta").classList.remove("d-none");
+                document.getElementById("recAlert").classList.add("d-none");
+
+                return;
+            }
+
+            Swal.fire({
+                icon: data.statusCode,
+                title: data.message,
+                toast: true,
+                position: 'top-end',
+                timer: 4000,
+                timerProgressBar: true,
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    closeButton: 'toast-close-button'
+                }
+            });
+        } 
+        catch {
+            Swal.fire({
+                icon: "error",
+                title: "Ha ocurrido un error inesperado al intentar verificar la identidad del usuario digitado. Por favor intente nuevamente más tarde.",
+                toast: true,
+                position: 'top-end',
+                timer: 4000,
+                timerProgressBar: true,
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    closeButton: 'toast-close-button'
+                }
+            });
+        }
+    });
+
+    // Verificación de identidad a partir de la pregunta de seguridad configurada.
+    document.getElementById("btnVerificarRespuesta").addEventListener("click", async function () {
+        const usuario   = document.getElementById("recUsuario").value.trim();
+        const respuesta = document.getElementById("recRespuesta").value.trim();
+        const inputResp = document.getElementById("recRespuesta");
+
+        if (!respuesta) {
+            inputResp.classList.add("auth-input-invalid");
+            document.getElementById("recRespuestaFeedback").style.display = "block";
+
+            return;
+        }
+
+        inputResp.classList.remove("auth-input-invalid");
+        document.getElementById("recRespuestaFeedback").style.display = "none";
+                        
+        if (usuarioBuscado.respuestaPreguntaRecuperacion == respuesta) {
+            document.getElementById("recPaso1").classList.add("d-none");
+            document.getElementById("recPaso2").classList.remove("d-none");
+            document.getElementById("recAlert").classList.add("d-none");
+        }
+        else {
+            Swal.fire({
+                icon: "warning",
+                title: "La respuesta no es correcta. Digite otro valor e intente nuevamente.",
+                toast: true,
+                position: 'top-end',
+                timer: 4000,
+                timerProgressBar: true,
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    closeButton: 'toast-close-button'
+                }
+            });
+        }
+    });
+
+    // Cambio de contraseña.
+    document.getElementById("btnCambiarPass")?.addEventListener("click", async function () {        
+        const nueva     = document.getElementById("recNuevaPass").value;
+        const confirmar = document.getElementById("recConfirmPass").value;       
+        const inputNueva   = document.getElementById("recNuevaPass");
+        const inputConfirm = document.getElementById("recConfirmPass");
+        //Bandera para controlar la validez de la contraseña digitada.
+        let recPassValid = true;
+
+        if (!nueva || nueva.length < 8) {
+            inputNueva.classList.add("auth-input-invalid");
+            document.getElementById("recNuevaPassFeedback").textContent = "Debe tener al menos 8 caracteres.";
+            document.getElementById("recNuevaPassFeedback").style.display = "block";
+            recPassValid = false;
+        } else {
+            inputNueva.classList.remove("auth-input-invalid");
+            document.getElementById("recNuevaPassFeedback").style.display = "none";
+        }
+
+        if (!confirmar || nueva !== confirmar) {
+            inputConfirm.classList.add("auth-input-invalid");
+            document.getElementById("recConfirmPassFeedback").textContent = confirmar ? "Las contraseñas no coinciden." : "Confirma la nueva contraseña.";
+            document.getElementById("recConfirmPassFeedback").style.display = "block";
+            recPassValid = false;
+        } else {
+            inputConfirm.classList.remove("auth-input-invalid");
+            document.getElementById("recConfirmPassFeedback").style.display = "none";
+        }
+
+        if (!recPassValid) return;     
+
+        try {
+            const response  = await fetch("/Usuario/RecuperarContrasenna", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ IdUsuario: Number(usuarioBuscado.idUsuario), Contrasenna: nueva })
+            });
+
+            const data = await response.json();
+
+            if (data.statusCode == "success") {
+                showPanel("login");
+                usuarioBuscado = {};
+            }             
+            
+            Swal.fire({
+                icon: data.statusCode,
+                title: data.message,
+                toast: true,
+                position: 'top-end',
+                timer: 4000,
+                timerProgressBar: true,
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    closeButton: 'toast-close-button'
+                }
+            });            
+        } 
+        catch {
+            Swal.fire({
+                icon: "error",
+                title: "Ha ocurrido un error inesperado al intentar actualizar su contraseña. Por favor intente de nuevo más tarde.",
+                toast: true,
+                position: 'top-end',
+                timer: 4000,
+                timerProgressBar: true,
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    closeButton: 'toast-close-button'
+                }
+            });
+        }
+    });
+</script>

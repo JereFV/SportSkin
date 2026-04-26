@@ -29,7 +29,13 @@ public partial class Usuario
 
     public string Contrasenna { get; set; } = null!;
 
+    public byte? IdPreguntaRecuperacion { get; set; }
+
+    public string? RespuestaPreguntaRecuperacion { get; set; }
+
     public virtual ICollection<Camiseta> Camiseta { get; set; } = new List<Camiseta>();
+
+    public virtual PreguntaRecuperacionUsuario? IdPreguntaRecuperacionNavigation { get; set; }
 
     public virtual RolUsuario IdRolUsuarioNavigation { get; set; } = null!;
 

@@ -1,0 +1,127 @@
+﻿@* ===== MODAL EDITAR ===== *@
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1"
+     aria-labelledby="modalEditarUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content shadow">
+            <form asp-controller="Usuario" asp-action="Editar"
+                  method="post" id="formEditarUsuario" novalidate>
+                <input type="hidden" id="editIdUsuario" name="IdUsuario" />
+                <input type="hidden" id="esVistaPerfil" name="EsPerfil"/>
+
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalEditarUsuarioLabel">
+                        <i class="fa-regular me-2" id="iconoLabelEditarUsuario"></i>
+                        <span id="labelEditarUsuario"></span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white"
+                            data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="p-3 rounded bg-body-tertiary border mb-3">
+                        <p class="small text-muted fw-semibold mb-2">
+                            <i class="bi bi-lock me-1"></i>
+                            <span data-i18n="users:sections.nonEditable"> </span>
+                        </p>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label small text-muted mb-1">
+                                    <span data-i18n="users:fields.role"> </span>
+                                </label>
+                                <input type="text" id="editRol"
+                                       class="form-control form-control-sm" readonly disabled />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small text-muted mb-1">
+                                    <span data-i18n="users:fields.registrationDate"> </span>
+                                </label>
+                                <input type="text" id="editFechaCreacion"
+                                       class="form-control form-control-sm" readonly disabled />
+                            </div>
+                        </div>
+                    </div>
+                    <p class="small text-muted fw-semibold mb-2">
+                        <i class="bi bi-pencil me-1"></i>
+                        <span data-i18n="users:sections.editableData"> </span>
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="editNombre" class="form-label">
+                                <span data-i18n="users:fields.firstName"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="editNombre" name="Nombre"
+                                   class="form-control" minlength="2" maxlength="100" required />
+                            <span class="text-danger small" id="errEditNombre"> </span>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editApellido1" class="form-label">
+                                <span data-i18n="users:fields.lastName1"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="editApellido1" name="Apellido1"
+                                   class="form-control" minlength="2" maxlength="100" required />
+                            <span class="text-danger small" id="errEditApellido1"> </span>
+                        </div>
+                        <div class="col-12">
+                            <label for="editApellido2" class="form-label">
+                                <span data-i18n="users:fields.lastName2"> </span>
+                            </label>
+                            <input type="text" id="editApellido2" name="Apellido2"
+                                   class="form-control" maxlength="100" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editTelefono" class="form-label">
+                                <span data-i18n="users:fields.phone"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="tel" id="editTelefono" name="Telefono"
+                                   class="form-control" required />
+                            <span class="text-danger small" id="errEditTelefono"> </span>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editCorreo" class="form-label">
+                                <span data-i18n="users:fields.email"> </span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" id="editCorreo" name="Correo"
+                                   class="form-control" required />
+                            <span class="text-danger small" id="errEditCorreo"> </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>
+                        <span data-i18n="actions.cancel"> </span>
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-floppy me-1"></i>
+                        <span data-i18n="actions.save"> </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('formEditarUsuario')?.addEventListener('submit', function (e) {
+        var valido = true;
+        var nombre = document.getElementById('editNombre').value.trim();
+        if (nombre.length < 2) { document.getElementById('errEditNombre').textContent = 'El nombre debe tener al menos 2 caracteres.'; valido = false; }
+        else { document.getElementById('errEditNombre').textContent = ''; }
+        var ap1 = document.getElementById('editApellido1').value.trim();
+        if (ap1.length < 2) { document.getElementById('errEditApellido1').textContent = 'El apellido debe tener al menos 2 caracteres.'; valido = false; }
+        else { document.getElementById('errEditApellido1').textContent = ''; }
+        var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+        var correo = document.getElementById('editCorreo').value.trim();
+        if (!emailRegex.test(correo)) { document.getElementById('errEditCorreo').textContent = 'Ingrese un correo electrónico válido.'; valido = false; }
+        else { document.getElementById('errEditCorreo').textContent = ''; }
+        var tel = document.getElementById('editTelefono').value.trim();
+        if (tel.length < 8) { document.getElementById('errEditTelefono').textContent = 'Ingrese un teléfono válido.'; valido = false; }
+        else { document.getElementById('errEditTelefono').textContent = ''; }
+        if (!valido) e.preventDefault();
+    });
+</script>
+
+                    

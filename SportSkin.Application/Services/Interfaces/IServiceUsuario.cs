@@ -18,5 +18,7 @@ namespace SportSkin.Application.Services.Interfaces
         Task ChangePasswordAsync(int id, string nuevaContrasenna);
         Task<ICollection<RolUsuarioDTO>> GetRolesAsync();
         Task<(int total, int activas, int vendidas, int finalizadas)> GetEstadisticasVendedorAsync(int idUsuario);
+        Task<UsuarioDTO?> LoginAsync(string user, string password);
+        Task<UsuarioDTO> FindByUserAsync(string usuario);
     }
 }

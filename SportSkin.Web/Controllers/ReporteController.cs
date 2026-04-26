@@ -1,4 +1,5 @@
 ﻿using Libreria.Web.Util;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SportSkin.Application.Services.Interfaces;
 
@@ -15,6 +16,7 @@ namespace SportSkin.Web.Controllers
 
         // ── Reporte 1 ──────────────────────────────────────────────────────
         // GET: /Reporte/ReporteParticipacionCompradores
+        [Authorize(Roles = "Administrador")]
         public IActionResult ReporteParticipacionCompradores()
         {
             return View();
@@ -22,6 +24,7 @@ namespace SportSkin.Web.Controllers
 
         // GET: /Reporte/GetParticipacionCompradores?desde=2024-01-01&hasta=2024-12-31
         [HttpGet]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> GetParticipacionCompradores(DateTime? desde, DateTime? hasta)
         {
             try
@@ -41,6 +44,7 @@ namespace SportSkin.Web.Controllers
 
         // ── Reporte 4 ──────────────────────────────────────────────────────
         // GET: /Reporte/ReporteActividadSistema
+        [Authorize(Roles = "Administrador")]
         public IActionResult ReporteActividadSistema()
         {
             return View();
@@ -48,6 +52,7 @@ namespace SportSkin.Web.Controllers
 
         // GET: /Reporte/GetActividadSistema?desde=2024-01-01&hasta=2024-12-31&granularidad=mensual
         [HttpGet]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> GetActividadSistema(
             DateTime? desde, DateTime? hasta, string granularidad = "mensual")
         {

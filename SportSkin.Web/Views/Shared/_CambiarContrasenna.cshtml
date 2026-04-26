@@ -1,0 +1,105 @@
+﻿<div class="modal fade" id="modalCambiarContrasena" tabindex="-1"
+     aria-labelledby="modalCambiarContrasenaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content shadow">
+
+            <form asp-controller="Usuario" asp-action="CambiarContrasenna"
+                  method="post" id="formCambiarContrasena" novalidate>
+
+                <input type="hidden" id="passIdUsuario" name="IdUsuario" />
+                <input type="hidden" id="esOpcionNav" name="EsOpcionNav" />
+
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="modalCambiarContrasenaLabel">
+                        <i class="fa-solid fa-key me-2"></i>
+                        <span data-i18n="nav.changePassword">Change Password</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white"
+                            data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <p class="small text-muted mb-3" id="passNombreUsuario"></p>
+
+                    <div class="mb-3">
+                        <label for="passNueva" class="form-label">
+                            <span data-i18n="users:fields.password">Password</span>
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <input type="password" id="passNueva" name="NuevaContrasenna"
+                                   class="form-control" minlength="8" maxlength="100" required />
+                            <button class="btn btn-outline-secondary" type="button"
+                                    onclick="togglePassword('passNueva', 'iconPassNueva')">
+                                <i id="iconPassNueva" class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span class="text-danger small" id="errPassNueva"></span>
+                    </div>
+
+                    <div class="mb-1">
+                        <label for="passConfirmar" class="form-label">
+                            <span data-i18n="users:fields.confirmPassword">Confirm Password</span>
+                            <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <input type="password" id="passConfirmar" name="ConfirmarContrasenna"
+                                   class="form-control" minlength="8" required />
+                            <button class="btn btn-outline-secondary" type="button"
+                                    onclick="togglePassword('passConfirmar', 'iconPassConfirmar')">
+                                <i id="iconPassConfirmar" class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span class="text-danger small" id="errPassConfirmar"></span>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>
+                        <span data-i18n="actions.cancel">Cancel</span>
+                    </button>
+                    <button type="submit" class="btn btn-dark">
+                        <i class="fa-solid fa-key me-1"></i>
+                        <span data-i18n="actions.save">Save</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePassword(inputId, iconId) {
+        var input = document.getElementById(inputId);
+        var icon  = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
+    }
+
+    document.getElementById('formCambiarContrasena').addEventListener('submit', function (e) {
+        let valido = true;
+
+        const pass    = document.getElementById('passNueva').value;
+        const confirm = document.getElementById('passConfirmar').value;
+
+        if (pass.length < 8) {
+            document.getElementById('errPassNueva').textContent = 'La contraseña debe tener al menos 8 caracteres.';
+            valido = false;
+        } else { document.getElementById('errPassNueva').textContent = ''; }
+
+        if (pass !== confirm) {
+            document.getElementById('errPassConfirmar').textContent = 'Las contraseñas no coinciden.';
+            valido = false;
+        } else { document.getElementById('errPassConfirmar').textContent = ''; }
+
+        if (!valido) e.preventDefault();
+    });
+</script>

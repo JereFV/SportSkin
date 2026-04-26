@@ -45,27 +45,13 @@ namespace SportSkin.Web.Controllers
         }
 
         private int GetUsuarioSesionId()
-        {
-            var json = HttpContext.Session.GetString("UsuarioSesion") ?? "{}";
-            var obj = JObject.Parse(json);
-
-            return obj["IdUsuario"]?.Value<int>() ?? 0;
+        {          
+            return int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out int idUsuario) ? idUsuario : 0;
         }
 
         private string GetUsuarioSesionNombre()
         {
-            var json = HttpContext.Session.GetString("UsuarioSesion") ?? "{}";
-            var obj = JObject.Parse(json);
-
-            return $"{obj["Nombre"]} {obj["Apellido1"]} {obj["Apellido2"]}".Trim();
-        }
-
-        private int GetRolUsuarioSesionId()
-        {
-            var json = HttpContext.Session.GetString("UsuarioSesion") ?? "{}";
-            var obj = JObject.Parse(json);
-
-            return obj["IdRolUsuario"]?.Value<int>() ?? 0;
+            return User.FindFirst(ClaimTypes.Name)?.Value ?? "";
         }
 
         // GET: Subasta/Index
@@ -114,7 +100,12 @@ namespace SportSkin.Web.Controllers
         [Authorize(Roles = "Vendedor")]
         public async Task<IActionResult> MisSubastas()
         {
-            int idVendedor = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            int idVendedor;
+
+            if (int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out int idUsuario))
+                idVendedor = idUsuario;
+            else
+                throw new Exception("Ha ocurrido un error al intentar obtener el Id del usuario en sesión.");
 
             var vm = new MisSubastasViewModel
             {
@@ -460,8 +451,7 @@ namespace SportSkin.Web.Controllers
                 MontoMinProximaPuja = subasta.Puja?.Count != 0 ? (subasta.Puja?.Max(x => x.Monto) ?? 0) + subasta.IncrementoMinimo : subasta.PrecioBase,
                 IdUsuarioSesion = idUsuarioSesion,
                 //Valida si el usuario que accede a la subasta realizó la puja actualmente más alta.
-                EsPujaActual = subasta.Puja?.Count != 0 && subasta.Puja?.OrderByDescending(x => x.Monto).FirstOrDefault()?.IdUsuarioPuja == idUsuarioSesion,
-                IdRolUsuarioSesion = GetRolUsuarioSesionId()
+                EsPujaActual = subasta.Puja?.Count != 0 && subasta.Puja?.OrderByDescending(x => x.Monto).FirstOrDefault()?.IdUsuarioPuja == idUsuarioSesion,                
             };
 
             return View(interfazSubastaViewModel);

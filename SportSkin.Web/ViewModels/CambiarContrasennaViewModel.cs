@@ -22,5 +22,8 @@ namespace SportSkin.Web.ViewModels
         [DataType(DataType.Password)]
         [Compare("NuevaContrasenna", ErrorMessage = "Las contraseñas no coinciden")]
         public string ConfirmarContrasenna { get; set; } = string.Empty;
+
+        //Bandera auxiliar que determina si la funcionalidad es invocada o no desde el menú de navegación.
+        public bool EsOpcionNav {  get; set; }
     }
 }

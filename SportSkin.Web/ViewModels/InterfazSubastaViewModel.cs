@@ -25,8 +25,6 @@ namespace SportSkin.Web.ViewModels
 
         public bool EsPujaActual { get; set; }
 
-        public int IdRolUsuarioSesion { get; set; }
-
         //Datos utilizados por el modal de Pujar.
         [DisplayFormat(DataFormatString = "${0:N0}")]
         public int MontoMinProximaPuja { get; set; }

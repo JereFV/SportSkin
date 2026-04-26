@@ -233,221 +233,148 @@
     </div>
 </div>
 
-@*
-    MODAL: CAMBIAR CONTRASEÑA
-*@
-<div class="modal fade" id="modalCambiarContrasena" tabindex="-1"
-     aria-labelledby="modalCambiarContrasenaLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-        <div class="modal-content shadow">
-
-            <form asp-controller="Usuario" asp-action="CambiarContrasenna"
-                  method="post" id="formCambiarContrasena" novalidate>
-
-                <input type="hidden" id="passIdUsuario" name="IdUsuario" />
-
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title" id="modalCambiarContrasenaLabel">
-                        <i class="fa-solid fa-key me-2"></i>
-                        <span data-i18n="nav.changePassword">Change Password</span>
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white"
-                            data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-
-                <div class="modal-body">
-
-                    <p class="small text-muted mb-3" id="passNombreUsuario"></p>
-
-                    <div class="mb-3">
-                        <label for="passNueva" class="form-label">
-                            <span data-i18n="users:fields.password">Password</span>
-                            <span class="text-danger">*</span>
-                        </label>
-                        <div class="input-group">
-                            <input type="password" id="passNueva" name="NuevaContrasenna"
-                                   class="form-control" minlength="6" maxlength="100" required />
-                            <button class="btn btn-outline-secondary" type="button"
-                                    onclick="togglePassword('passNueva', 'iconPassNueva')">
-                                <i id="iconPassNueva" class="bi bi-eye"></i>
-                            </button>
-                        </div>
-                        <span class="text-danger small" id="errPassNueva"></span>
-                    </div>
-
-                    <div class="mb-1">
-                        <label for="passConfirmar" class="form-label">
-                            <span data-i18n="users:fields.confirmPassword">Confirm Password</span>
-                            <span class="text-danger">*</span>
-                        </label>
-                        <div class="input-group">
-                            <input type="password" id="passConfirmar" name="ConfirmarContrasenna"
-                                   class="form-control" minlength="6" required />
-                            <button class="btn btn-outline-secondary" type="button"
-                                    onclick="togglePassword('passConfirmar', 'iconPassConfirmar')">
-                                <i id="iconPassConfirmar" class="bi bi-eye"></i>
-                            </button>
-                        </div>
-                        <span class="text-danger small" id="errPassConfirmar"></span>
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle me-1"></i>
-                        <span data-i18n="actions.cancel">Cancel</span>
-                    </button>
-                    <button type="submit" class="btn btn-dark">
-                        <i class="fa-solid fa-key me-1"></i>
-                        <span data-i18n="actions.save">Save</span>
-                    </button>
-                </div>
-            </form>
-
-        </div>
-    </div>
-</div>
-
 @section Scripts {
     <script>
-                $(document).ready(function () {
-                    $('#usersList').DataTable({
-                        "columnDefs": [{ "className": "dt-center", "targets": [0, 1, 2, 3] }],
-                        "language": { "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json" }
-                    });
-                });
+        $(document).ready(function () {
+            $('#usersList').DataTable({
+                "columnDefs": [{ "className": "dt-center", "targets": [0, 1, 2, 3] }],
+                "language": { "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json" }
+            });
+        });
 
-                function togglePassword(inputId, iconId) {
-                    var input = document.getElementById(inputId);
-                    var icon  = document.getElementById(iconId);
-                    if (input.type === 'password') {
-                        input.type = 'text';
-                        icon.classList.replace('bi-eye', 'bi-eye-slash');
+        // function togglePassword(inputId, iconId) {
+        //     var input = document.getElementById(inputId);
+        //     var icon  = document.getElementById(iconId);
+        //     if (input.type === 'password') {
+        //         input.type = 'text';
+        //         icon.classList.replace('bi-eye', 'bi-eye-slash');
+        //     } else {
+        //         input.type = 'password';
+        //         icon.classList.replace('bi-eye-slash', 'bi-eye');
+        //     }
+        // }
+
+        document.getElementById('formCrearUsuario').addEventListener('submit', function (e) {
+            var valido = true;
+            var nombre = document.getElementById('crearNombre').value.trim();
+            if (nombre.length < 2) { document.getElementById('errCrearNombre').textContent = 'El nombre debe tener al menos 2 caracteres.'; valido = false; }
+            else { document.getElementById('errCrearNombre').textContent = ''; }
+            var ap1 = document.getElementById('crearApellido1').value.trim();
+            if (ap1.length < 2) { document.getElementById('errCrearApellido1').textContent = 'El primer apellido debe tener al menos 2 caracteres.'; valido = false; }
+            else { document.getElementById('errCrearApellido1').textContent = ''; }
+            var tel = document.getElementById('crearTelefono').value.trim();
+            if (tel.length < 8) { document.getElementById('errCrearTelefono').textContent = 'Ingrese un teléfono válido.'; valido = false; }
+            else { document.getElementById('errCrearTelefono').textContent = ''; }
+            var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            var correo = document.getElementById('crearCorreo').value.trim();
+            if (!emailRegex.test(correo)) { document.getElementById('errCrearCorreo').textContent = 'Ingrese un correo electrónico válido.'; valido = false; }
+            else { document.getElementById('errCrearCorreo').textContent = ''; }
+            var rol = document.getElementById('crearRol').value;
+            if (!rol) { document.getElementById('errCrearRol').textContent = 'Debe seleccionar un rol.'; valido = false; }
+            else { document.getElementById('errCrearRol').textContent = ''; }
+            var usuario1 = document.getElementById('crearUsuario1').value.trim();
+            if (usuario1.length < 4) { document.getElementById('errCrearUsuario1').textContent = 'El nombre de usuario debe tener al menos 4 caracteres.'; valido = false; }
+            else { document.getElementById('errCrearUsuario1').textContent = ''; }
+            var pass    = document.getElementById('crearContrasenna').value;
+            var confirm = document.getElementById('crearConfirmar').value;
+            if (pass.length < 6) { document.getElementById('errCrearContrasenna').textContent = 'La contraseña debe tener al menos 6 caracteres.'; valido = false; }
+            else { document.getElementById('errCrearContrasenna').textContent = ''; }
+            if (pass !== confirm) { document.getElementById('errCrearConfirmar').textContent = 'Las contraseñas no coinciden.'; valido = false; }
+            else { document.getElementById('errCrearConfirmar').textContent = ''; }
+            if (!valido) e.preventDefault();
+        });
+
+        function abrirModalEditar(id) {
+            fetch('/Usuario/GetDatosEditar?id=' + id)
+                .then(function (r) {
+                    if (!r.ok) throw new Error('No se pudo cargar el usuario.');
+                    return r.json();
+                })
+                .then(function (data) {
+                    document.getElementById('editIdUsuario').value     = data.idUsuario;
+                    document.getElementById('editNombre').value        = data.nombre;
+                    document.getElementById('editApellido1').value     = data.apellido1;
+                    document.getElementById('editApellido2').value     = data.apellido2 || '';
+                    document.getElementById('editCorreo').value        = data.correo;
+                    document.getElementById('editTelefono').value      = data.telefono;
+                    document.getElementById('editRol').value           = data.rol;
+                    document.getElementById('editFechaCreacion').value = data.fechaCreacion;
+                    document.getElementById('errEditNombre').textContent    = '';
+                    document.getElementById('errEditApellido1').textContent = '';
+                    document.getElementById('errEditTelefono').textContent  = '';
+                    document.getElementById('errEditCorreo').textContent    = '';
+                    //Bandera de activación del modal en modo mantenimiento.
+                    document.getElementById("esVistaPerfil").value = "false";
+                    document.getElementById("labelEditarUsuario").innerText = "Editar Usuario"
+
+                    //Configuración del icono del título.
+                    const iconoLabel = document.getElementById("iconoLabelEditarUsuario");
+
+                    iconoLabel.classList.remove("fa-user");
+                    iconoLabel.classList.add("fa-pen-to-square");
+
+                    new bootstrap.Modal(document.getElementById('modalEditarUsuario')).show();
+                })
+                .catch(function (err) {
+                    Swal.fire({ title: 'Error', text: err.message, icon: 'error' });
+                });
+        }
+
+        function ChangeState(event, accion, nombre, btn) {
+            event.preventDefault();
+            Swal.fire({
+                title: accion.charAt(0).toUpperCase() + accion.slice(1) + ' usuario?',
+                text: 'Se va a ' + accion + ' a: ' + nombre,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, continuar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: accion === 'deshabilitar' ? '#dc3545' : '#198754'
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    // Buscamos el formulario de manera más segura
+                    var form = btn.parentElement;
+                    if (form && form.tagName === 'FORM') {
+                        form.submit();
                     } else {
-                        input.type = 'password';
-                        icon.classList.replace('bi-eye-slash', 'bi-eye');
+                        // Si el parent no es el form, lo buscamos hacia arriba
+                        btn.closest('form').submit();
                     }
                 }
+            });
+        }
 
-                document.getElementById('formCrearUsuario').addEventListener('submit', function (e) {
-                    var valido = true;
-                    var nombre = document.getElementById('crearNombre').value.trim();
-                    if (nombre.length < 2) { document.getElementById('errCrearNombre').textContent = 'El nombre debe tener al menos 2 caracteres.'; valido = false; }
-                    else { document.getElementById('errCrearNombre').textContent = ''; }
-                    var ap1 = document.getElementById('crearApellido1').value.trim();
-                    if (ap1.length < 2) { document.getElementById('errCrearApellido1').textContent = 'El primer apellido debe tener al menos 2 caracteres.'; valido = false; }
-                    else { document.getElementById('errCrearApellido1').textContent = ''; }
-                    var tel = document.getElementById('crearTelefono').value.trim();
-                    if (tel.length < 8) { document.getElementById('errCrearTelefono').textContent = 'Ingrese un teléfono válido.'; valido = false; }
-                    else { document.getElementById('errCrearTelefono').textContent = ''; }
-                    var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
-                    var correo = document.getElementById('crearCorreo').value.trim();
-                    if (!emailRegex.test(correo)) { document.getElementById('errCrearCorreo').textContent = 'Ingrese un correo electrónico válido.'; valido = false; }
-                    else { document.getElementById('errCrearCorreo').textContent = ''; }
-                    var rol = document.getElementById('crearRol').value;
-                    if (!rol) { document.getElementById('errCrearRol').textContent = 'Debe seleccionar un rol.'; valido = false; }
-                    else { document.getElementById('errCrearRol').textContent = ''; }
-                    var usuario1 = document.getElementById('crearUsuario1').value.trim();
-                    if (usuario1.length < 4) { document.getElementById('errCrearUsuario1').textContent = 'El nombre de usuario debe tener al menos 4 caracteres.'; valido = false; }
-                    else { document.getElementById('errCrearUsuario1').textContent = ''; }
-                    var pass    = document.getElementById('crearContrasenna').value;
-                    var confirm = document.getElementById('crearConfirmar').value;
-                    if (pass.length < 6) { document.getElementById('errCrearContrasenna').textContent = 'La contraseña debe tener al menos 6 caracteres.'; valido = false; }
-                    else { document.getElementById('errCrearContrasenna').textContent = ''; }
-                    if (pass !== confirm) { document.getElementById('errCrearConfirmar').textContent = 'Las contraseñas no coinciden.'; valido = false; }
-                    else { document.getElementById('errCrearConfirmar').textContent = ''; }
-                    if (!valido) e.preventDefault();
-                });
+        function abrirModalCambiarContrasena(id, nombre) {
+            document.getElementById('passIdUsuario').value    = id;
+            document.getElementById('passNombreUsuario').textContent = nombre;
+            document.getElementById('passNueva').value        = '';
+            document.getElementById('passConfirmar').value    = '';
+            document.getElementById('errPassNueva').textContent    = '';
+            document.getElementById('errPassConfirmar').textContent = '';
+            //Invocación desde el mantenimiento de usuarios.
+            document.getElementById('esOpcionNav').value = "false";
 
-                function abrirModalEditar(id) {
-                    fetch('/Usuario/GetDatosEditar?id=' + id)
-                        .then(function (r) {
-                            if (!r.ok) throw new Error('No se pudo cargar el usuario.');
-                            return r.json();
-                        })
-                        .then(function (data) {
-                            document.getElementById('editIdUsuario').value     = data.idUsuario;
-                            document.getElementById('editNombre').value        = data.nombre;
-                            document.getElementById('editApellido1').value     = data.apellido1;
-                            document.getElementById('editApellido2').value     = data.apellido2 || '';
-                            document.getElementById('editCorreo').value        = data.correo;
-                            document.getElementById('editTelefono').value      = data.telefono;
-                            document.getElementById('editRol').value           = data.rol;
-                            document.getElementById('editFechaCreacion').value = data.fechaCreacion;
-                            document.getElementById('errEditNombre').textContent    = '';
-                            document.getElementById('errEditApellido1').textContent = '';
-                            document.getElementById('errEditTelefono').textContent  = '';
-                            document.getElementById('errEditCorreo').textContent    = '';
-                            //Bandera de activación del modal en modo mantenimiento.
-                            document.getElementById("esVistaPerfil").value = "false";
-                            document.getElementById("labelEditarUsuario").innerText = "Editar Usuario"
+            new bootstrap.Modal(document.getElementById('modalCambiarContrasena')).show();
+        }
 
-                            //Configuración del icono del título.
-                            const iconoLabel = document.getElementById("iconoLabelEditarUsuario");
+        // document.getElementById('formCambiarContrasena').addEventListener('submit', function (e) {
+        //     let valido = true;
 
-                            iconoLabel.classList.remove("fa-user");
-                            iconoLabel.classList.add("fa-pen-to-square");
+        //     const pass    = document.getElementById('passNueva').value;
+        //     const confirm = document.getElementById('passConfirmar').value;
 
-                            new bootstrap.Modal(document.getElementById('modalEditarUsuario')).show();
-                        })
-                        .catch(function (err) {
-                            Swal.fire({ title: 'Error', text: err.message, icon: 'error' });
-                        });
-                }
+        //     if (pass.length < 6) {
+        //         document.getElementById('errPassNueva').textContent = 'La contraseña debe tener al menos 6 caracteres.';
+        //         valido = false;
+        //     } else { document.getElementById('errPassNueva').textContent = ''; }
 
-                function ChangeState(event, accion, nombre, btn) {
-                    event.preventDefault();
-                    Swal.fire({
-                        title: accion.charAt(0).toUpperCase() + accion.slice(1) + ' usuario?',
-                        text: 'Se va a ' + accion + ' a: ' + nombre,
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: 'Sí, continuar',
-                        cancelButtonText: 'Cancelar',
-                        confirmButtonColor: accion === 'deshabilitar' ? '#dc3545' : '#198754'
-                    }).then(function (result) {
-                        if (result.isConfirmed) {
-                            // Buscamos el formulario de manera más segura
-                            var form = btn.parentElement;
-                            if (form && form.tagName === 'FORM') {
-                                form.submit();
-                            } else {
-                                // Si el parent no es el form, lo buscamos hacia arriba
-                                btn.closest('form').submit();
-                            }
-                        }
-                    });
-                }
+        //     if (pass !== confirm) {
+        //         document.getElementById('errPassConfirmar').textContent = 'Las contraseñas no coinciden.';
+        //         valido = false;
+        //     } else { document.getElementById('errPassConfirmar').textContent = ''; }
 
-                function abrirModalCambiarContrasena(id, nombre) {
-                    document.getElementById('passIdUsuario').value    = id;
-                    document.getElementById('passNombreUsuario').textContent = nombre;
-                    document.getElementById('passNueva').value        = '';
-                    document.getElementById('passConfirmar').value    = '';
-                    document.getElementById('errPassNueva').textContent    = '';
-                    document.getElementById('errPassConfirmar').textContent = '';
-                    new bootstrap.Modal(document.getElementById('modalCambiarContrasena')).show();
-                }
-
-                document.getElementById('formCambiarContrasena').addEventListener('submit', function (e) {
-                    let valido = true;
-
-                    const pass    = document.getElementById('passNueva').value;
-                    const confirm = document.getElementById('passConfirmar').value;
-
-                    if (pass.length < 6) {
-                        document.getElementById('errPassNueva').textContent = 'La contraseña debe tener al menos 6 caracteres.';
-                        valido = false;
-                    } else { document.getElementById('errPassNueva').textContent = ''; }
-
-                    if (pass !== confirm) {
-                        document.getElementById('errPassConfirmar').textContent = 'Las contraseñas no coinciden.';
-                        valido = false;
-                    } else { document.getElementById('errPassConfirmar').textContent = ''; }
-
-                    if (!valido) e.preventDefault();
-                });
+        //     if (!valido) e.preventDefault();
+        // });
 
         @if (reabrirCrear)
         {

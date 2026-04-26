@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using SportSkin.Application.Services.Interfaces;
 using SportSkin.Web.ViewModels;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace SportSkin.Web.Controllers
@@ -20,39 +21,37 @@ namespace SportSkin.Web.Controllers
         }
 
         // GET: Pago/PagoIndex
-        [Authorize(Roles = "Administrador,Comprador")]
+        [Authorize(Roles = "Comprador")]
         public async Task<IActionResult> PagoIndex()
         {
-            var sesionStr = HttpContext.Session.GetString("UsuarioSesion");
-            var sesion = sesionStr != null ? JObject.Parse(sesionStr) : null;
-            var rol = sesion != null ? (int?)sesion["IdRolUsuario"] : null;
-            var idUsuario = sesion != null ? (int?)sesion["IdUsuario"] : null;
+            int? idUsuario;
+
+            if (int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out int id))
+                idUsuario = id;
+            else
+                throw new Exception("Ha ocurrido un error al intentar obtener el Id del usuario en sesión.");
 
             // Vendedor no tiene acceso a pagos
-            if (rol == 2)
-            {
-                TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
-                    "Acceso denegado",
-                    "Los vendedores no tienen acceso al módulo de pagos.",
-                    SweetAlertMessageType.warning);
-                return RedirectToAction("HomeIndex", "Home");
-            }
+            //if (rol == 2)
+            //{
+            //    TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+            //        "Acceso denegado",
+            //        "Los vendedores no tienen acceso al módulo de pagos.",
+            //        SweetAlertMessageType.warning);
+            //    return RedirectToAction("HomeIndex", "Home");
+            //}
 
             var facturas = await _servicePago.ListAsync();
             var metodos = await _serviceMetodoPago.ListAsync();
             var subastasPendientes = await _servicePago.GetSubastasPendientesPagoAsync();
 
-            // Comprador (rol 3): filtra solo sus propios pagos y subastas pendientes
-            if (rol == 3 && idUsuario.HasValue)
-            {
-                facturas = facturas
-                    .Where(f => f.IdSubastaNavigation?.IdUsuarioComprador == idUsuario.Value)
-                    .ToList();
+            facturas = facturas
+                .Where(f => f.IdSubastaNavigation?.IdUsuarioComprador == idUsuario)
+                .ToList();
 
-                subastasPendientes = subastasPendientes
-                    .Where(s => s.IdUsuarioComprador == idUsuario.Value)
-                    .ToList();
-            }
+            subastasPendientes = subastasPendientes
+                .Where(s => s.IdUsuarioComprador == idUsuario)
+                .ToList();
 
             var pagos = facturas.Select(f =>
             {

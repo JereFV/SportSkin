@@ -7,6 +7,7 @@ using SportSkin.Application.DTOs;
 using SportSkin.Application.Services.Interfaces;
 using SportSkin.Web.ViewModels;
 using System.Globalization;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace SportSkin.Web.Controllers
@@ -44,9 +45,8 @@ namespace SportSkin.Web.Controllers
                 "sinsubasta" => await _serviceCamiseta.GetCamisetasSinSubasta(idUsuario),
                 _ => await _serviceCamiseta.ListAsyncByUser(idUsuario)
             };
-
-            //Lectura del usuario en un objeto dinámico de tipo JObject.
-            var usuarioSesion = JObject.Parse(HttpContext.Session.GetString("UsuarioSesion") ?? "");
+            
+            string nombreUsuarioSesion = User.FindFirst(ClaimTypes.Name)?.Value ?? "";
 
             //Creación de ViewModel general para la pantalla de camisetas.
             CamisetaViewModel camisetaViewModel = new()
@@ -56,7 +56,7 @@ namespace SportSkin.Web.Controllers
                 {
                     CategoriasCamiseta = categoriasCamiseta,
                     CondicionesCamiseta = condicionesCamiseta,
-                    NombreCompletoVendedor = $"{usuarioSesion["Nombre"]} {usuarioSesion["Apellido1"]} {usuarioSesion["Apellido2"]}"
+                    NombreCompletoVendedor = nombreUsuarioSesion
                 }
             };
 
@@ -129,12 +129,10 @@ namespace SportSkin.Web.Controllers
                 }
 
                 //Asignación del id del usuario en sesión como vendedor.
-                var usuarioSesion = JObject.Parse(HttpContext.Session.GetString("UsuarioSesion") ?? "");
-
-                if (int.TryParse(usuarioSesion["IdUsuario"]?.ToString(), out int idUsuario))
+                if (int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out int idUsuario))
                     model.CamisetaDTO.IdUsuarioVendedor = idUsuario;
                 else
-                    throw new Exception("Ha ocurrido al intentar obtener el Id del usuario en sesión.");
+                    throw new Exception("Ha ocurrido un error al intentar obtener el Id del usuario en sesión.");
 
                 //Asigna las categorias seleccionadas a partir del catálogo, aplicando un filtro.
                 model.CamisetaDTO.CategoriasCamiseta = (await _serviceCategoriaCamiseta.ListAsync())?.Where(x => model.CategoriasSeleccionadas.Contains(x.IdCategoriaCamiseta)).ToList() ?? [];
@@ -177,8 +175,7 @@ namespace SportSkin.Web.Controllers
             if (camiseta == null)
                 return NotFound();
 
-            //Lectura del usuario en un objeto dinámico de tipo JObject.
-            var usuarioSesion = JObject.Parse(HttpContext.Session.GetString("UsuarioSesion") ?? "");
+            string nombreUsuarioSesion = User.FindFirst(ClaimTypes.Name)?.Value ?? "";
 
             CreacionCamisetaViewModel camisetaViewModel = new()
             {
@@ -188,7 +185,7 @@ namespace SportSkin.Web.Controllers
                 JugadorAPIFootballJSON = JsonSerializer.Serialize(camiseta.JugadorNavigation),
                 CategoriasCamiseta = categoriasCamiseta,
                 CondicionesCamiseta = condicionesCamiseta,
-                NombreCompletoVendedor = $"{usuarioSesion["Nombre"]} {usuarioSesion["Apellido1"]} {usuarioSesion["Apellido2"]}"
+                NombreCompletoVendedor = nombreUsuarioSesion
             };
 
             //Obtención de imagenes en un Viewbag, con el formato manejado por FilePond.
@@ -275,16 +272,6 @@ namespace SportSkin.Web.Controllers
                 });
             }
         }
-
-        // GET: Camiseta/Delete/5      
-        //public async Task<IActionResult> Delete(int id)
-        //{
-        //    var camiseta = await _serviceCamiseta.FindByIdAsync(id);
-        //    if (camiseta == null)
-        //        return NotFound();
-
-        //    return View(camiseta);
-        //}
 
         // POST: Camiseta/Delete/5
         [HttpPost, ActionName("Delete")]

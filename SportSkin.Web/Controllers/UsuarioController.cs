@@ -26,14 +26,6 @@ namespace SportSkin.Web.Controllers
             _servicePreguntaRecuperacion = servicePreguntaRecuperacion;
         }
 
-        //Obtiene usuario en sesión
-        private int GetUsuarioSesionId()
-        {
-            var json = HttpContext.Session.GetString("UsuarioSesion") ?? "{}";
-            var obj = JObject.Parse(json);
-            return obj["IdUsuario"]?.Value<int>() ?? 0;
-        }
-
         // GET: UsuarioController
         [Authorize(Roles = "Administrador")]
         public async Task<ActionResult> UsuarioIndex()
@@ -327,7 +319,6 @@ namespace SportSkin.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> CambiarContrasenna(CambiarContrasennaViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -371,7 +362,11 @@ namespace SportSkin.Web.Controllers
                 });
             }
 
-            return RedirectToAction(nameof(UsuarioIndex));
+            //Si la funcionalidad es invocada desde el menú de nevagación redirreciona a la página principal, de lo contrario al listado de usuarios.
+            if (vm.EsOpcionNav)
+                return RedirectToAction("HomeIndex", "Home");
+            else
+                return RedirectToAction(nameof(UsuarioIndex));
         }
 
         [HttpGet]

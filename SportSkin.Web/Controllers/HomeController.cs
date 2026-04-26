@@ -27,19 +27,7 @@ namespace SportSkin.Web.Controllers
         public async Task<IActionResult> HomeIndex()
         {
             _logger.LogInformation("Entrando al método Index del HomeController");
-
-            object usuarioSesion;
-
-            //Estable el usuario como una variable de sesión estática, utilizando uno distinto según el navegador de la petición para simulación de concurrencia.
-            if (Request.Headers.UserAgent.ToString().Contains("Edg"))        
-                usuarioSesion = new { IdUsuario = 3, Nombre = "Carolina", Apellido1 = "Guerra", Apellido2 = "Nuñez", IdRolUsuario = 3 };
-            else if (Request.Headers.UserAgent.ToString().Contains("Firefox"))
-                usuarioSesion = new { IdUsuario = 1, Nombre = "Rodrigo", Apellido1 = "Herrera", Apellido2 = "Castillo", IdRolUsuario = 2 };
-            else
-                usuarioSesion = new { IdUsuario = 2, Nombre = "Jeremy", Apellido1 = "Fuentes", Apellido2 = "Venegas", IdRolUsuario = 1 };
-
-            HttpContext.Session.SetString("UsuarioSesion", JsonSerializer.Serialize(usuarioSesion));
-
+            
             var populares = await _serviceSubasta.GetSubastasMasPopularesAsync(3);
             var activas = await _serviceSubasta.GetSubastasActivasAsync(null, null);
             var camisetas = await _serviceCamiseta.ListAsync();

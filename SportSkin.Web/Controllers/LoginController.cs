@@ -36,6 +36,13 @@ namespace SportSkin.Web.Controllers
                         message = "Las credenciales ingresadas no corresponden a ningún usuario registrado. Por favor intente nuevamente."
                     });
 
+                if (!usuario.Estado)
+                    return Json(new
+                    {
+                        statusCode = "warning",
+                        message = "El usuario con el que se intenta acceder se encuentra deshabilitado. Por favor intente iniciar sesión con otro usuario."
+                    });
+
                 List<Claim> claims = new()
                 {
                     new Claim(ClaimTypes.Name, $"{usuario.Nombre} {usuario.Apellido1} {usuario.Apellido2}"),

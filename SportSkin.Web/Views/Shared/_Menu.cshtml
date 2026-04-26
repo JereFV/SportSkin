@@ -80,7 +80,7 @@
                     </li>
                 }
 
-                @* Pagos — Admin ve todos, Comprador solo los suyos *@
+                @* Pagos — solo Comprador *@
                 @if (rol == "Comprador")
                 {
                     <li class="nav-item">
@@ -111,7 +111,6 @@
                         </ul>
                     </li>
                 }
-
             </ul>
 
             <ul class="navbar-nav ms-auto">
@@ -135,7 +134,9 @@
                             </span>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" id="btnMiPerfil">Mi Perfil</a>
-                            <a class="dropdown-item" href="#" data-i18n="nav.changePassword"> </a>
+                            <a class="dropdown-item" href="#" data-i18n="nav.changePassword" id="btnCambiarClave"
+                               data-id="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value"
+                               data-nombre="@User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value"></a>
                             <a class="dropdown-item" asp-controller="Login" asp-action="LogOut" data-i18n="nav.logout" id="btnLogout"></a>
                         </div>
                     }                   
@@ -182,4 +183,17 @@
 
         new bootstrap.Modal(document.getElementById("modalEditarUsuario")).show();
     });
+
+     document.getElementById("btnCambiarClave")?.addEventListener("click", async function (e) {
+        document.getElementById('passIdUsuario').value = this.dataset.id;
+        document.getElementById('passNombreUsuario').textContent =  this.dataset.nombre;
+        document.getElementById('passNueva').value = '';
+        document.getElementById('passConfirmar').value = '';
+        document.getElementById('errPassNueva').textContent = '';
+        document.getElementById('errPassConfirmar').textContent = '';
+        //Invocación desde el menú de navegación.
+        document.getElementById('esOpcionNav').value = "true";
+
+        new bootstrap.Modal(document.getElementById('modalCambiarContrasena')).show();
+     });
 </script>

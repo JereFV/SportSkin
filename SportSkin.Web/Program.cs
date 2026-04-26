@@ -105,7 +105,7 @@ builder.Services.AddTransient<IRepositoryPuja, RepositoryPuja>();
 builder.Services.AddTransient<IRepositoryPago, RepositoryPago>();
 builder.Services.AddTransient<IRepositoryMetodoPago, RepositoryMetodoPago>();
 builder.Services.AddTransient<IRepositoryPreguntaRecuperacionUsuario, RepositoryPreguntaRecuperacionUsuario>();
-//builder.Services.AddScoped<IHistoryRepository, HistorialRepository>();
+builder.Services.AddScoped<IRepositoryHistorial, RepositoryHistorial>();
 //Controlador de transacciones en una unidad de trabajo.
 builder.Services.AddScoped<IUnitOfWork, UnitofWork>();
 
@@ -123,9 +123,7 @@ builder.Services.AddTransient<IServicePuja, ServicePuja>();
 builder.Services.AddTransient<IServicePago, ServicePago>();
 builder.Services.AddTransient<IServiceMetodoPago, ServiceMetodoPago>();
 builder.Services.AddTransient<IServicePreguntaRecuperacionUsuario, ServicePreguntaRecuperacionUsuario>();
-
-
-//builder.Services.AddScoped<IHistorialService, HistorialService>();
+builder.Services.AddScoped<IServiceHistorial, ServiceHistorial>();
 
 
 //Background Service

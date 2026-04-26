@@ -1,54 +1,48 @@
-//using SportSkin.Models.ViewModels;
-//using SportSkin.Repositories;
-//using System.Threading.Tasks;
+using SportSkin.Application.Services.Interfaces;
+using SportSkin.Infrastructure.Repository.Interfaces;
+using System.Threading.Tasks;
 
-//namespace SportSkin.Services
-//{
-//    public interface IHistorialService
-//    {
-//        Task<MiHistorialVM> GetHistorialCompradorAsync(int idUsuario);
-//        Task<MiHistorialVM> GetHistorialVendedorAsync(int idUsuario);
-//    }
+namespace SportSkin.Application.Services.Implementations{
 
-//    public class HistorialService : IHistorialService
-//    {
-//        private readonly IHistorialRepository _repo;
+    public class ServiceHistorial : IServiceHistorial
+    {
+        private readonly IRepositoryHistorial _repo;
 
-//        public HistorialService(IHistorialRepository repo)
-//        {
-//            _repo = repo;
-//        }
+        public ServiceHistorial(IRepositoryHistorial repo)
+        {
+            _repo = repo;
+        }
 
-//        public async Task<MiHistorialVM> GetHistorialCompradorAsync(int idUsuario)
-//        {
-//            var vm = new MiHistorialVM { Rol = "Comprador" };
+        public async Task<MiHistorialVM> GetHistorialCompradorAsync(int idUsuario)
+        {
+            var vm = new MiHistorialVM { Rol = "Comprador" };
 
-//            var tPujas   = _repo.GetPujasByUsuarioAsync(idUsuario);
-//            var tCompras = _repo.GetComprasByUsuarioAsync(idUsuario);
-//            var tPagos   = _repo.GetPagosByUsuarioAsync(idUsuario);
+            var tPujas = _repo.GetPujasByUsuarioAsync(idUsuario);
+            var tCompras = _repo.GetComprasByUsuarioAsync(idUsuario);
+            var tPagos = _repo.GetPagosByUsuarioAsync(idUsuario);
 
-//            await Task.WhenAll(tPujas, tCompras, tPagos);
+            await Task.WhenAll(tPujas, tCompras, tPagos);
 
-//            vm.Pujas   = tPujas.Result;
-//            vm.Compras = tCompras.Result;
-//            vm.Pagos   = tPagos.Result;
+            vm.Pujas = tPujas.Result;
+            vm.Compras = tCompras.Result;
+            vm.Pagos = tPagos.Result;
 
-//            return vm;
-//        }
+            return vm;
+        }
 
-//        public async Task<MiHistorialVM> GetHistorialVendedorAsync(int idUsuario)
-//        {
-//            var vm = new MiHistorialVM { Rol = "Vendedor" };
+        public async Task<MiHistorialVM> GetHistorialVendedorAsync(int idUsuario)
+        {
+            var vm = new MiHistorialVM { Rol = "Vendedor" };
 
-//            var tSubastas = _repo.GetSubastasByUsuarioAsync(idUsuario);
-//            var tVentas   = _repo.GetVentasByUsuarioAsync(idUsuario);
+            var tSubastas = _repo.GetSubastasByUsuarioAsync(idUsuario);
+            var tVentas = _repo.GetVentasByUsuarioAsync(idUsuario);
 
-//            await Task.WhenAll(tSubastas, tVentas);
+            await Task.WhenAll(tSubastas, tVentas);
 
-//            vm.Subastas = tSubastas.Result;
-//            vm.Ventas   = tVentas.Result;
+            vm.Subastas = tSubastas.Result;
+            vm.Ventas = tVentas.Result;
 
-//            return vm;
-//        }
-//    }
-//}
+            return vm;
+        }
+    }
+}

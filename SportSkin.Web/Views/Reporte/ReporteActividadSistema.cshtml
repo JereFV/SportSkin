@@ -149,19 +149,6 @@
             border-color: #dc3545 !important;
             box-shadow: 0 0 0 0.2rem rgba(220,53,69,.15);
         }
-        /* Indicador de rango */
-        #r4-range-info {
-            font-size: 0.75rem;
-            margin-top: 4px;
-        }
-
-            #r4-range-info.warn {
-                color: #fd7e14 !important;
-            }
-
-            #r4-range-info.ok {
-                color: #6c757d !important;
-            }
 
         @@media (max-width: 768px) {
             .chart-row {
@@ -202,7 +189,6 @@
                        class="form-control form-control-sm"
                        value="@haceUnAnio"
                        max="@hoy">
-                <div id="r4-range-info" class="ok mt-1">&nbsp;</div>
             </div>
 
             @* Fecha fin *@
@@ -360,13 +346,33 @@
         var r4Main  = null;
         var r4Line  = null;
         var r4Donut = null;
-        var HOY_STR = new Date().toISOString().split('T')[0];
+
+        // HOY calculado desde Razor (servidor) — sin desfase de zona horaria
+        var HOY_STR = '@DateTime.Now.ToString("yyyy-MM-dd")';
 
         document.getElementById('r4-gen-date').textContent =
             new Date().toLocaleDateString('es-CR');
         document.getElementById('r4-footer').textContent =
             'SportSkin \u2014 ' + new Date().toLocaleDateString('es-CR',
                 { year: 'numeric', month: 'long', day: 'numeric' });
+
+        // ══════════════════════════════════════════════════════
+        // PARSEO SEGURO DE FECHAS — evita desfase UTC
+        // "yyyy-MM-dd" → Date a medianoche local, no UTC
+        // ══════════════════════════════════════════════════════
+        function parsearFecha(str) {
+            if (!str) return null;
+            var partes = str.split('-');
+            // new Date(año, mes-1, día) usa hora local, no UTC
+            return new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
+        }
+
+        function fechaAStr(date) {
+            var anio = date.getFullYear();
+            var mes  = String(date.getMonth() + 1).padStart(2, '0');
+            var dia  = String(date.getDate()).padStart(2, '0');
+            return anio + '-' + mes + '-' + dia;
+        }
 
         // ══════════════════════════════════════════════════════
         // GRANULARIDAD
@@ -385,44 +391,29 @@
         }
 
         // ══════════════════════════════════════════════════════
-        // ACTUALIZAR INDICADOR DE RANGO
+        // LIMITAR EL MÁXIMO DE "HASTA" AL CAMBIAR "DESDE"
+        // Máximo = desde + 1 año, sin superar hoy
         // ══════════════════════════════════════════════════════
-        function actualizarInfoRango() {
-            var desdeStr = document.getElementById('r4-desde').value;
-            var hastaStr = document.getElementById('r4-hasta').value;
-            var info     = document.getElementById('r4-range-info');
-
-            if (!desdeStr || !hastaStr) { info.textContent = '\u00a0'; return; }
-
-            var desde = new Date(desdeStr + 'T00:00:00');
-            var hasta = new Date(hastaStr + 'T00:00:00');
-            if (hasta < desde) { info.textContent = '\u00a0'; return; }
-
-            var dias = Math.round((hasta - desde) / (1000 * 60 * 60 * 24));
-            var meses = (dias / 30).toFixed(1);
-
-            info.textContent = dias + ' d\u00edas (' + meses + ' meses)';
-            info.className   = dias > 300 ? 'warn mt-1' : 'ok mt-1';
-
-            // Limitar el máximo de "hasta" a 1 año desde el inicio
-            var tope = new Date(desde);
-            tope.setFullYear(desde.getFullYear() + 1);
-            var topeStr = tope.toISOString().split('T')[0];
-            var maxStr  = topeStr < HOY_STR ? topeStr : HOY_STR;
-            document.getElementById('r4-hasta').max = maxStr;
-        }
-
         document.getElementById('r4-desde').addEventListener('change', function() {
-            var hastaStr = document.getElementById('r4-hasta').value;
-            if (hastaStr && hastaStr < this.value) {
+            var desdeStr = this.value;
+            if (!desdeStr) return;
+
+            var desde = parsearFecha(desdeStr);
+
+            // Calcular tope: desde + 1 año
+            var tope = new Date(desde.getFullYear() + 1, desde.getMonth(), desde.getDate());
+            var topeStr = fechaAStr(tope);
+
+            // El máximo no puede superar hoy
+            var maxStr = topeStr < HOY_STR ? topeStr : HOY_STR;
+            document.getElementById('r4-hasta').max = maxStr;
+
+            // Si el "hasta" actual ya quedó fuera del nuevo rango, limpiarlo
+            var hastaActual = document.getElementById('r4-hasta').value;
+            if (hastaActual && hastaActual < desdeStr) {
                 document.getElementById('r4-hasta').value = '';
             }
-            actualizarInfoRango();
         });
-
-        document.getElementById('r4-hasta').addEventListener('change', actualizarInfoRango);
-
-        actualizarInfoRango(); // Inicializar con valores por defecto
 
         // ══════════════════════════════════════════════════════
         // VALIDACIÓN — función central
@@ -433,6 +424,7 @@
             var desdeStr   = inputDesde.value;
             var hastaStr   = inputHasta.value;
 
+            // Limpiar marcas de error previas
             inputDesde.classList.remove('is-invalid-date');
             inputHasta.classList.remove('is-invalid-date');
 
@@ -450,15 +442,15 @@
                 return false;
             }
 
-            var desde = new Date(desdeStr + 'T00:00:00');
-            var hasta = new Date(hastaStr + 'T00:00:00');
-            var hoy   = new Date(HOY_STR   + 'T00:00:00');
+            var desde = parsearFecha(desdeStr);
+            var hasta = parsearFecha(hastaStr);
+            var hoy   = parsearFecha(HOY_STR);
 
             // 2. Fecha inicio posterior a hoy
             if (desde > hoy) {
                 Swal.fire({
-                    title: 'Fecha inválida',
-                    text: 'La fecha de inicio no puede ser posterior al día de hoy.',
+                    title: 'Fecha inv\u00e1lida',
+                    text: 'La fecha de inicio no puede ser posterior al d\u00eda de hoy.',
                     icon: 'error',
                     confirmButtonColor: '#0d6efd',
                     confirmButtonText: 'Corregir'
@@ -470,7 +462,7 @@
             // 3. Fecha fin posterior a hoy
             if (hasta > hoy) {
                 Swal.fire({
-                    title: 'Fecha inválida',
+                    title: 'Fecha inv\u00e1lida',
                     html: 'La fecha de fin no puede ser posterior al d\u00eda de hoy.<br>' +
                           '<small class="text-muted">Se ajustar\u00e1 autom\u00e1ticamente a hoy.</small>',
                     icon: 'warning',
@@ -478,7 +470,6 @@
                     confirmButtonText: 'Aceptar ajuste'
                 }).then(function() {
                     inputHasta.value = HOY_STR;
-                    actualizarInfoRango();
                 });
                 inputHasta.classList.add('is-invalid-date');
                 return false;
@@ -500,12 +491,10 @@
             }
 
             // 5. Rango máximo 1 año
-            var unAnioEnMs = 365 * 24 * 60 * 60 * 1000;
-            if ((hasta - desde) > unAnioEnMs) {
-                var fechaTope     = new Date(desde);
-                fechaTope.setFullYear(desde.getFullYear() + 1);
-                var fechaTopeStr  = fechaTope.toISOString().split('T')[0];
-                var fechaTopeText = fechaTope.toLocaleDateString('es-CR',
+            var tope = new Date(desde.getFullYear() + 1, desde.getMonth(), desde.getDate());
+            if (hasta > tope) {
+                var fechaTopeStr  = fechaAStr(tope);
+                var fechaTopeText = tope.toLocaleDateString('es-CR',
                     { year: 'numeric', month: 'long', day: 'numeric' });
 
                 Swal.fire({
@@ -522,7 +511,6 @@
                 }).then(function(result) {
                     if (result.isConfirmed) {
                         inputHasta.value = fechaTopeStr;
-                        actualizarInfoRango();
                         ejecutarCarga(desdeStr, fechaTopeStr);
                     }
                 });
@@ -537,9 +525,10 @@
         // ══════════════════════════════════════════════════════
         function cargarReporte4() {
             if (!validarFiltros()) return;
-            var desdeStr = document.getElementById('r4-desde').value;
-            var hastaStr = document.getElementById('r4-hasta').value;
-            ejecutarCarga(desdeStr, hastaStr);
+            ejecutarCarga(
+                document.getElementById('r4-desde').value,
+                document.getElementById('r4-hasta').value
+            );
         }
 
         function ejecutarCarga(desdeStr, hastaStr) {
@@ -576,7 +565,7 @@
         }
 
         // ══════════════════════════════════════════════════════
-        // ACTUALIZAR MÉTRICAS
+        // MÉTRICAS
         // ══════════════════════════════════════════════════════
         function actualizarMetricas(data) {
             document.getElementById('m-creadas').textContent =
@@ -597,7 +586,6 @@
             var pujas       = periodos.map(function(p) { return p.pujasRealizadas; });
             var finalizadas = periodos.map(function(p) { return p.subastasFinalizadas; });
 
-            @* Barras agrupadas *@
             if (r4Main) r4Main.destroy();
             r4Main = new Chart(document.getElementById('r4-main-chart'), {
                 type: 'bar',
@@ -613,12 +601,8 @@
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { mode: 'index', intersect: false }
-                    },
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#6c757d' } },
                         y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' },
@@ -627,19 +611,15 @@
                 }
             });
 
-            @* Línea de tendencia *@
             if (r4Line) r4Line.destroy();
             r4Line = new Chart(document.getElementById('r4-line-chart'), {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Pujas',
-                        data: pujas,
-                        borderColor: '#fd7e14',
-                        backgroundColor: 'rgba(253,126,20,0.08)',
-                        fill: true, tension: 0.4,
-                        pointBackgroundColor: '#fd7e14',
+                        label: 'Pujas', data: pujas,
+                        borderColor: '#fd7e14', backgroundColor: 'rgba(253,126,20,0.08)',
+                        fill: true, tension: 0.4, pointBackgroundColor: '#fd7e14',
                         pointRadius: 4, pointHoverRadius: 6, borderWidth: 2
                     }]
                 },
@@ -654,7 +634,6 @@
                 }
             });
 
-            @* Donut finalización *@
             if (r4Donut) r4Donut.destroy();
             var totalCreadas = creadas.reduce(function(a, b) { return a + b; }, 0);
             var totalFin     = finalizadas.reduce(function(a, b) { return a + b; }, 0);
@@ -664,11 +643,8 @@
                 type: 'doughnut',
                 data: {
                     labels: ['Finalizadas', 'Activas / Canceladas'],
-                    datasets: [{
-                        data: [pct, 100 - pct],
-                        backgroundColor: ['#198754', '#e9ecef'],
-                        borderWidth: 0, hoverOffset: 4
-                    }]
+                    datasets: [{ data: [pct, 100 - pct],
+                        backgroundColor: ['#198754', '#e9ecef'], borderWidth: 0, hoverOffset: 4 }]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false, cutout: '72%',
@@ -682,20 +658,20 @@
                 plugins: [{
                     id: 'centerText',
                     afterDraw: function(chart) {
-                        var ctx2 = chart.ctx;
-                        var ca   = chart.chartArea;
-                        var cx   = (ca.left + ca.right) / 2;
-                        var cy   = (ca.top + ca.bottom) / 2;
-                        ctx2.save();
-                        ctx2.font = '500 26px sans-serif';
-                        ctx2.fillStyle = '#212529';
-                        ctx2.textAlign = 'center';
-                        ctx2.textBaseline = 'middle';
-                        ctx2.fillText(pct + '%', cx, cy - 4);
-                        ctx2.font = '400 10px sans-serif';
-                        ctx2.fillStyle = '#6c757d';
-                        ctx2.fillText('finalizaci\u00f3n', cx, cy + 16);
-                        ctx2.restore();
+                        var c  = chart.ctx;
+                        var ca = chart.chartArea;
+                        var cx = (ca.left + ca.right) / 2;
+                        var cy = (ca.top + ca.bottom) / 2;
+                        c.save();
+                        c.font = '500 26px sans-serif';
+                        c.fillStyle = '#212529';
+                        c.textAlign = 'center';
+                        c.textBaseline = 'middle';
+                        c.fillText(pct + '%', cx, cy - 4);
+                        c.font = '400 10px sans-serif';
+                        c.fillStyle = '#6c757d';
+                        c.fillText('finalizaci\u00f3n', cx, cy + 16);
+                        c.restore();
                     }
                 }]
             });
@@ -708,9 +684,7 @@
             var periodos = data.periodos || [];
             var tbody    = document.getElementById('r4-detail-tbody');
             if (!periodos.length) {
-                tbody.innerHTML =
-                    '<tr><td colspan="4" class="text-center text-muted py-3">' +
-                    'Sin datos para el periodo.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Sin datos para el periodo.</td></tr>';
                 return;
             }
             tbody.innerHTML = periodos.map(function(p) {

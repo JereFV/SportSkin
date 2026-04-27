@@ -10,10 +10,10 @@
     <div class="container-fluid px-1">
         <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="HomeIndex">
             <img src="~/images/SportSkinLogo.png"
-                 alt="SportSkin Logo"
-                 height="56"
-                 class="me-2"
-                 style="object-fit: contain;">
+            alt="SportSkin Logo"
+            height="56"
+            class="me-2"
+            style="object-fit: contain;">
             <span>SportSkin</span>
         </a>
 
@@ -23,7 +23,7 @@
                 @* Inicio — todos *@
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Home" asp-action="HomeIndex"
-                       data-i18n="nav.home"> </a>
+                    data-i18n="nav.home"> </a>
                 </li>
 
                 @* Camisetas — Vendedor *@
@@ -31,17 +31,17 @@
                 {
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Camiseta" asp-route-idUsuario="@idUsuario" asp-action="CamisetaIndex"
-                           data-i18n="nav.shirts"></a>
+                        data-i18n="nav.shirts"></a>
                     </li>
                 }
 
                 @* Subastas — Visible por todos los roles e invitados. *@
                 <li class="nav-item d-flex align-items-center dropdown">
                     <a class="nav-link pe-1"
-                       asp-controller="Subasta" asp-action="SubastaIndex"
-                       data-i18n="nav.auctions"></a>
+                    asp-controller="Subasta" asp-action="SubastaIndex"
+                    data-i18n="nav.auctions"></a>
                     <a class="nav-link ps-0 pe-2 dropdown-toggle dropdown-toggle-split"
-                       data-bs-toggle="dropdown" aria-expanded="false" href="#">
+                    data-bs-toggle="dropdown" aria-expanded="false" href="#">
                         <span class="visually-hidden">Toggle Dropdown</span>
                     </a>
                     <ul class="dropdown-menu">
@@ -74,13 +74,13 @@
                 {
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Usuario" asp-action="UsuarioIndex"
-                           data-i18n="nav.users"></a>
+                        data-i18n="nav.users"></a>
                     </li>
                 }
 
-                @* Pagos — solo Comprador *@
-                @if (rol == "Comprador")
-                {
+                @* Pagos — Comprador o Administrador*@
+                @if (rol == "Comprador" || rol == "Administrador")
+                    {
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Pago" asp-action="PagoIndex">
                             <span data-i18n="nav.payments"> </span>

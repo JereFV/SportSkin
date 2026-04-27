@@ -167,7 +167,7 @@
                                     <td>@c.FechaCompra.ToString("dd/MM/yyyy")</td>
                                     <td>@c.NombreVendedor</td>
                                     <td>
-                                        <span class="badge @(c.EstadoPago == "Pago" ? "bg-success" : "bg-warning")">
+                                        <span class="badge @(c.EstadoPago == "Pagado" ? "bg-success" : "bg-warning")">
                                             @c.EstadoPago
                                         </span>
                                     </td>
@@ -209,7 +209,7 @@
                                     <td><i class="bi bi-credit-card me-1"></i>@pg.MetodoPago</td>
                                     <td>@pg.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>
-                                        <span class="badge @(pg.Estado == "Pago" ? "bg-success" : "bg-warning")">
+                                        <span class="badge @(pg.Estado == "Pagado" ? "bg-success" : "bg-warning")">
                                             @pg.Estado
                                         </span>
                                     </td>
@@ -319,7 +319,7 @@
                                     <td>@v.FechaVenta.ToString("dd/MM/yyyy")</td>
                                     <td>@v.NombreComprador</td>
                                     <td>
-                                        <span class="badge @(v.EstadoPago == "Pago" ? "bg-success" : "bg-warning")">
+                                        <span class="badge @(v.EstadoPago == "Pagado" ? "bg-success" : "bg-warning")">
                                             @v.EstadoPago
                                         </span>
                                     </td>

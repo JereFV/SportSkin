@@ -1,15 +1,13 @@
-@* @* Views/Shared/_HistorialContenido.cshtml
-   Devuelto por HistorialController.GetHistorial() como PartialView.
-   Se inyecta en #historialContenido dentro de _ModalHistorial.cshtml
-*@
-@model SportSkin.Models.ViewModels.MiHistorialVM
+@using System.Globalization
+@model SportSkin.Web.ViewModels.MiHistorialVM
 
 @{
     bool esComprador = Model.Rol == "Comprador";
     bool esVendedor  = Model.Rol == "Vendedor";
+    var culturaUSD = new CultureInfo("en-US");
 }
 
-{{!-- Tabs --}}
+@* {{!-- Tabs --}} *@
 <ul class="nav nav-tabs px-3 pt-3" id="historialTabs" role="tablist">
 
     @if (esComprador)
@@ -63,7 +61,7 @@
     </li>
 </ul>
 
-{{!-- Contenido de tabs --}}
+@* {{!-- Contenido de tabs --}} *@
 <div class="tab-content p-3" id="historialTabsContent">
 
     @* ── COMPRADOR ─────────────────────────────────────────────────── *@
@@ -99,7 +97,7 @@
                                             <span class="fw-semibold">@p.NombreCamiseta</span>
                                         </div>
                                     </td>
-                                    <td class="fw-bold text-success">&#8353;@p.Monto.ToString("N2")</td>
+                                    <td class="fw-bold text-success">@p.Monto.ToString("C0", culturaUSD)</td>
                                     <td>@p.FechaPuja.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>
                                         @if (p.EstadoSubasta == "Activa")
@@ -118,7 +116,7 @@
                                         }
                                         else if (p.EsGanador)
                                         {
-                                            <span class="badge bg-warning text-dark">
+                                            <span class="badge bg-success">
                                                 <i class="bi bi-trophy-fill me-1"></i>Ganador
                                             </span>
                                         }
@@ -165,11 +163,11 @@
                                             <span class="fw-semibold">@c.NombreCamiseta</span>
                                         </div>
                                     </td>
-                                    <td class="fw-bold text-success">&#8353;@c.MontoTotal.ToString("N2")</td>
+                                    <td class="fw-bold text-success">@c.MontoTotal.ToString("C0", culturaUSD)</td>
                                     <td>@c.FechaCompra.ToString("dd/MM/yyyy")</td>
                                     <td>@c.NombreVendedor</td>
                                     <td>
-                                        <span class="badge @(c.EstadoPago == "Completado" ? "bg-success" : "bg-warning text-dark")">
+                                        <span class="badge @(c.EstadoPago == "Pago" ? "bg-success" : "bg-warning")">
                                             @c.EstadoPago
                                         </span>
                                     </td>
@@ -207,11 +205,11 @@
                                 <tr>
                                     <td><code class="small">@pg.NumeroReferencia</code></td>
                                     <td>@pg.NombreCamiseta</td>
-                                    <td class="fw-bold">&#8353;@pg.Monto.ToString("N2")</td>
+                                    <td class="fw-bold">@pg.Monto.ToString("C0", culturaUSD)</td>
                                     <td><i class="bi bi-credit-card me-1"></i>@pg.MetodoPago</td>
                                     <td>@pg.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>
-                                        <span class="badge @(pg.Estado == "Completado" ? "bg-success" : "bg-warning text-dark")">
+                                        <span class="badge @(pg.Estado == "Pago" ? "bg-success" : "bg-warning")">
                                             @pg.Estado
                                         </span>
                                     </td>
@@ -259,9 +257,9 @@
                                             <span class="fw-semibold">@s.NombreCamiseta</span>
                                         </div>
                                     </td>
-                                    <td>&#8353;@s.PrecioInicial.ToString("N2")</td>
+                                    <td>@s.PrecioInicial.ToString("C0", culturaUSD)</td>
                                     <td class="fw-bold text-success">
-                                        @(s.PrecioFinal.HasValue ? "&#8353;" + s.PrecioFinal.Value.ToString("N2") : "—")
+                                        @(s.PrecioFinal.HasValue ? "" + s.PrecioFinal.Value.ToString("C0", culturaUSD) : "—")
                                     </td>
                                     <td>@s.FechaInicio.ToString("dd/MM/yyyy")</td>
                                     <td>@s.FechaFin.ToString("dd/MM/yyyy")</td>
@@ -317,11 +315,11 @@
                                             <span class="fw-semibold">@v.NombreCamiseta</span>
                                         </div>
                                     </td>
-                                    <td class="fw-bold text-success">&#8353;@v.MontoTotal.ToString("N2")</td>
+                                    <td class="fw-bold text-success">@v.MontoTotal.ToString("C0", culturaUSD)</td>
                                     <td>@v.FechaVenta.ToString("dd/MM/yyyy")</td>
                                     <td>@v.NombreComprador</td>
                                     <td>
-                                        <span class="badge @(v.EstadoPago == "Completado" ? "bg-success" : "bg-warning text-dark")">
+                                        <span class="badge @(v.EstadoPago == "Pago" ? "bg-success" : "bg-warning")">
                                             @v.EstadoPago
                                         </span>
                                     </td>

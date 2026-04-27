@@ -8,11 +8,14 @@ using SportSkin.Application.DTOs;
 using SportSkin.Application.Profiles;
 using SportSkin.Application.Services.Implementations;
 using SportSkin.Application.Services.Interfaces;
+using SportSkin.Core.Interfaces;
 using SportSkin.Infrastructure.Data;
 using SportSkin.Infrastructure.FilesStorage.Implementations;
 using SportSkin.Infrastructure.FilesStorage.Interfaces;
+using SportSkin.Infrastructure.Repositories;
 using SportSkin.Infrastructure.Repository.Implementations;
 using SportSkin.Infrastructure.Repository.Interfaces;
+using SportSkin.Infrastructure.Services;
 using SportSkin.Infrastructure.Transactions.Implementations;
 using SportSkin.Infrastructure.Transactions.Interfaces;
 using SportSkin.Web.BackgroundServices;
@@ -105,7 +108,7 @@ builder.Services.AddTransient<IRepositoryPuja, RepositoryPuja>();
 builder.Services.AddTransient<IRepositoryPago, RepositoryPago>();
 builder.Services.AddTransient<IRepositoryMetodoPago, RepositoryMetodoPago>();
 builder.Services.AddTransient<IRepositoryPreguntaRecuperacionUsuario, RepositoryPreguntaRecuperacionUsuario>();
-builder.Services.AddScoped<IRepositoryHistorial, RepositoryHistorial>();
+builder.Services.AddTransient<IRepositoryHistorial, RepositoryHistorial>();
 //Controlador de transacciones en una unidad de trabajo.
 builder.Services.AddScoped<IUnitOfWork, UnitofWork>();
 
@@ -123,8 +126,7 @@ builder.Services.AddTransient<IServicePuja, ServicePuja>();
 builder.Services.AddTransient<IServicePago, ServicePago>();
 builder.Services.AddTransient<IServiceMetodoPago, ServiceMetodoPago>();
 builder.Services.AddTransient<IServicePreguntaRecuperacionUsuario, ServicePreguntaRecuperacionUsuario>();
-builder.Services.AddScoped<IServiceHistorial, ServiceHistorial>();
-
+builder.Services.AddTransient<IServiceHistorial, ServiceHistorial>();
 
 //Background Service
 builder.Services.AddSingleton<SubastaBackgroundService>();

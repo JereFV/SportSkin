@@ -1,48 +1,61 @@
-using SportSkin.Application.Services.Interfaces;
+using AutoMapper;
+using Azure;
+using Microsoft.EntityFrameworkCore;
+using SportSkin.Application.DTOs;
+using SportSkin.Core.Interfaces;
+using SportSkin.Infrastructure.Data;
+using SportSkin.Infrastructure.Models;
 using SportSkin.Infrastructure.Repository.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace SportSkin.Application.Services.Implementations{
-
+namespace SportSkin.Infrastructure.Services
+{
     public class ServiceHistorial : IServiceHistorial
     {
         private readonly IRepositoryHistorial _repo;
+        private readonly SportSkinContext _context;
+        private readonly IMapper _mapper;
 
-        public ServiceHistorial(IRepositoryHistorial repo)
+        public ServiceHistorial(IRepositoryHistorial repo, SportSkinContext context, IMapper mapper)
         {
             _repo = repo;
+            _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<MiHistorialVM> GetHistorialCompradorAsync(int idUsuario)
+        public async Task<List<PujaDTO>> GetPujasCompradorAsync(int idUsuario)
         {
-            var vm = new MiHistorialVM { Rol = "Comprador" };
+            var pujas = await _repo.GetPujasByUsuarioAsync(idUsuario);
 
-            var tPujas = _repo.GetPujasByUsuarioAsync(idUsuario);
-            var tCompras = _repo.GetComprasByUsuarioAsync(idUsuario);
-            var tPagos = _repo.GetPagosByUsuarioAsync(idUsuario);
+            return _mapper.Map<List<PujaDTO>>(pujas);
+        }          
 
-            await Task.WhenAll(tPujas, tCompras, tPagos);
-
-            vm.Pujas = tPujas.Result;
-            vm.Compras = tCompras.Result;
-            vm.Pagos = tPagos.Result;
-
-            return vm;
-        }
-
-        public async Task<MiHistorialVM> GetHistorialVendedorAsync(int idUsuario)
+        public async Task<List<FacturaDTO>> GetFacturasCompradorAsync(int idUsuario)
         {
-            var vm = new MiHistorialVM { Rol = "Vendedor" };
+            var facturas = await _repo.GetPagosByUsuarioAsync(idUsuario);
 
-            var tSubastas = _repo.GetSubastasByUsuarioAsync(idUsuario);
-            var tVentas = _repo.GetVentasByUsuarioAsync(idUsuario);
+            return _mapper.Map<List<FacturaDTO>>(facturas);
+        }        
 
-            await Task.WhenAll(tSubastas, tVentas);
+        public async Task<List<SubastaDTO>> GetSubastasVendedorAsync(int idUsuario)
+        {
+            var subastas = await _repo.GetSubastasByUsuarioAsync(idUsuario);
 
-            vm.Subastas = tSubastas.Result;
-            vm.Ventas = tVentas.Result;
+            return _mapper.Map<List<SubastaDTO>>(subastas);
+        }           
 
-            return vm;
+        public async Task<List<FacturaDTO>> GetVentasVendedorAsync(int idUsuario)
+        {
+            var ventas = await _repo.GetVentasVendedorAsync(idUsuario);
+
+            return _mapper.Map<List<FacturaDTO>>(ventas);
         }
+
+        public async Task<Dictionary<int, int>> GetMaxMontosFinalizadasAsync(int idUsuario)
+        {
+           return await _repo.GetMaxMontoSubastasFinalizadasAsync(idUsuario);           
+        }            
     }
 }

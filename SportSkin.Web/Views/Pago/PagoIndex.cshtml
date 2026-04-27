@@ -1,4 +1,5 @@
 ﻿@using System.Globalization
+@using System.Security.Claims
 @model SportSkin.Web.ViewModels.PagoIndexViewModel
 @{
     ViewData["Title"] = "Gestión de Pagos";
@@ -45,7 +46,7 @@
         </h1>
         <p class="text-muted mb-0">Registro y confirmación de pagos de subastas</p>
     </div>
-    @if (Model.SubastasPendientes.Any())
+    @if (Model.SubastasPendientes.Any() && User.FindFirst(ClaimTypes.Role)?.Value == "Comprador")
     {
         <button type="button"
                 class="btn btn-primary"

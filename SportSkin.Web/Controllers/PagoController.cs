@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using SportSkin.Application.Services.Interfaces;
+using SportSkin.Infrastructure.Models;
 using SportSkin.Web.ViewModels;
 using System.Security.Claims;
 using System.Text.Json;
@@ -21,7 +22,7 @@ namespace SportSkin.Web.Controllers
         }
 
         // GET: Pago/PagoIndex
-        [Authorize(Roles = "Comprador")]
+        [Authorize(Roles = "Comprador, Administrador")]
         public async Task<IActionResult> PagoIndex()
         {
             int? idUsuario;
@@ -31,27 +32,21 @@ namespace SportSkin.Web.Controllers
             else
                 throw new Exception("Ha ocurrido un error al intentar obtener el Id del usuario en sesión.");
 
-            // Vendedor no tiene acceso a pagos
-            //if (rol == 2)
-            //{
-            //    TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
-            //        "Acceso denegado",
-            //        "Los vendedores no tienen acceso al módulo de pagos.",
-            //        SweetAlertMessageType.warning);
-            //    return RedirectToAction("HomeIndex", "Home");
-            //}
-
             var facturas = await _servicePago.ListAsync();
             var metodos = await _serviceMetodoPago.ListAsync();
             var subastasPendientes = await _servicePago.GetSubastasPendientesPagoAsync();
 
-            facturas = facturas
+            // Vendedor no tiene acceso a pagos
+            if (User.FindFirst(ClaimTypes.Role)?.Value == "Comprador")
+            {
+                facturas = facturas
                 .Where(f => f.IdSubastaNavigation?.IdUsuarioComprador == idUsuario)
                 .ToList();
 
-            subastasPendientes = subastasPendientes
-                .Where(s => s.IdUsuarioComprador == idUsuario)
-                .ToList();
+                subastasPendientes = subastasPendientes
+                    .Where(s => s.IdUsuarioComprador == idUsuario)
+                    .ToList();
+            }        
 
             var pagos = facturas.Select(f =>
             {

@@ -356,14 +356,9 @@
             'SportSkin \u2014 ' + new Date().toLocaleDateString('es-CR',
                 { year: 'numeric', month: 'long', day: 'numeric' });
 
-        // ══════════════════════════════════════════════════════
-        // PARSEO SEGURO DE FECHAS — evita desfase UTC
-        // "yyyy-MM-dd" → Date a medianoche local, no UTC
-        // ══════════════════════════════════════════════════════
         function parsearFecha(str) {
             if (!str) return null;
             var partes = str.split('-');
-            // new Date(año, mes-1, día) usa hora local, no UTC
             return new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
         }
 
